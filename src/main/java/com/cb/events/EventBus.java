@@ -12,7 +12,6 @@ import java.util.Map.Entry;
 import kotlin.Metadata;
 import kotlin.Unit;
 import kotlin.collections.ArraysKt;
-import kotlin.collections.CollectionsKt;
 import kotlin.jvm.JvmField;
 import kotlin.jvm.JvmStatic;
 import kotlin.jvm.functions.Function1;
@@ -113,11 +112,9 @@ public final class EventBus {
    public final void unsubscribe(@NotNull Object subscriber) {
       Intrinsics.checkNotNullParameter(subscriber, "subscriber");
       if (activeSubscribers.remove(subscriber)) {
-         Class var10000 = subscriberClasses.remove(subscriber);
-         if (var10000 != null) {
-            Class it = var10000;
-            int var3/* $VF was: $i$a$-let-EventBus$unsubscribe$1 */ = 0;
-            INSTANCE.rebuildAffectedCaches(it);
+         Class<?> subscriberClass = subscriberClasses.remove(subscriber);
+         if (subscriberClass != null) {
+            INSTANCE.rebuildAffectedCaches(subscriberClass);
          }
       }
    }
@@ -126,27 +123,16 @@ public final class EventBus {
    public static final <T extends Event> void post(@NotNull T event) {
       Intrinsics.checkNotNullParameter(event, "event");
       Class eventClass = event.getClass();
-      EventBus.Invoker var10000 = invokers.get(eventClass);
-      if (var10000 != null) {
-         EventBus.Invoker invoker = var10000;
-         ProfilerFiller var13 = Profiler.get();
-         Intrinsics.checkNotNullExpressionValue(var13, "get(...)");
-         ProfilerFiller profiler = var13;
-         Map $this$getOrPut$iv = profilerNameCache;
-         Object key$iv = eventClass;
-         int $i$f$getOrPut = 0;
-         Object value$iv = $this$getOrPut$iv.get(key$iv);
-         Object var14;
-         if (value$iv == null) {
-            int var9/* $VF was: $i$a$-getOrPut-EventBus$post$profilerName$1 */ = 0;
-            Object answer$iv = "CB: " + eventClass.getSimpleName();
-            $this$getOrPut$iv.put(key$iv, answer$iv);
-            var14 = answer$iv;
-         } else {
-            var14 = value$iv;
+      EventBus.Invoker invoker = invokers.get(eventClass);
+      if (invoker != null) {
+         ProfilerFiller profiler = Profiler.get();
+         Intrinsics.checkNotNullExpressionValue(profiler, "get(...)");
+         String profilerName = profilerNameCache.get(eventClass);
+         if (profilerName == null) {
+            profilerName = "CB: " + eventClass.getSimpleName();
+            profilerNameCache.put(eventClass, profilerName);
          }
 
-         String profilerName = (String)var14;
          profiler.push(profilerName);
 
          try {
@@ -163,62 +149,43 @@ public final class EventBus {
       Intrinsics.checkNotNullParameter(subscriberClass, "subscriberClass");
       Intrinsics.checkNotNullParameter(eventClass, "eventClass");
       Intrinsics.checkNotNullParameter(handler, "handler");
-      CharSequence entry = subscriberClass.getSimpleName();
-      CharSequence var10000;
-      if (entry.length() == 0) {
-         int var8/* $VF was: $i$a$-ifEmpty-EventBus$registerListener$name$1 */ = 0;
-         var10000 = subscriberClass.getName();
+      CharSequence simpleName = subscriberClass.getSimpleName();
+      CharSequence resolvedName;
+      if (simpleName.length() == 0) {
+         resolvedName = subscriberClass.getName();
       } else {
-         var10000 = entry;
+         resolvedName = simpleName;
       }
 
-      String name = (String)var10000;
+      String name = (String)resolvedName;
       Intrinsics.checkNotNull(name);
-      EventBus.ListenerEntry entryx = new EventBus.ListenerEntry(subscriberClass, new EventBus.EventListener<>(priority, ignoreCancelled, name, handler));
-      EventBus.ListenerEntry[] var17 = listenerArrays.get(eventClass);
-      if (var17 == null) {
-         var17 = new EventBus.ListenerEntry[0];
+      EventBus.ListenerEntry newEntry = new EventBus.ListenerEntry(subscriberClass, new EventBus.EventListener<>(priority, ignoreCancelled, name, handler));
+      EventBus.ListenerEntry[] existingListeners = listenerArrays.get(eventClass);
+      if (existingListeners == null) {
+         existingListeners = new EventBus.ListenerEntry[0];
       }
 
-      EventBus.ListenerEntry[] existing = var17;
-      Object[] $this$sortedByDescending$iv = ArraysKt.plus(existing, entryx);
-      int $i$f$sortedByDescending = 0;
-      Collection var15 = ArraysKt.sortedWith((Object[])$this$sortedByDescending$iv, new EventBus$registerListener$$inlined$sortedByDescending$1<>());
-      $i$f$sortedByDescending = 0;
-      Collection thisCollection$iv = var15;
-      EventBus.ListenerEntry[] newArray = (EventBus.ListenerEntry[])thisCollection$iv.toArray(new EventBus.ListenerEntry[0]);
+      Object[] combined = ArraysKt.plus(existingListeners, newEntry);
+      Collection sorted = ArraysKt.sortedWith((Object[])combined, new EventBus$registerListener$$inlined$sortedByDescending$1<>());
+      EventBus.ListenerEntry[] newArray = (EventBus.ListenerEntry[])sorted.toArray(new EventBus.ListenerEntry[0]);
       listenerArrays.put(eventClass, newArray);
       this.rebuildInvoker(eventClass, newArray);
    }
 
    private final void rebuildAffectedCaches(Class<?> changedClass) {
-      for (Entry var3 : listenerArrays.entrySet()) {
-         Class eventClass = (Class)var3.getKey();
-         EventBus.ListenerEntry[] listeners = (EventBus.ListenerEntry[])var3.getValue();
-         Object[] $this$any$iv = listeners;
-         int $i$f$any = 0;
-         int var8 = 0;
-         int var9 = $this$any$iv.length;
+      for (Entry<Class<? extends Event>, EventBus.ListenerEntry<? extends Event>[]> entry : listenerArrays.entrySet()) {
+         Class<? extends Event> eventClass = entry.getKey();
+         EventBus.ListenerEntry<? extends Event>[] listeners = entry.getValue();
+         boolean hasSubscriber = false;
 
-         boolean var10000;
-         while (true) {
-            if (var8 >= var9) {
-               var10000 = false;
+         for (EventBus.ListenerEntry<? extends Event> listener : listeners) {
+            if (Intrinsics.areEqual(listener.getSubscriber(), changedClass)) {
+               hasSubscriber = true;
                break;
             }
-
-            Object element$iv = $this$any$iv[var8];
-            EventBus.ListenerEntry it = (EventBus.ListenerEntry)element$iv;
-            int var12/* $VF was: $i$a$-any-EventBus$rebuildAffectedCaches$1 */ = 0;
-            if (Intrinsics.areEqual(it.getSubscriber(), changedClass)) {
-               var10000 = true;
-               break;
-            }
-
-            var8++;
          }
 
-         if (var10000) {
+         if (hasSubscriber) {
             this.rebuildInvoker(eventClass, listeners);
          }
       }
@@ -229,42 +196,16 @@ public final class EventBus {
          invokers.put(eventClass, EventBus.EmptyInvoker.INSTANCE);
       } else {
          Collection activeClasses = subscriberClasses.values();
-         EventBus.ListenerEntry[] $this$toTypedArray$iv = allListeners;
-         int $i$f$filter = 0;
-         EventBus.ListenerEntry[] thisCollection$iv = $this$toTypedArray$iv;
-         var destination$iv$iv = new ArrayList();
-         int $i$f$filterTo = 0;
-         int var10 = 0;
+         List activeListeners = new ArrayList();
 
-         for (int item$iv$iv = thisCollection$iv.length; var10 < item$iv$iv; var10++) {
-            Object element$iv$iv = thisCollection$iv[var10];
-            EventBus.ListenerEntry it = (EventBus.ListenerEntry)element$iv$iv;
-            int var14/* $VF was: $i$a$-filter-EventBus$rebuildInvoker$activeListeners$1 */ = 0;
-            if (activeClasses.contains(it.getSubscriber())) {
-               destination$iv$iv.add(element$iv$iv);
+         for (EventBus.ListenerEntry<?> listener : allListeners) {
+            if (activeClasses.contains(listener.getSubscriber())) {
+               activeListeners.add(listener.getListener());
             }
          }
 
-         var var16 = (Iterable & List)destination$iv$iv;
-         $i$f$filter = 0;
-         Iterable var20 = var16;
-         destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault(var16, 10));
-         $i$f$filterTo = 0;
-
-         for (Object item$iv$iv : var20) {
-            EventBus.ListenerEntry var26 = (EventBus.ListenerEntry)item$iv$iv;
-            Collection var15 = destination$iv$iv;
-            int var27/* $VF was: $i$a$-map-EventBus$rebuildInvoker$activeListeners$2 */ = 0;
-            EventBus.EventListener var10000 = var26.getListener();
-            Intrinsics.checkNotNull(var10000, "null cannot be cast to non-null type com.cb.events.EventBus.EventListener<com.cb.events.Event>");
-            var15.add(var10000);
-         }
-
-         var var17 = (Collection & List)destination$iv$iv;
-         $i$f$filter = 0;
-         Collection thisCollection$ivx = var17;
-         EventBus.EventListener[] activeListeners = (EventBus.EventListener[])thisCollection$ivx.toArray(new EventBus.EventListener[0]);
-         invokers.put(eventClass, activeListeners.length == 0 ? EventBus.EmptyInvoker.INSTANCE : EventBus.InvokerFactory.INSTANCE.build(activeListeners));
+         EventBus.EventListener[] invokersArray = (EventBus.EventListener[])activeListeners.toArray(new EventBus.EventListener[0]);
+         invokers.put(eventClass, invokersArray.length == 0 ? EventBus.EmptyInvoker.INSTANCE : EventBus.InvokerFactory.INSTANCE.build(invokersArray));
       }
    }
 
@@ -391,7 +332,7 @@ public final class EventBus {
       }
    )
    public interface Invoker {
-      void invoke(@NotNull Event var1, @NotNull ProfilerFiller var2);
+      void invoke(@NotNull Event event, @NotNull ProfilerFiller profiler);
    }
 
    @Metadata(
@@ -426,11 +367,7 @@ public final class EventBus {
             public void invoke(Event event, ProfilerFiller profiler) {
                Intrinsics.checkNotNullParameter(event, "event");
                Intrinsics.checkNotNullParameter(profiler, "profiler");
-               EventBus.EventListener[] var3 = listeners;
-               int var4 = 0;
-
-               for (int var5 = var3.length; var4 < var5; var4++) {
-                  EventBus.EventListener listener = var3[var4];
+               for (EventBus.EventListener listener : listeners) {
                   profiler.push(listener.getSubscriberName());
 
                   try {
@@ -534,10 +471,10 @@ public final class EventBus {
       public boolean equals(@Nullable Object other) {
          if (this == other) {
             return true;
-         } else if (!(other instanceof EventBus.ListenerEntry var2)) {
+         } else if (!(other instanceof EventBus.ListenerEntry entry)) {
             return false;
          } else {
-            return !Intrinsics.areEqual(this.subscriber, var2.subscriber) ? false : Intrinsics.areEqual(this.listener, var2.listener);
+            return !Intrinsics.areEqual(this.subscriber, entry.subscriber) ? false : Intrinsics.areEqual(this.listener, entry.listener);
          }
       }
    }

@@ -25,31 +25,31 @@ public final class EventDispatcher {
    }
 
    public final void init() {
-      ClientPlayConnectionEvents.JOIN.register(EventDispatcher::init$lambda$0);
-      ClientPlayConnectionEvents.DISCONNECT.register(EventDispatcher::init$lambda$1);
-      ClientTickEvents.START_LEVEL_TICK.register(EventDispatcher::init$lambda$2);
-      ClientTickEvents.END_LEVEL_TICK.register(EventDispatcher::init$lambda$3);
+      ClientPlayConnectionEvents.JOIN.register(EventDispatcher::onJoin);
+      ClientPlayConnectionEvents.DISCONNECT.register(EventDispatcher::onDisconnect);
+      ClientTickEvents.START_LEVEL_TICK.register(EventDispatcher::onStartLevelTick);
+      ClientTickEvents.END_LEVEL_TICK.register(EventDispatcher::onEndLevelTick);
    }
 
-   private static final void init$lambda$0(ClientPacketListener var0, PacketSender var1, Minecraft var2) {
-      Intrinsics.checkNotNullParameter(var0, "<unused var>");
-      Intrinsics.checkNotNullParameter(var1, "<unused var>");
-      Intrinsics.checkNotNullParameter(var2, "<unused var>");
+   private static final void onJoin(ClientPacketListener listener, PacketSender sender, Minecraft client) {
+      Intrinsics.checkNotNullParameter(listener, "<unused var>");
+      Intrinsics.checkNotNullParameter(sender, "<unused var>");
+      Intrinsics.checkNotNullParameter(client, "<unused var>");
       WorldEvent.Load.INSTANCE.postAndCatch();
    }
 
-   private static final void init$lambda$1(ClientPacketListener var0, Minecraft var1) {
-      Intrinsics.checkNotNullParameter(var0, "<unused var>");
-      Intrinsics.checkNotNullParameter(var1, "<unused var>");
+   private static final void onDisconnect(ClientPacketListener listener, Minecraft client) {
+      Intrinsics.checkNotNullParameter(listener, "<unused var>");
+      Intrinsics.checkNotNullParameter(client, "<unused var>");
       WorldEvent.Unload.INSTANCE.postAndCatch();
    }
 
-   private static final void init$lambda$2(ClientLevel world) {
+   private static final void onStartLevelTick(ClientLevel world) {
       Intrinsics.checkNotNullParameter(world, "world");
       new TickEvent.Start(world).postAndCatch();
    }
 
-   private static final void init$lambda$3(ClientLevel world) {
+   private static final void onEndLevelTick(ClientLevel world) {
       Intrinsics.checkNotNullParameter(world, "world");
       new TickEvent.End(world).postAndCatch();
    }

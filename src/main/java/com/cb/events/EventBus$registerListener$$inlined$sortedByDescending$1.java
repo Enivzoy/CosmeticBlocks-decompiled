@@ -12,12 +12,8 @@ import kotlin.jvm.internal.SourceDebugExtension;
 public final class EventBus$registerListener$$inlined$sortedByDescending$1<T> implements Comparator {
    @Override
    public final int compare(Object a, Object b) {
-      EventBus.ListenerEntry it = (EventBus.ListenerEntry)b;
-      int var4/* $VF was: $i$a$-sortedByDescending-EventBus$registerListener$newArray$1 */ = 0;
-      Comparable var10000 = it.getListener().getPriority();
-      it = (EventBus.ListenerEntry)a;
-      Comparable var5 = var10000;
-      var4/* $VF was: $i$a$-sortedByDescending-EventBus$registerListener$newArray$1 */ = 0;
-      return ComparisonsKt.compareValues(var5, it.getListener().getPriority());
+      EventBus.ListenerEntry entryA = (EventBus.ListenerEntry)a;
+      EventBus.ListenerEntry entryB = (EventBus.ListenerEntry)b;
+      return ComparisonsKt.compareValues(entryB.getListener().getPriority(), entryA.getListener().getPriority());
    }
 }

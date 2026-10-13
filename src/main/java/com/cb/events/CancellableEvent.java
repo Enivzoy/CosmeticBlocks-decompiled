@@ -1,9 +1,6 @@
 package com.cb.events;
 
 import kotlin.Metadata;
-import kotlin.Result;
-import kotlin.ResultKt;
-import kotlin.Unit;
 
 @Metadata(
    mv = {2, 3, 0},
@@ -38,18 +35,10 @@ public abstract class CancellableEvent implements Event {
 
    @Override
    public boolean postAndCatch() {
-      Object result;
       try {
          EventBus.post(this);
-         result = Unit.INSTANCE;
-      } catch (Throwable var5) {
-         result = ResultKt.createFailure(var5);
-      }
-
-      Throwable var10000 = result instanceof Result.Failure ? ((Result.Failure)result).exception : null;
-      if (var10000 != null) {
-         Throwable it = var10000;
-         it.printStackTrace();
+      } catch (Throwable throwable) {
+         throwable.printStackTrace();
       }
 
       return this.isCancelled;
