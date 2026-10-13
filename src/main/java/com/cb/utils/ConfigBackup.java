@@ -8,9 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import kotlin.Metadata;
-import kotlin.Unit;
 import kotlin.io.ByteStreamsKt;
-import kotlin.io.CloseableKt;
 import kotlin.io.FilesKt;
 import kotlin.jvm.internal.Intrinsics;
 import kotlin.jvm.internal.SourceDebugExtension;
@@ -58,74 +56,45 @@ public final class ConfigBackup {
          return "No CB configs found";
       }
 
-      File[] var10000 = cbDir.listFiles(ConfigBackup::backup$lambda$0);
-      if (var10000 == null) {
+      File[] files = cbDir.listFiles(ConfigBackup::isJsonFile);
+      if (files == null || files.length == 0) {
          return "No CB configs found";
       }
 
-      File[] files = var10000;
-      if (files.length == 0) {
-         return "No CB configs found";
-      }
-
-      String timestamp;
+      String message;
       try {
          if (!backupDir.exists()) {
             backupDir.mkdirs();
          }
 
-         timestamp = LocalDateTime.now().format(timestampFormat);
+         String timestamp = LocalDateTime.now().format(timestampFormat);
          File zipFile = new File(backupDir, "cb_backup_" + timestamp + ".zip");
-         var var4 = new ZipOutputStream(new FileOutputStream(zipFile));
-         Throwable var5 = null;
 
-         try {
-            ZipOutputStream zos = var4;
-            int var7/* $VF was: $i$a$-use-ConfigBackup$backup$1 */ = 0;
-            int var8 = 0;
-
-            for (int var9 = files.length; var8 < var9; var8++) {
-               File file = files[var8];
-
+         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile))) {
+            for (File file : files) {
                try {
                   zos.putNextEntry(new ZipEntry(file.getName()));
                   Intrinsics.checkNotNull(file);
-                  var var11 = new FileInputStream(file);
-                  Throwable var12 = null;
 
-                  try {
-                     FileInputStream it = var11;
-                     int var15/* $VF was: $i$a$-use-ConfigBackup$backup$1$1 */ = 0;
-                     long var36 = ByteStreamsKt.copyTo(it, zos, 8192);
-                  } catch (Throwable var28) {
-                     var12 = var28;
-                     throw var28;
-                  } finally {
-                     CloseableKt.closeFinally(var11, var12);
+                  try (FileInputStream input = new FileInputStream(file)) {
+                     ByteStreamsKt.copyTo(input, zos, 8192);
                   }
 
                   zos.closeEntry();
-               } catch (Exception var30) {
+               } catch (Exception ignored) {
                }
             }
-
-            Unit var35 = Unit.INSTANCE;
-         } catch (Throwable var31) {
-            var5 = var31;
-            throw var31;
-         } finally {
-            CloseableKt.closeFinally(var4, var5);
          }
 
-         timestamp = "Backup saved: cb_backup_" + timestamp + ".zip (" + files.length + " configs)";
+         message = "Backup saved: cb_backup_" + timestamp + ".zip (" + files.length + " configs)";
       } catch (Exception e) {
-         timestamp = "Backup failed: " + e.getMessage();
+         message = "Backup failed: " + e.getMessage();
       }
 
-      return timestamp;
+      return message;
    }
 
-   private static final boolean backup$lambda$0(File f) {
+   private static final boolean isJsonFile(File f) {
       if (f.isFile()) {
          Intrinsics.checkNotNull(f);
          if (Intrinsics.areEqual(FilesKt.getExtension(f), "json")) {

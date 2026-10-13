@@ -1,5 +1,6 @@
 package com.cb.render;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -7,10 +8,7 @@ import kotlin.Metadata;
 import kotlin.Unit;
 import kotlin.enums.EnumEntries;
 import kotlin.io.ByteStreamsKt;
-import kotlin.io.CloseableKt;
-import kotlin.jdk7.AutoCloseableKt;
 import kotlin.jvm.functions.Function0;
-import kotlin.jvm.internal.InlineMarker;
 import kotlin.jvm.internal.Intrinsics;
 import kotlin.jvm.internal.SourceDebugExtension;
 import kotlin.ranges.RangesKt;
@@ -233,9 +231,7 @@ public final class NVGRenderer {
       try {
          ctx = NanoVGGL3.nvgCreate(1);
          if (ctx == 0L) {
-            int var7/* $VF was: $i$a$-check-NVGRenderer$ensureInitialized$1 */ = 0;
-            String var8 = "nvgCreate returned 0";
-            throw new IllegalStateException(var8.toString());
+            throw new IllegalStateException("nvgCreate returned 0");
          }
 
          for (NVGRenderer.Font font : NVGRenderer.Font.getEntries()) {
@@ -243,9 +239,7 @@ public final class NVGRenderer {
             fontBuffers.add(data);
             int handle = NanoVG.nvgCreateFontMem(ctx, font.getId(), data, false);
             if (handle == -1) {
-               int var5/* $VF was: $i$a$-check-NVGRenderer$ensureInitialized$2 */ = 0;
-               String var9 = "failed to register font " + font.getId();
-               throw new IllegalStateException(var9.toString());
+               throw new IllegalStateException("failed to register font " + font.getId());
             }
          }
 
@@ -259,33 +253,20 @@ public final class NVGRenderer {
       }
    }
 
-   private final ByteBuffer loadResource(String path) {
-      InputStream var10000 = NVGRenderer.class.getResourceAsStream(path);
-      if (var10000 != null) {
-         var var3 = var10000;
-         Throwable var4 = null;
-
-         byte[] var11;
-         try {
-            InputStream it = var3;
-            int var6/* $VF was: $i$a$-use-NVGRenderer$loadResource$bytes$1 */ = 0;
-            var11 = ByteStreamsKt.readBytes(it);
-         } catch (Throwable var9) {
-            var4 = var9;
-            throw var9;
-         } finally {
-            CloseableKt.closeFinally(var3, var4);
+   private final ByteBuffer loadResource(String path) throws IOException {
+      InputStream input = NVGRenderer.class.getResourceAsStream(path);
+      if (input != null) {
+         byte[] bytes;
+         try (InputStream in = input) {
+            bytes = ByteStreamsKt.readBytes(in);
          }
 
-         if (var11 != null) {
-            byte[] bytes = var11;
-            ByteBuffer var12 = MemoryUtil.memAlloc(bytes.length).put(bytes).flip();
-            Intrinsics.checkNotNullExpressionValue(var12, "flip(...)");
-            return var12;
-         }
+         ByteBuffer buffer = MemoryUtil.memAlloc(bytes.length).put(bytes).flip();
+         Intrinsics.checkNotNullExpressionValue(buffer, "flip(...)");
+         return buffer;
       }
 
-      throw new IllegalStateException(("missing resource " + path).toString());
+      throw new IllegalStateException("missing resource " + path);
    }
 
    private final void saveGlState() {
@@ -319,27 +300,15 @@ public final class NVGRenderer {
       sStencilFail = GL11C.glGetInteger(2964);
       sStencilZFail = GL11C.glGetInteger(2965);
       sStencilZPass = GL11C.glGetInteger(2966);
-      var var1 = MemoryStack.stackPush();
-      Throwable var2 = null;
 
-      try {
-         MemoryStack stack = var1;
-         int var4/* $VF was: $i$a$-use-NVGRenderer$saveGlState$1 */ = 0;
-         ByteBuffer var10000 = stack.malloc(4);
-         Intrinsics.checkNotNullExpressionValue(var10000, "malloc(...)");
-         ByteBuffer mask = var10000;
+      try (MemoryStack stack = MemoryStack.stackPush()) {
+         ByteBuffer mask = stack.malloc(4);
+         Intrinsics.checkNotNullExpressionValue(mask, "malloc(...)");
          GL11C.glGetBooleanv(3107, mask);
 
          for (int i = 0; i < 4; i++) {
             sColorMask[i] = mask.get(i);
          }
-
-         Unit var11 = Unit.INSTANCE;
-      } catch (Throwable var9) {
-         var2 = var9;
-         throw var9;
-      } finally {
-         AutoCloseableKt.closeFinally(var1, var2);
       }
 
       GL11C.glGetIntegerv(2978, sViewport);
@@ -426,12 +395,7 @@ public final class NVGRenderer {
    }
 
    public final void rect(float x, float y, float w, float h, int argb, float radius) {
-      var var7 = MemoryStack.stackPush();
-      Throwable var8 = null;
-
-      try {
-         MemoryStack stack = var7;
-         int var10/* $VF was: $i$a$-use-NVGRenderer$rect$1 */ = 0;
+      try (MemoryStack stack = MemoryStack.stackPush()) {
          NanoVG.nvgBeginPath(ctx);
          if (radius > 0.0F) {
             NanoVG.nvgRoundedRect(ctx, x, y, w, h, radius);
@@ -439,188 +403,98 @@ public final class NVGRenderer {
             NanoVG.nvgRect(ctx, x, y, w, h);
          }
 
-         long var10000 = ctx;
-         NVGRenderer var10001 = INSTANCE;
-         NVGColor var10003 = NVGColor.malloc(stack);
-         Intrinsics.checkNotNullExpressionValue(var10003, "malloc(...)");
-         NanoVG.nvgFillColor(var10000, var10001.color(argb, var10003));
+         NVGColor color = NVGColor.malloc(stack);
+         Intrinsics.checkNotNullExpressionValue(color, "malloc(...)");
+         NanoVG.nvgFillColor(ctx, this.color(argb, color));
          NanoVG.nvgFill(ctx);
-         Unit var15 = Unit.INSTANCE;
-      } catch (Throwable var13) {
-         var8 = var13;
-         throw var13;
-      } finally {
-         AutoCloseableKt.closeFinally(var7, var8);
       }
    }
 
    public final void rectVarying(float x, float y, float w, float h, float radTl, float radTr, float radBr, float radBl, int argb) {
-      var var10 = MemoryStack.stackPush();
-      Throwable var11 = null;
-
-      try {
-         MemoryStack stack = var10;
-         int var13/* $VF was: $i$a$-use-NVGRenderer$rectVarying$1 */ = 0;
+      try (MemoryStack stack = MemoryStack.stackPush()) {
          NanoVG.nvgBeginPath(ctx);
          NanoVG.nvgRoundedRectVarying(ctx, x, y, w, h, radTl, radTr, radBr, radBl);
-         long var10000 = ctx;
-         NVGRenderer var10001 = INSTANCE;
-         NVGColor var10003 = NVGColor.malloc(stack);
-         Intrinsics.checkNotNullExpressionValue(var10003, "malloc(...)");
-         NanoVG.nvgFillColor(var10000, var10001.color(argb, var10003));
+         NVGColor color = NVGColor.malloc(stack);
+         Intrinsics.checkNotNullExpressionValue(color, "malloc(...)");
+         NanoVG.nvgFillColor(ctx, this.color(argb, color));
          NanoVG.nvgFill(ctx);
-         Unit var18 = Unit.INSTANCE;
-      } catch (Throwable var16) {
-         var11 = var16;
-         throw var16;
-      } finally {
-         AutoCloseableKt.closeFinally(var10, var11);
       }
    }
 
    public final void rectOutline(float x, float y, float w, float h, int argb, float radius, float strokeWidth) {
-      var var8 = MemoryStack.stackPush();
-      Throwable var9 = null;
-
-      try {
-         MemoryStack stack = var8;
-         int var11/* $VF was: $i$a$-use-NVGRenderer$rectOutline$1 */ = 0;
+      try (MemoryStack stack = MemoryStack.stackPush()) {
          float inset = strokeWidth / 2.0F;
          NanoVG.nvgBeginPath(ctx);
          NanoVG.nvgRoundedRect(ctx, x + inset, y + inset, w - strokeWidth, h - strokeWidth, RangesKt.coerceAtLeast(radius - inset, 0.0F));
          NanoVG.nvgStrokeWidth(ctx, strokeWidth);
-         long var10000 = ctx;
-         NVGRenderer var10001 = INSTANCE;
-         NVGColor var10003 = NVGColor.malloc(stack);
-         Intrinsics.checkNotNullExpressionValue(var10003, "malloc(...)");
-         NanoVG.nvgStrokeColor(var10000, var10001.color(argb, var10003));
+         NVGColor color = NVGColor.malloc(stack);
+         Intrinsics.checkNotNullExpressionValue(color, "malloc(...)");
+         NanoVG.nvgStrokeColor(ctx, this.color(argb, color));
          NanoVG.nvgStroke(ctx);
-         Unit var17 = Unit.INSTANCE;
-      } catch (Throwable var15) {
-         var9 = var15;
-         throw var15;
-      } finally {
-         AutoCloseableKt.closeFinally(var8, var9);
       }
    }
 
    public final void circle(float cx, float cy, float radius, int argb) {
-      var var5 = MemoryStack.stackPush();
-      Throwable var6 = null;
-
-      try {
-         MemoryStack stack = var5;
-         int var8/* $VF was: $i$a$-use-NVGRenderer$circle$1 */ = 0;
+      try (MemoryStack stack = MemoryStack.stackPush()) {
          NanoVG.nvgBeginPath(ctx);
          NanoVG.nvgCircle(ctx, cx, cy, radius);
-         long var10000 = ctx;
-         NVGRenderer var10001 = INSTANCE;
-         NVGColor var10003 = NVGColor.malloc(stack);
-         Intrinsics.checkNotNullExpressionValue(var10003, "malloc(...)");
-         NanoVG.nvgFillColor(var10000, var10001.color(argb, var10003));
+         NVGColor color = NVGColor.malloc(stack);
+         Intrinsics.checkNotNullExpressionValue(color, "malloc(...)");
+         NanoVG.nvgFillColor(ctx, this.color(argb, color));
          NanoVG.nvgFill(ctx);
-         Unit var13 = Unit.INSTANCE;
-      } catch (Throwable var11) {
-         var6 = var11;
-         throw var11;
-      } finally {
-         AutoCloseableKt.closeFinally(var5, var6);
       }
    }
 
    public final void line(float x1, float y1, float x2, float y2, int argb, float strokeWidth) {
-      var var7 = MemoryStack.stackPush();
-      Throwable var8 = null;
-
-      try {
-         MemoryStack stack = var7;
-         int var10/* $VF was: $i$a$-use-NVGRenderer$line$1 */ = 0;
+      try (MemoryStack stack = MemoryStack.stackPush()) {
          NanoVG.nvgBeginPath(ctx);
          NanoVG.nvgMoveTo(ctx, x1, y1);
          NanoVG.nvgLineTo(ctx, x2, y2);
          NanoVG.nvgStrokeWidth(ctx, strokeWidth);
-         long var10000 = ctx;
-         NVGRenderer var10001 = INSTANCE;
-         NVGColor var10003 = NVGColor.malloc(stack);
-         Intrinsics.checkNotNullExpressionValue(var10003, "malloc(...)");
-         NanoVG.nvgStrokeColor(var10000, var10001.color(argb, var10003));
+         NVGColor color = NVGColor.malloc(stack);
+         Intrinsics.checkNotNullExpressionValue(color, "malloc(...)");
+         NanoVG.nvgStrokeColor(ctx, this.color(argb, color));
          NanoVG.nvgStroke(ctx);
-         Unit var15 = Unit.INSTANCE;
-      } catch (Throwable var13) {
-         var8 = var13;
-         throw var13;
-      } finally {
-         AutoCloseableKt.closeFinally(var7, var8);
       }
    }
 
    public final void gradientRect(float x, float y, float w, float h, float radius, int startArgb, int endArgb, boolean horizontal) {
-      var var9 = MemoryStack.stackPush();
-      Throwable var10 = null;
-
-      try {
-         MemoryStack stack = var9;
-         int var12/* $VF was: $i$a$-use-NVGRenderer$gradientRect$1 */ = 0;
-         NVGPaint var10000 = NVGPaint.malloc(stack);
-         Intrinsics.checkNotNullExpressionValue(var10000, "malloc(...)");
-         NVGPaint paint = var10000;
+      try (MemoryStack stack = MemoryStack.stackPush()) {
+         NVGPaint paint = NVGPaint.malloc(stack);
+         Intrinsics.checkNotNullExpressionValue(paint, "malloc(...)");
          float endX = horizontal ? x + w : x;
          float endY = horizontal ? y : y + h;
-         long var21 = ctx;
-         NVGRenderer var10005 = INSTANCE;
-         NVGColor var10007 = NVGColor.malloc(stack);
-         Intrinsics.checkNotNullExpressionValue(var10007, "malloc(...)");
-         NVGColor var22 = var10005.color(startArgb, var10007);
-         NVGRenderer var10006 = INSTANCE;
-         NVGColor var10008 = NVGColor.malloc(stack);
-         Intrinsics.checkNotNullExpressionValue(var10008, "malloc(...)");
-         NanoVG.nvgLinearGradient(var21, x, y, endX, endY, var22, var10006.color(endArgb, var10008), paint);
+         NVGColor startColor = NVGColor.malloc(stack);
+         Intrinsics.checkNotNullExpressionValue(startColor, "malloc(...)");
+         NVGColor start = this.color(startArgb, startColor);
+         NVGColor endColor = NVGColor.malloc(stack);
+         Intrinsics.checkNotNullExpressionValue(endColor, "malloc(...)");
+         NanoVG.nvgLinearGradient(ctx, x, y, endX, endY, start, this.color(endArgb, endColor), paint);
          NanoVG.nvgBeginPath(ctx);
          NanoVG.nvgRoundedRect(ctx, x, y, w, h, radius);
          NanoVG.nvgFillPaint(ctx, paint);
          NanoVG.nvgFill(ctx);
-         Unit var20 = Unit.INSTANCE;
-      } catch (Throwable var18) {
-         var10 = var18;
-         throw var18;
-      } finally {
-         AutoCloseableKt.closeFinally(var9, var10);
       }
    }
 
    public final void shadow(float x, float y, float w, float h, float radius, float blur, int argb) {
-      var var8 = MemoryStack.stackPush();
-      Throwable var9 = null;
-
-      try {
-         MemoryStack stack = var8;
-         int var11/* $VF was: $i$a$-use-NVGRenderer$shadow$1 */ = 0;
-         NVGPaint var10000 = NVGPaint.malloc(stack);
-         Intrinsics.checkNotNullExpressionValue(var10000, "malloc(...)");
-         NVGPaint paint = var10000;
-         long var18 = ctx;
-         float var10002 = y + 2.0F;
-         NVGRenderer var10007 = INSTANCE;
-         NVGColor var10009 = NVGColor.malloc(stack);
-         Intrinsics.checkNotNullExpressionValue(var10009, "malloc(...)");
-         NVGColor var19 = var10007.color(argb, var10009);
-         NVGRenderer var10008 = INSTANCE;
-         int var20 = argb & 16777215;
-         NVGColor var10010 = NVGColor.malloc(stack);
-         Intrinsics.checkNotNullExpressionValue(var10010, "malloc(...)");
-         NanoVG.nvgBoxGradient(var18, x, var10002, w, h, radius, blur, var19, var10008.color(var20, var10010), paint);
+      try (MemoryStack stack = MemoryStack.stackPush()) {
+         NVGPaint paint = NVGPaint.malloc(stack);
+         Intrinsics.checkNotNullExpressionValue(paint, "malloc(...)");
+         float shadowY = y + 2.0F;
+         NVGColor innerColor = NVGColor.malloc(stack);
+         Intrinsics.checkNotNullExpressionValue(innerColor, "malloc(...)");
+         NVGColor inner = this.color(argb, innerColor);
+         int transparentArgb = argb & 16777215;
+         NVGColor outerColor = NVGColor.malloc(stack);
+         Intrinsics.checkNotNullExpressionValue(outerColor, "malloc(...)");
+         NanoVG.nvgBoxGradient(ctx, x, shadowY, w, h, radius, blur, inner, this.color(transparentArgb, outerColor), paint);
          NanoVG.nvgBeginPath(ctx);
          NanoVG.nvgRect(ctx, x - blur, y - blur, w + blur * 2.0F, h + blur * 2.0F + 2.0F);
          NanoVG.nvgRoundedRect(ctx, x, y, w, h, radius);
          NanoVG.nvgPathWinding(ctx, 2);
          NanoVG.nvgFillPaint(ctx, paint);
          NanoVG.nvgFill(ctx);
-         Unit var17 = Unit.INSTANCE;
-      } catch (Throwable var15) {
-         var9 = var15;
-         throw var15;
-      } finally {
-         AutoCloseableKt.closeFinally(var8, var9);
       }
    }
 
@@ -633,78 +507,42 @@ public final class NVGRenderer {
    public final float text(@NotNull String string, float x, float y, float size, int argb, @NotNull NVGRenderer.Font font) {
       Intrinsics.checkNotNullParameter(string, "string");
       Intrinsics.checkNotNullParameter(font, "font");
-      var var7 = MemoryStack.stackPush();
-      Throwable var8 = null;
-
-      try {
-         MemoryStack stack = var7;
-         int var10/* $VF was: $i$a$-use-NVGRenderer$text$1 */ = 0;
+      try (MemoryStack stack = MemoryStack.stackPush()) {
          NanoVG.nvgFontFace(ctx, font.getId());
          NanoVG.nvgFontSize(ctx, size);
          NanoVG.nvgTextAlign(ctx, 65);
-         long var10000 = ctx;
-         NVGRenderer var10001 = INSTANCE;
-         NVGColor var10003 = NVGColor.malloc(stack);
-         Intrinsics.checkNotNullExpressionValue(var10003, "malloc(...)");
-         NanoVG.nvgFillColor(var10000, var10001.color(argb, var10003));
-         return NanoVG.nvgText(ctx, x, INSTANCE.opticalBaseline(y), string);
-      } catch (Throwable var14) {
-         var8 = var14;
-         throw var14;
-      } finally {
-         AutoCloseableKt.closeFinally(var7, var8);
+         NVGColor color = NVGColor.malloc(stack);
+         Intrinsics.checkNotNullExpressionValue(color, "malloc(...)");
+         NanoVG.nvgFillColor(ctx, this.color(argb, color));
+         return NanoVG.nvgText(ctx, x, this.opticalBaseline(y), string);
       }
    }
 
    public final void textCentered(@NotNull String string, float x, float y, float size, int argb, @NotNull NVGRenderer.Font font) {
       Intrinsics.checkNotNullParameter(string, "string");
       Intrinsics.checkNotNullParameter(font, "font");
-      var var7 = MemoryStack.stackPush();
-      Throwable var8 = null;
-
-      try {
-         MemoryStack stack = var7;
-         int var10/* $VF was: $i$a$-use-NVGRenderer$textCentered$1 */ = 0;
+      try (MemoryStack stack = MemoryStack.stackPush()) {
          NanoVG.nvgFontFace(ctx, font.getId());
          NanoVG.nvgFontSize(ctx, size);
          NanoVG.nvgTextAlign(ctx, 66);
-         long var10000 = ctx;
-         NVGRenderer var10001 = INSTANCE;
-         NVGColor var10003 = NVGColor.malloc(stack);
-         Intrinsics.checkNotNullExpressionValue(var10003, "malloc(...)");
-         NanoVG.nvgFillColor(var10000, var10001.color(argb, var10003));
-         float var15 = NanoVG.nvgText(ctx, x, INSTANCE.opticalBaseline(y), string);
-      } catch (Throwable var13) {
-         var8 = var13;
-         throw var13;
-      } finally {
-         AutoCloseableKt.closeFinally(var7, var8);
+         NVGColor color = NVGColor.malloc(stack);
+         Intrinsics.checkNotNullExpressionValue(color, "malloc(...)");
+         NanoVG.nvgFillColor(ctx, this.color(argb, color));
+         NanoVG.nvgText(ctx, x, this.opticalBaseline(y), string);
       }
    }
 
    public final void textRight(@NotNull String string, float x, float y, float size, int argb, @NotNull NVGRenderer.Font font) {
       Intrinsics.checkNotNullParameter(string, "string");
       Intrinsics.checkNotNullParameter(font, "font");
-      var var7 = MemoryStack.stackPush();
-      Throwable var8 = null;
-
-      try {
-         MemoryStack stack = var7;
-         int var10/* $VF was: $i$a$-use-NVGRenderer$textRight$1 */ = 0;
+      try (MemoryStack stack = MemoryStack.stackPush()) {
          NanoVG.nvgFontFace(ctx, font.getId());
          NanoVG.nvgFontSize(ctx, size);
          NanoVG.nvgTextAlign(ctx, 68);
-         long var10000 = ctx;
-         NVGRenderer var10001 = INSTANCE;
-         NVGColor var10003 = NVGColor.malloc(stack);
-         Intrinsics.checkNotNullExpressionValue(var10003, "malloc(...)");
-         NanoVG.nvgFillColor(var10000, var10001.color(argb, var10003));
-         float var15 = NanoVG.nvgText(ctx, x, INSTANCE.opticalBaseline(y), string);
-      } catch (Throwable var13) {
-         var8 = var13;
-         throw var13;
-      } finally {
-         AutoCloseableKt.closeFinally(var7, var8);
+         NVGColor color = NVGColor.malloc(stack);
+         Intrinsics.checkNotNullExpressionValue(color, "malloc(...)");
+         NanoVG.nvgFillColor(ctx, this.color(argb, color));
+         NanoVG.nvgText(ctx, x, this.opticalBaseline(y), string);
       }
    }
 
@@ -719,16 +557,13 @@ public final class NVGRenderer {
 
    public final void scissor(float x, float y, float w, float h, @NotNull Function0<Unit> block) {
       Intrinsics.checkNotNullParameter(block, "block");
-      int $i$f$scissor = 0;
       this.save();
       this.intersectScissor(x, y, w, h);
 
       try {
          block.invoke();
       } finally {
-         InlineMarker.finallyStart(1);
          this.restore();
-         InlineMarker.finallyEnd(1);
       }
    }
 

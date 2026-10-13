@@ -74,9 +74,9 @@ public final class SkyblockerRenderPipelines {
    }
 
    static {
-      Snippet[] var0 = new Snippet[]{RenderPipelines.DEBUG_FILLED_SNIPPET};
-      RenderPipeline var10000 = RenderPipelines.register(
-         RenderPipeline.builder(var0)
+      Snippet[] filledSnippets = new Snippet[]{RenderPipelines.DEBUG_FILLED_SNIPPET};
+      RenderPipeline filled = RenderPipelines.register(
+         RenderPipeline.builder(filledSnippets)
              .withLocation(Identifier.fromNamespaceAndPath("cb", "pipeline/filled_through_walls"))
              .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
              .withPrimitiveTopology(PrimitiveTopology.QUADS)
@@ -85,20 +85,20 @@ public final class SkyblockerRenderPipelines {
             .withColorTargetState(TRANSLUCENT)
             .build()
       );
-      Intrinsics.checkNotNullExpressionValue(var10000, "register(...)");
-      FILLED_THROUGH_WALLS = var10000;
-      var0 = new Snippet[]{RenderPipelines.LINES_SNIPPET};
-      var10000 = RenderPipelines.register(
-         RenderPipeline.builder(var0)
+      Intrinsics.checkNotNullExpressionValue(filled, "register(...)");
+      FILLED_THROUGH_WALLS = filled;
+      Snippet[] lineSnippets = new Snippet[]{RenderPipelines.LINES_SNIPPET};
+      RenderPipeline lines = RenderPipelines.register(
+         RenderPipeline.builder(lineSnippets)
             .withLocation(Identifier.fromNamespaceAndPath("cb", "pipeline/lines_through_walls"))
             .withDepthStencilState(NO_DEPTH)
             .build()
       );
-      Intrinsics.checkNotNullExpressionValue(var10000, "register(...)");
-      LINES_THROUGH_WALLS = var10000;
-      var0 = new Snippet[]{RenderPipelines.DEBUG_FILLED_SNIPPET};
-      var10000 = RenderPipelines.register(
-         RenderPipeline.builder(var0)
+      Intrinsics.checkNotNullExpressionValue(lines, "register(...)");
+      LINES_THROUGH_WALLS = lines;
+      Snippet[] roundRectSnippets = new Snippet[]{RenderPipelines.DEBUG_FILLED_SNIPPET};
+      RenderPipeline roundRect = RenderPipelines.register(
+         RenderPipeline.builder(roundRectSnippets)
             .withLocation(Identifier.fromNamespaceAndPath("cb", "pipeline/round_rect"))
             .withVertexShader(Identifier.fromNamespaceAndPath("cb", "core/round_rect"))
             .withFragmentShader(Identifier.fromNamespaceAndPath("cb", "core/round_rect"))
@@ -108,7 +108,7 @@ public final class SkyblockerRenderPipelines {
             .withPrimitiveTopology(PrimitiveTopology.QUADS)
             .build()
       );
-      Intrinsics.checkNotNullExpressionValue(var10000, "register(...)");
-      ROUND_RECT = var10000;
+      Intrinsics.checkNotNullExpressionValue(roundRect, "register(...)");
+      ROUND_RECT = roundRect;
    }
 }

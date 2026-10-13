@@ -43,8 +43,6 @@ public final class OverlayRenderer {
         Screen screen = minecraft.gui.screen();
         NvgScreen nvgScreen = screen instanceof NvgScreen ? (NvgScreen)screen : null;
         if (nvgScreen == null) {
-            OverlayRenderer $this$onFrameEnd_u24lambda_u240 = INSTANCE;
-            boolean bl = false;
             lastFrameNanos = 0L;
             return;
         }

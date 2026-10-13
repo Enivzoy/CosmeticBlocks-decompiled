@@ -76,8 +76,7 @@ public final class Scheduler {
 
    public final int schedule(int delayTicks, @NotNull Function0<Unit> action) {
       Intrinsics.checkNotNullParameter(action, "action");
-      int var4 = nextTaskId++;
-      int id = var4;
+      int id = nextTaskId++;
       delayedTasks.put(id, new Scheduler.DelayedTask(delayTicks, action));
       return id;
    }
@@ -89,8 +88,7 @@ public final class Scheduler {
 
    public final int scheduleRepeating(long intervalTicks, @NotNull Function0<Unit> action) {
       Intrinsics.checkNotNullParameter(action, "action");
-      int var5 = nextTaskId++;
-      int id = var5;
+      int id = nextTaskId++;
       repeatingTasks.put(id, new Scheduler.RepeatingTask((int)intervalTicks, (int)intervalTicks, action));
       return id;
    }
@@ -101,28 +99,23 @@ public final class Scheduler {
    }
 
    public final void register() {
-      ClientTickEvents.END_CLIENT_TICK.register(Scheduler::register$lambda$0);
+      ClientTickEvents.END_CLIENT_TICK.register(Scheduler::onEndClientTick);
    }
 
-   private static final void register$lambda$0(Minecraft it) {
-      Intrinsics.checkNotNullParameter(it, "it");
-      Iterable $this$forEach$iv = actions;
-      int $i$f$forEach = 0;
+   private static final void onEndClientTick(Minecraft client) {
+      Intrinsics.checkNotNullParameter(client, "client");
 
-      for (Object element$iv : $this$forEach$iv) {
-         Function0 itx = (Function0)element$iv;
-         int var6/* $VF was: $i$a$-forEach-Scheduler$register$1$1 */ = 0;
-         itx.invoke();
+      for (Function0<Unit> action : actions) {
+         action.invoke();
       }
 
       actions.clear();
       List<Integer> expiredIds = new ArrayList<>();
 
-      for (Entry var15 : delayedTasks.entrySet()) {
-         int id = ((Number)var15.getKey()).intValue();
-         Scheduler.DelayedTask task = (Scheduler.DelayedTask)var15.getValue();
-         int var27 = task.getTicksRemaining();
-         task.setTicksRemaining(var27 + -1);
+      for (Entry<Integer, Scheduler.DelayedTask> entry : delayedTasks.entrySet()) {
+         int id = entry.getKey();
+         Scheduler.DelayedTask task = entry.getValue();
+         task.setTicksRemaining(task.getTicksRemaining() - 1);
          if (task.getTicksRemaining() <= 0) {
             try {
                task.getAction().invoke();
@@ -134,41 +127,30 @@ public final class Scheduler {
          }
       }
 
-      Iterable $this$forEach$ivx = expiredIds;
-      int $i$f$forEachx = 0;
-
-      for (Object element$iv : $this$forEach$ivx) {
-         int itx = ((Number)element$iv).intValue();
-         int var7/* $VF was: $i$a$-forEach-Scheduler$register$1$2 */ = 0;
-         delayedTasks.remove(itx);
+      for (int id : expiredIds) {
+         delayedTasks.remove(id);
       }
 
-      List toRemove = new ArrayList();
+      List<Integer> repeatingToRemove = new ArrayList<>();
 
-      for (Entry var21 : repeatingTasks.entrySet()) {
-         int id = ((Number)var21.getKey()).intValue();
-         Scheduler.RepeatingTask task = (Scheduler.RepeatingTask)var21.getValue();
-         int var31 = task.getTicksRemaining();
-         task.setTicksRemaining(var31 + -1);
+      for (Entry<Integer, Scheduler.RepeatingTask> entry : repeatingTasks.entrySet()) {
+         int id = entry.getKey();
+         Scheduler.RepeatingTask task = entry.getValue();
+         task.setTicksRemaining(task.getTicksRemaining() - 1);
          if (task.getTicksRemaining() <= 0) {
             try {
                task.getAction().invoke();
             } catch (Exception e) {
                System.out.println((Object)("CB: Scheduler repeating task error: " + e.getMessage()));
-               toRemove.add(id);
+               repeatingToRemove.add(id);
             }
 
             task.setTicksRemaining(task.getInterval());
          }
       }
 
-      Iterable $this$forEach$ivxx = toRemove;
-      int $i$f$forEachxx = 0;
-
-      for (Object element$iv : $this$forEach$ivxx) {
-         int itx = ((Number)element$iv).intValue();
-         int var8/* $VF was: $i$a$-forEach-Scheduler$register$1$3 */ = 0;
-         repeatingTasks.remove(itx);
+      for (int id : repeatingToRemove) {
+         repeatingTasks.remove(id);
       }
    }
 
@@ -221,8 +203,8 @@ public final class Scheduler {
          return this.ticksRemaining;
       }
 
-      public final void setTicksRemaining(int var1) {
-         this.ticksRemaining = var1/* $VF was: <set-?> */;
+      public final void setTicksRemaining(int ticksRemaining) {
+         this.ticksRemaining = ticksRemaining;
       }
 
       @NotNull
@@ -261,11 +243,11 @@ public final class Scheduler {
       public boolean equals(@Nullable Object other) {
          if (this == other) {
             return true;
-         } else if (!(other instanceof Scheduler.DelayedTask var2)) {
-            return false;
-         } else {
-            return this.ticksRemaining != var2.ticksRemaining ? false : Intrinsics.areEqual(this.action, var2.action);
-         }
+          } else if (!(other instanceof Scheduler.DelayedTask task)) {
+             return false;
+          } else {
+             return this.ticksRemaining != task.ticksRemaining ? false : Intrinsics.areEqual(this.action, task.action);
+          }
       }
    }
 
@@ -327,8 +309,8 @@ public final class Scheduler {
          return this.ticksRemaining;
       }
 
-      public final void setTicksRemaining(int var1) {
-         this.ticksRemaining = var1/* $VF was: <set-?> */;
+      public final void setTicksRemaining(int ticksRemaining) {
+         this.ticksRemaining = ticksRemaining;
       }
 
       @NotNull
@@ -372,13 +354,13 @@ public final class Scheduler {
       public boolean equals(@Nullable Object other) {
          if (this == other) {
             return true;
-         } else if (!(other instanceof Scheduler.RepeatingTask var2)) {
-            return false;
-         } else if (this.interval != var2.interval) {
-            return false;
-         } else {
-            return this.ticksRemaining != var2.ticksRemaining ? false : Intrinsics.areEqual(this.action, var2.action);
-         }
+          } else if (!(other instanceof Scheduler.RepeatingTask task)) {
+             return false;
+          } else if (this.interval != task.interval) {
+             return false;
+          } else {
+             return this.ticksRemaining != task.ticksRemaining ? false : Intrinsics.areEqual(this.action, task.action);
+          }
       }
    }
 }

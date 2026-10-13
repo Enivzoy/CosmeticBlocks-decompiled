@@ -4,8 +4,6 @@ import java.util.Locale;
 import java.util.Map;
 import kotlin.Metadata;
 import kotlin.Pair;
-import kotlin.Result;
-import kotlin.ResultKt;
 import kotlin.TuplesKt;
 import kotlin.collections.MapsKt;
 import kotlin.jvm.internal.Intrinsics;
@@ -40,9 +38,7 @@ public final class KeyNames {
 
       String printable = SPECIAL.get(key);
       if (printable != null) {
-         String it = printable;
-         int var11/* $VF was: $i$a$-let-KeyNames$name$1 */ = 0;
-         return it;
+         return printable;
       }
 
       if (290 <= key ? key < 315 : false) {
@@ -53,27 +49,23 @@ public final class KeyNames {
          return "NUM " + (key - 320);
       }
 
-      String printable2;
       try {
-         printable2 = GLFW.glfwGetKeyName(key, 0);
+         printable = GLFW.glfwGetKeyName(key, 0);
       } catch (Throwable var6) {
-         printable2 = null;
+         printable = null;
       }
 
-      printable = printable2;
       if (printable != null) {
-         String var10000 = printable.toUpperCase(Locale.ROOT);
-         Intrinsics.checkNotNullExpressionValue(var10000, "toUpperCase(...)");
-         if (var10000 != null) {
-            return var10000;
-         }
+         String upper = printable.toUpperCase(Locale.ROOT);
+         Intrinsics.checkNotNullExpressionValue(upper, "toUpperCase(...)");
+         return upper;
       }
 
       return "KEY " + key;
    }
 
    static {
-      Pair[] var0 = new Pair[]{
+      Pair[] pairs = new Pair[]{
          TuplesKt.to(340, "L SHIFT"),
          TuplesKt.to(344, "R SHIFT"),
          TuplesKt.to(341, "L CTRL"),
@@ -102,6 +94,6 @@ public final class KeyNames {
          TuplesKt.to(343, "L SUPER"),
          TuplesKt.to(347, "R SUPER")
       };
-      SPECIAL = MapsKt.mapOf(var0);
+      SPECIAL = MapsKt.mapOf(pairs);
    }
 }

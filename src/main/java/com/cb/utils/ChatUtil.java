@@ -54,34 +54,29 @@ public final class ChatUtil {
    }
 
    private final Minecraft getMc() {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      return var10000;
+      Minecraft mc = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(mc, "getInstance(...)");
+      return mc;
    }
 
    private final String translateColorCodes(String message) {
-      CharSequence var2 = message;
-      Regex var3 = new Regex("&([0-9a-fk-or])");
-      String var4 = "§$1";
-      return var3.replace(var2, var4);
+      Regex regex = new Regex("&([0-9a-fk-or])");
+      return regex.replace(message, "§$1");
    }
 
    private final Component buildMessage(String message, int color) {
-      MutableComponent var10000 = Component.empty();
-      Intrinsics.checkNotNullExpressionValue(var10000, "empty(...)");
-      MutableComponent result = var10000;
+      MutableComponent result = Component.empty();
+      Intrinsics.checkNotNullExpressionValue(result, "empty(...)");
       result.append(Component.literal("CB ").withStyle(Style.EMPTY.withColor(TextColor.fromRgb(7231183))));
-      CharSequence var4 = message;
-      Regex var5 = new Regex("&([0-9a-fk-or])");
-      String var6 = "§$1";
-      result.append(Component.literal(var5.replace(var4, var6)).withStyle(Style.EMPTY.withColor(TextColor.fromRgb(color))));
+      Regex regex = new Regex("&([0-9a-fk-or])");
+      result.append(Component.literal(regex.replace(message, "§$1")).withStyle(Style.EMPTY.withColor(TextColor.fromRgb(color))));
       return result;
    }
 
    private final void sendRaw(Component component) {
-      LocalPlayer var10000 = this.getMc().player;
-      if (var10000 != null) {
-         var10000.sendSystemMessage(component);
+      LocalPlayer player = this.getMc().player;
+      if (player != null) {
+         player.sendSystemMessage(component);
       }
    }
 

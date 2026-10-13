@@ -51,12 +51,10 @@ public final class ServerUtils {
    }
 
    public final int getAveragePing() {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      Minecraft mc = var10000;
-      LocalSampleLogger var8 = mc.getDebugOverlay().getPingLogger();
-      Intrinsics.checkNotNullExpressionValue(var8, "getPingLogger(...)");
-      LocalSampleLogger pingLogger = var8;
+      Minecraft mc = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(mc, "getInstance(...)");
+      LocalSampleLogger pingLogger = mc.getDebugOverlay().getPingLogger();
+      Intrinsics.checkNotNullExpressionValue(pingLogger, "getPingLogger(...)");
       int sampleSize = Math.min(pingLogger.size(), 20);
       if (sampleSize == 0) {
          if (mc.player == null) {
@@ -64,11 +62,11 @@ public final class ServerUtils {
          }
 
          LocalPlayer player = mc.player;
-         ClientPacketListener var9 = mc.getConnection();
-         if (var9 != null) {
-            PlayerInfo var10 = var9.getPlayerInfo(player.getUUID());
-            if (var10 != null) {
-               return var10.getLatency();
+         ClientPacketListener connection = mc.getConnection();
+         if (connection != null) {
+            PlayerInfo info = connection.getPlayerInfo(player.getUUID());
+            if (info != null) {
+               return info.getLatency();
             }
          }
 

@@ -50,8 +50,8 @@ public final class Anim {
       return this.target;
    }
 
-   public final void setTarget(float var1) {
-      this.target = var1/* $VF was: <set-?> */;
+   public final void setTarget(float target) {
+      this.target = target;
    }
 
    public final float update(float delta) {

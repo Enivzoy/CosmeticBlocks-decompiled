@@ -172,9 +172,8 @@ public final class RenderLayers {
    ) {
       Intrinsics.checkNotNullParameter(matrices, "matrices");
       Intrinsics.checkNotNullParameter(buffer, "buffer");
-      Pose var10000 = matrices.last();
-      Intrinsics.checkNotNullExpressionValue(var10000, "last(...)");
-      Pose pose = var10000;
+      Pose pose = matrices.last();
+      Intrinsics.checkNotNullExpressionValue(pose, "last(...)");
       int r = this.channel(red);
       int g = this.channel(green);
       int b = this.channel(blue);
@@ -226,23 +225,23 @@ public final class RenderLayers {
    }
 
    static {
-      RenderType var10000 = RenderType.create(
+      RenderType filled = RenderType.create(
          "cb_filled_through_walls",
          RenderSetup.builder(SkyblockerRenderPipelines.INSTANCE.getFILLED_THROUGH_WALLS())
             .sortOnUpload()
             .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
             .createRenderSetup()
       );
-      Intrinsics.checkNotNullExpressionValue(var10000, "create(...)");
-      FILLED_THROUGH_WALLS = var10000;
-      var10000 = RenderType.create(
+      Intrinsics.checkNotNullExpressionValue(filled, "create(...)");
+      FILLED_THROUGH_WALLS = filled;
+      RenderType lines = RenderType.create(
          "cb_lines_through_walls",
          RenderSetup.builder(SkyblockerRenderPipelines.INSTANCE.getLINES_THROUGH_WALLS())
             .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
             .setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
             .createRenderSetup()
       );
-      Intrinsics.checkNotNullExpressionValue(var10000, "create(...)");
-      LINES_THROUGH_WALLS = var10000;
+      Intrinsics.checkNotNullExpressionValue(lines, "create(...)");
+      LINES_THROUGH_WALLS = lines;
    }
 }
