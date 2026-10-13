@@ -1,7 +1,7 @@
 # CB — reconstructed Minecraft 26.2 project
 
-This is a source reconstruction of `cb-1.0.0.jar`, not the original repository.  
-[@native-java]
+This is a source reconstruction of `cb-1.0.0.jar`, not the original repository.    
+[@native-java]   
 The JAR contained compiled Kotlin classes; CFR recovered Java-like reference source, but that output is incomplete and cannot be compiled as Java. See [`docs/cfr-summary.txt`](docs/cfr-summary.txt). The build uses the original classes in [`libs/cb-1.0.0.jar`](libs/cb-1.0.0.jar) and packages the reconstructed resources.
 
 This branch scraps the need to bundle the original jar and to reference it, achieving it by compiling natively
