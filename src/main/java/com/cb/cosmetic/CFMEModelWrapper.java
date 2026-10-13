@@ -2,6 +2,7 @@ package com.cb.cosmetic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -72,7 +73,7 @@ public final class CFMEModelWrapper implements BlockStateModel {
       if (retextureState != null) {
          Baked newMaterial = Companion.particleMaterial(retextureState);
          boolean skipCull = true;
-         Companion.emitRetextured(emitter, this.wrapped, random, cullTest, newMaterial, skipCull, null);
+         Companion.emitRetextured(emitter, this.wrapped, random, cullTest, newMaterial, skipCull, Collections.emptySet());
       } else {
          BlockState originalState = CosmeticBlocks.INSTANCE.getOriginalShapeAt(pos.getX(), pos.getY(), pos.getZ());
          if (originalState != null) {

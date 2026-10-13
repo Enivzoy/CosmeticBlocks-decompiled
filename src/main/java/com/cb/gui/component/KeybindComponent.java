@@ -29,7 +29,7 @@ public final class KeybindComponent extends SettingComponent<KeybindSetting> {
       float chipY = this.getY() + (26.0F - chipHeight) / 2.0F;
       NVGRenderer.INSTANCE.rect(chipX, chipY, chipWidth, chipHeight, -14013910, 4.0F);
       if (this.listening) {
-         NVGRenderer.INSTANCE.rectOutline(chipX, chipY, chipWidth, chipHeight, -1750963, 4.0F, 0.0F);
+         NVGRenderer.INSTANCE.rectOutline(chipX, chipY, chipWidth, chipHeight, -1750963, 4.0F, 1.0F);
       }
 
       NVGRenderer.INSTANCE

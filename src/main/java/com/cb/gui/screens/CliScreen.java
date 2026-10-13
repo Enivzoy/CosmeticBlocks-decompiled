@@ -81,20 +81,20 @@ public final class CliScreen extends Screen implements NvgScreen {
    private final void renderBar(float x, float y, float w, float h) {
       NVGRenderer.INSTANCE.shadow(x, y, w, h, 10.0F, 12.0F, Integer.MIN_VALUE);
       NVGRenderer.INSTANCE.rect(x, y, w, h, -183233516, 10.0F);
-      NVGRenderer.INSTANCE.rectOutline(x, y, w, h, Theme.INSTANCE.withAlpha(-1750963, 0.55F), 10.0F, 0.0F);
+      NVGRenderer.INSTANCE.rectOutline(x, y, w, h, Theme.INSTANCE.withAlpha(-1750963, 0.55F), 10.0F, 1.0F);
       float padX = 12.0F;
       float cy = y + h / 2.0F;
       NVGRenderer.INSTANCE.text(">", x + padX, cy, 13.0F, -1750963, NVGRenderer.Font.BOLD);
       float textX = x + padX + 16.0F;
       if (this.input.length() == 0) {
-         NVGRenderer.INSTANCE.text("type a command, Tab to complete, Enter to run", textX, cy, 13.0F, -10724260, null);
+         NVGRenderer.INSTANCE.text("type a command, Tab to complete, Enter to run", textX, cy, 13.0F, -10724260, NVGRenderer.Font.REGULAR);
       } else {
-         NVGRenderer.INSTANCE.text(this.input, textX, cy, 13.0F, -1184275, null);
+         NVGRenderer.INSTANCE.text(this.input, textX, cy, 13.0F, -1184275, NVGRenderer.Font.REGULAR);
       }
 
       if ((int)(this.caretBlink * 2.0F) % 2 == 0) {
          String before = StringsKt.take(this.input, RangesKt.coerceIn(this.caret, 0, this.input.length()));
-         float caretX = textX + NVGRenderer.INSTANCE.textWidth(before, 13.0F, null);
+         float caretX = textX + NVGRenderer.INSTANCE.textWidth(before, 13.0F, NVGRenderer.Font.REGULAR);
          NVGRenderer.INSTANCE.rect(caretX, cy - 6.5F, 1.0F, 13.0F, -1184275, 0.0F);
       }
    }
@@ -107,7 +107,7 @@ public final class CliScreen extends Screen implements NvgScreen {
          float y = barY - popH - 6.0F;
          NVGRenderer.INSTANCE.shadow(x, y, w, popH, 8.0F, 12.0F, Integer.MIN_VALUE);
          NVGRenderer.INSTANCE.rect(x, y, w, popH, -14935012, 8.0F);
-         NVGRenderer.INSTANCE.rectOutline(x, y, w, popH, Theme.INSTANCE.withAlpha(-1750963, 0.3F), 8.0F, 0.0F);
+         NVGRenderer.INSTANCE.rectOutline(x, y, w, popH, Theme.INSTANCE.withAlpha(-1750963, 0.3F), 8.0F, 1.0F);
          float ry = y + 4.0F;
          int i = 0;
 
@@ -118,7 +118,7 @@ public final class CliScreen extends Screen implements NvgScreen {
             }
 
             int labelColor = highlight ? -1750963 : -1184275;
-            NVGRenderer.INSTANCE.text(s.getDisplay(), x + 12.0F, ry + rowH / 2.0F, 12.0F, labelColor, null);
+            NVGRenderer.INSTANCE.text(s.getDisplay(), x + 12.0F, ry + rowH / 2.0F, 12.0F, labelColor, NVGRenderer.Font.REGULAR);
             if (s.getHint().length() > 0) {
                NVGRenderer.INSTANCE.textRight(s.getHint(), x + w - 12.0F, ry + rowH / 2.0F, 12.0F, -6513508, NVGRenderer.Font.REGULAR);
             }
@@ -133,7 +133,7 @@ public final class CliScreen extends Screen implements NvgScreen {
       long now = System.currentTimeMillis();
       if (now < this.lastResultUntil && this.lastResult.length() != 0) {
          float alpha = RangesKt.coerceIn((float)(this.lastResultUntil - now) / 3500.0F, 0.0F, 1.0F);
-         NVGRenderer.INSTANCE.text(this.lastResult, x + 4.0F, y + 8.0F, 12.0F, Theme.INSTANCE.withAlpha(-6513508, alpha), null);
+         NVGRenderer.INSTANCE.text(this.lastResult, x + 4.0F, y + 8.0F, 12.0F, Theme.INSTANCE.withAlpha(-6513508, alpha), NVGRenderer.Font.REGULAR);
       }
    }
 
@@ -145,7 +145,7 @@ public final class CliScreen extends Screen implements NvgScreen {
             float ry = barY + 36.0F;
 
             for (String h : recent) {
-               NVGRenderer.INSTANCE.text("· " + h, barX + 4.0F, ry, 12.0F, -10724260, null);
+               NVGRenderer.INSTANCE.text("· " + h, barX + 4.0F, ry, 12.0F, -10724260, NVGRenderer.Font.REGULAR);
                ry += 14.0F;
             }
          }

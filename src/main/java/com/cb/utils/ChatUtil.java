@@ -46,7 +46,7 @@ public final class ChatUtil {
 
    public final void send(@NotNull String message) {
       Intrinsics.checkNotNullParameter(message, "message");
-      this.sendRaw(this.buildMessage(message, 0));
+      this.sendRaw(this.buildMessage(message, 16777215));
    }
 
    public final void info(@NotNull String message) {

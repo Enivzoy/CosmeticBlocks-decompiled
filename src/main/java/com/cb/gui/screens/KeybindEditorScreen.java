@@ -172,10 +172,10 @@ public final class KeybindEditorScreen extends Screen implements NvgScreen {
       NVGRenderer.INSTANCE.rect(0.0F, 0.0F, this.uiWidth, this.uiHeight, 1711276032, 0.0F);
       NVGRenderer.INSTANCE.shadow(this.panelX, this.panelY, this.panelWidth, this.panelHeight, 10.0F, 18.0F, Integer.MIN_VALUE);
       NVGRenderer.INSTANCE.rect(this.panelX, this.panelY, this.panelWidth, this.panelHeight, -183233516, 10.0F);
-      NVGRenderer.INSTANCE.rectOutline(this.panelX, this.panelY, this.panelWidth, this.panelHeight, 352321535, 10.0F, 0.0F);
+      NVGRenderer.INSTANCE.rectOutline(this.panelX, this.panelY, this.panelWidth, this.panelHeight, 352321535, 10.0F, 1.0F);
       NVGRenderer.INSTANCE.rectVarying(this.panelX, this.panelY, this.panelWidth, this.headerHeight, 10.0F, 10.0F, 0.0F, 0.0F, -14935012);
       NVGRenderer.INSTANCE.text("Keybinds", this.panelX + 10.0F + 4.0F, this.panelY + 16.0F, 14.0F, -1184275, NVGRenderer.Font.BOLD);
-      NVGRenderer.INSTANCE.text("Click a row to rebind · ESC/DEL clears", this.panelX + 10.0F + 4.0F, this.panelY + 33.0F, 12.0F, -10724260, null);
+      NVGRenderer.INSTANCE.text("Click a row to rebind · ESC/DEL clears", this.panelX + 10.0F + 4.0F, this.panelY + 33.0F, 12.0F, -10724260, NVGRenderer.Font.REGULAR);
       float closeSize = 18.0F;
       float closeX = this.panelX + this.panelWidth - closeSize - 10.0F;
       float closeY = this.panelY + (this.headerHeight - closeSize) / 2.0F;
@@ -188,11 +188,11 @@ public final class KeybindEditorScreen extends Screen implements NvgScreen {
       float fieldWidth = this.panelWidth - 20.0F;
       float fieldHeight = 24.0F;
       NVGRenderer.INSTANCE.rect(fieldX, fieldY, fieldWidth, fieldHeight, 1711276032, 5.0F);
-      NVGRenderer.INSTANCE.rectOutline(fieldX, fieldY, fieldWidth, fieldHeight, this.searchFocused ? -1750963 : 352321535, 5.0F, 0.0F);
+      NVGRenderer.INSTANCE.rectOutline(fieldX, fieldY, fieldWidth, fieldHeight, this.searchFocused ? -1750963 : 352321535, 5.0F, 1.0F);
       boolean showCaret = this.searchFocused && this.caretBlink % 1.0F < 0.5F;
       String display = this.search.length() == 0 && !this.searchFocused ? "filter keybinds…" : this.search + (showCaret ? "|" : "");
       int tc = this.search.length() == 0 && !this.searchFocused ? -10724260 : -1184275;
-      NVGRenderer.INSTANCE.text(display, fieldX + 8.0F, fieldY + fieldHeight / 2.0F, 13.0F, tc, null);
+      NVGRenderer.INSTANCE.text(display, fieldX + 8.0F, fieldY + fieldHeight / 2.0F, 13.0F, tc, NVGRenderer.Font.REGULAR);
       this.listTop = searchY + this.searchRowHeight + 2.0F;
       this.listBottom = this.panelY + this.panelHeight - 10.0F;
       float listX = this.panelX + 10.0F;
@@ -212,7 +212,7 @@ public final class KeybindEditorScreen extends Screen implements NvgScreen {
 
       try {
          if (rows.isEmpty()) {
-            NVGRenderer.INSTANCE.textCentered("No matches.", this.panelX + this.panelWidth / 2.0F, this.listTop + 24.0F, 13.0F, -10724260, null);
+            NVGRenderer.INSTANCE.textCentered("No matches.", this.panelX + this.panelWidth / 2.0F, this.listTop + 24.0F, 13.0F, -10724260, NVGRenderer.Font.REGULAR);
          } else {
             float rowY = this.listTop - this.scroll;
             String currentTab = "";
@@ -254,7 +254,7 @@ public final class KeybindEditorScreen extends Screen implements NvgScreen {
       }
 
       String labelx = row.getTabName() + " · " + row.getSetting().getName();
-      NVGRenderer.INSTANCE.text(labelx, x + 8.0F, y + this.rowHeight / 2.0F, 13.0F, -1184275, null);
+      NVGRenderer.INSTANCE.text(labelx, x + 8.0F, y + this.rowHeight / 2.0F, 13.0F, -1184275, NVGRenderer.Font.REGULAR);
       float btnW = 110.0F;
       float btnH = 20.0F;
       float btnX = x + w - btnW - 6.0F;

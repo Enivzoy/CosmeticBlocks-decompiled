@@ -84,8 +84,8 @@ public final class HudEditorScreen extends Screen implements NvgScreen {
       }
 
       NVGRenderer.INSTANCE.text("HUD Editor", 10.0F, 12.0F, 14.0F, -1184275, NVGRenderer.Font.BOLD);
-      NVGRenderer.INSTANCE.text("Cyan=Center  Green=Grid  Yellow=Edge  Orange=Element", 10.0F, 28.0F, 12.0F, -6513508, null);
-      NVGRenderer.INSTANCE.text("Drag elements · ESC saves and exits", 10.0F, 42.0F, 12.0F, -10724260, null);
+      NVGRenderer.INSTANCE.text("Cyan=Center  Green=Grid  Yellow=Edge  Orange=Element", 10.0F, 28.0F, 12.0F, -6513508, NVGRenderer.Font.REGULAR);
+      NVGRenderer.INSTANCE.text("Drag elements · ESC saves and exits", 10.0F, 42.0F, 12.0F, -10724260, NVGRenderer.Font.REGULAR);
    }
 
    private final void drawGrid(float w, float h) {
@@ -128,7 +128,7 @@ public final class HudEditorScreen extends Screen implements NvgScreen {
       boolean active = element == this.draggingElement;
       NVGRenderer.INSTANCE.rect(ex, ey, ew, eh, Integer.MIN_VALUE, 0.0F);
       NVGRenderer.INSTANCE.rectOutline(ex, ey, ew, eh, active ? this.colorCenter : this.colorElement, 0.0F, 1.0F);
-      NVGRenderer.INSTANCE.text(element.getId(), ex + 4.0F, ey + eh / 2.0F, 12.0F, -1184275, null);
+      NVGRenderer.INSTANCE.text(element.getId(), ex + 4.0F, ey + eh / 2.0F, 12.0F, -1184275, NVGRenderer.Font.REGULAR);
    }
 
    @Override

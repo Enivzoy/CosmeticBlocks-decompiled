@@ -98,7 +98,7 @@ public final class ProfileScreen extends Screen implements NvgScreen {
       NVGRenderer.INSTANCE.rect(0.0F, 0.0F, this.uiWidth, this.uiHeight, 1711276032, 0.0F);
       NVGRenderer.INSTANCE.shadow(this.panelX, this.panelY, this.panelWidth, this.panelHeight, 10.0F, 18.0F, Integer.MIN_VALUE);
       NVGRenderer.INSTANCE.rect(this.panelX, this.panelY, this.panelWidth, this.panelHeight, -183233516, 10.0F);
-      NVGRenderer.INSTANCE.rectOutline(this.panelX, this.panelY, this.panelWidth, this.panelHeight, 352321535, 10.0F, 0.0F);
+      NVGRenderer.INSTANCE.rectOutline(this.panelX, this.panelY, this.panelWidth, this.panelHeight, 352321535, 10.0F, 1.0F);
       NVGRenderer.INSTANCE.rectVarying(this.panelX, this.panelY, this.panelWidth, this.headerHeight, 10.0F, 10.0F, 0.0F, 0.0F, -14935012);
       NVGRenderer.INSTANCE.text("Profiles", this.panelX + 10.0F + 4.0F, this.panelY + this.headerHeight / 2.0F, 14.0F, -1184275, NVGRenderer.Font.BOLD);
       float closeSize = 18.0F;
@@ -108,18 +108,18 @@ public final class ProfileScreen extends Screen implements NvgScreen {
       NVGRenderer.INSTANCE
          .textCentered("x", closeX + closeSize / 2.0F, closeY + closeSize / 2.0F, 14.0F, closeHover ? -1750963 : -6513508, NVGRenderer.Font.BOLD);
       String countText = this.profiles.size() + " profile" + (this.profiles.size() == 1 ? "" : "s");
-      NVGRenderer.INSTANCE.textRight(countText, this.panelX + this.panelWidth - 10.0F - 4.0F, this.panelY + this.headerHeight + this.saveRowHeight / 2.0F, 12.0F, -10724260, null);
+      NVGRenderer.INSTANCE.textRight(countText, this.panelX + this.panelWidth - 10.0F - 4.0F, this.panelY + this.headerHeight + this.saveRowHeight / 2.0F, 12.0F, -10724260, NVGRenderer.Font.REGULAR);
       float saveRowY = this.panelY + this.headerHeight;
       float fieldX = this.panelX + 10.0F;
       float fieldY = saveRowY + (this.saveRowHeight - 24.0F) / 2.0F;
       float fieldWidth = 240.0F;
       float fieldHeight = 24.0F;
       NVGRenderer.INSTANCE.rect(fieldX, fieldY, fieldWidth, fieldHeight, 1711276032, 5.0F);
-      NVGRenderer.INSTANCE.rectOutline(fieldX, fieldY, fieldWidth, fieldHeight, this.nameFocused ? -1750963 : 352321535, 5.0F, 0.0F);
+      NVGRenderer.INSTANCE.rectOutline(fieldX, fieldY, fieldWidth, fieldHeight, this.nameFocused ? -1750963 : 352321535, 5.0F, 1.0F);
       boolean showCaret = this.nameFocused && this.caretBlink % 1.0F < 0.5F;
       String display = this.nameInput.length() == 0 && !this.nameFocused ? "new profile name…" : this.nameInput + (showCaret ? "|" : "");
       int textColor = this.nameInput.length() == 0 && !this.nameFocused ? -10724260 : -1184275;
-      NVGRenderer.INSTANCE.text(display, fieldX + 8.0F, fieldY + fieldHeight / 2.0F, 13.0F, textColor, null);
+      NVGRenderer.INSTANCE.text(display, fieldX + 8.0F, fieldY + fieldHeight / 2.0F, 13.0F, textColor, NVGRenderer.Font.REGULAR);
       float saveW = 70.0F;
       float saveX = fieldX + fieldWidth + 8.0F;
       boolean saveHover = this.inside(mouseX, mouseY, saveX, fieldY, saveW, fieldHeight);
@@ -149,7 +149,7 @@ public final class ProfileScreen extends Screen implements NvgScreen {
       try {
          int scissorLambda = 0;
          if (this.profiles.isEmpty()) {
-            NVGRenderer.INSTANCE.textCentered("No saved profiles yet.", this.panelX + this.panelWidth / 2.0F, listTop + 30.0F, 13.0F, -10724260, null);
+            NVGRenderer.INSTANCE.textCentered("No saved profiles yet.", this.panelX + this.panelWidth / 2.0F, listTop + 30.0F, 13.0F, -10724260, NVGRenderer.Font.REGULAR);
          } else {
             float cardY = listTop - this.scroll;
 
@@ -168,7 +168,7 @@ public final class ProfileScreen extends Screen implements NvgScreen {
       long nowx = System.currentTimeMillis();
       if (nowx < this.toastUntil && this.toast.length() > 0) {
          alpha = RangesKt.coerceIn((float)(this.toastUntil - nowx) / 1800.0F, 0.0F, 1.0F);
-         tw = NVGRenderer.INSTANCE.textWidth(this.toast, 13.0F, null);
+         tw = NVGRenderer.INSTANCE.textWidth(this.toast, 13.0F, NVGRenderer.Font.REGULAR);
          h = tw + 28.0F;
          float boxH = 26.0F;
          float tx = this.panelX + (this.panelWidth - h) / 2.0F;
@@ -176,8 +176,8 @@ public final class ProfileScreen extends Screen implements NvgScreen {
          NVGRenderer.INSTANCE.save();
          NVGRenderer.INSTANCE.globalAlpha(alpha);
          NVGRenderer.INSTANCE.rect(tx, ty, h, boxH, -14935012, 6.0F);
-         NVGRenderer.INSTANCE.rectOutline(tx, ty, h, boxH, -1750963, 6.0F, 0.0F);
-         NVGRenderer.INSTANCE.textCentered(this.toast, tx + h / 2.0F, ty + boxH / 2.0F, 13.0F, -1184275, null);
+         NVGRenderer.INSTANCE.rectOutline(tx, ty, h, boxH, -1750963, 6.0F, 1.0F);
+         NVGRenderer.INSTANCE.textCentered(this.toast, tx + h / 2.0F, ty + boxH / 2.0F, 13.0F, -1184275, NVGRenderer.Font.REGULAR);
          NVGRenderer.INSTANCE.restore();
       }
    }
@@ -202,11 +202,11 @@ public final class ProfileScreen extends Screen implements NvgScreen {
       anim.update(delta);
       int bgx = this.lerp(-14935012, -1, anim.getValue() * 0.4F);
       NVGRenderer.INSTANCE.rect(x, y, w, this.cardHeight, bgx, 8.0F);
-      NVGRenderer.INSTANCE.rectOutline(x, y, w, this.cardHeight, 352321535, 8.0F, 0.0F);
+      NVGRenderer.INSTANCE.rectOutline(x, y, w, this.cardHeight, 352321535, 8.0F, 1.0F);
       NVGRenderer.INSTANCE.rectVarying(x, y, 3.0F, this.cardHeight, 8.0F, 0.0F, 0.0F, 8.0F, -1750963);
       NVGRenderer.INSTANCE.text(p.getName(), x + 14.0F, y + 18.0F, 14.0F, -1184275, NVGRenderer.Font.MEDIUM);
       key = p.getSettingCount() + " settings  ·  " + ProfileManager.INSTANCE.formatTimestamp(p.getLastModified());
-      NVGRenderer.INSTANCE.text((String)key, x + 14.0F, y + 40.0F, 12.0F, -10724260, null);
+      NVGRenderer.INSTANCE.text((String)key, x + 14.0F, y + 40.0F, 12.0F, -10724260, NVGRenderer.Font.REGULAR);
       float btnW = 76.0F;
       float btnH = 26.0F;
       float btnY = y + (this.cardHeight - btnH) / 2.0F;
@@ -222,7 +222,7 @@ public final class ProfileScreen extends Screen implements NvgScreen {
          NVGRenderer.INSTANCE.textCentered("Confirm?", deleteX + btnW / 2.0F, btnY + btnH / 2.0F, 12.0F, -1184275, NVGRenderer.Font.MEDIUM);
       } else {
          NVGRenderer.INSTANCE.rect(deleteX, btnY, btnW, btnH, delHover ? -14013910 : 1711276032, 6.0F);
-         NVGRenderer.INSTANCE.textCentered("Delete", deleteX + btnW / 2.0F, btnY + btnH / 2.0F, 13.0F, delHover ? -1750963 : -6513508, null);
+         NVGRenderer.INSTANCE.textCentered("Delete", deleteX + btnW / 2.0F, btnY + btnH / 2.0F, 13.0F, delHover ? -1750963 : -6513508, NVGRenderer.Font.REGULAR);
       }
    }
 

@@ -119,27 +119,27 @@ public final class RadialBlockScreen extends Screen implements NvgScreen {
                      String name = StringsKt.removePrefix(this.favs.get(i), "minecraft:");
                      String shortName = name.length() > 12 ? StringsKt.take(name, 11) + "..." : name;
                      int textCol = i == this.hoveredIdx ? -1184275 : -6513508;
-                     NVGRenderer.INSTANCE.textCentered(shortName, lx, ly, 12.0F, textCol, null);
+                     NVGRenderer.INSTANCE.textCentered(shortName, lx, ly, 12.0F, textCol, NVGRenderer.Font.REGULAR);
                   }
 
                   NVGRenderer.INSTANCE.circle(cx, cy, rInner - 4.0F, Theme.INSTANCE.withAlpha(-14935012, 0.95F));
                   this.drawCircleOutline(cx, cy, rInner - 4.0F, Theme.INSTANCE.withAlpha(-1750963, 0.6F), 1.5F);
                   if (this.hoveredIdx >= 0) {
                      String fullName = StringsKt.replace(StringsKt.removePrefix(this.favs.get(this.hoveredIdx), "minecraft:"), '_', ' ', false);
-                     NVGRenderer.INSTANCE.textCentered("SELECT", cx, cy - 10.0F, 12.0F, -1750963, null);
+                     NVGRenderer.INSTANCE.textCentered("SELECT", cx, cy - 10.0F, 12.0F, -1750963, NVGRenderer.Font.REGULAR);
                      NVGRenderer.INSTANCE.textCentered(fullName, cx, cy + 8.0F, 13.0F, -1184275, NVGRenderer.Font.BOLD);
                   } else {
                      String current = StringsKt.replace(StringsKt.removePrefix(CosmeticBlocks.INSTANCE.getSelectedBlock(), "minecraft:"), '_', ' ', false);
-                     NVGRenderer.INSTANCE.textCentered("CURRENT", cx, cy - 10.0F, 12.0F, -6513508, null);
-                     NVGRenderer.INSTANCE.textCentered(current, cx, cy + 8.0F, 13.0F, -1184275, null);
+                     NVGRenderer.INSTANCE.textCentered("CURRENT", cx, cy - 10.0F, 12.0F, -6513508, NVGRenderer.Font.REGULAR);
+                     NVGRenderer.INSTANCE.textCentered(current, cx, cy + 8.0F, 13.0F, -1184275, NVGRenderer.Font.REGULAR);
                   }
 
-                  NVGRenderer.INSTANCE.textCentered("LMB pick   |   RMB / Esc close", cx, this.uiHeight - 48.0F, 12.0F, -10724260, null);
+                  NVGRenderer.INSTANCE.textCentered("LMB pick   |   RMB / Esc close", cx, this.uiHeight - 48.0F, 12.0F, -10724260, NVGRenderer.Font.REGULAR);
                   return;
                }
 
-               NVGRenderer.INSTANCE.textCentered("no favorites", cx, cy - 12.0F, 13.0F, -6513508, null);
-               NVGRenderer.INSTANCE.textCentered("right-click any block in the selector to add", cx, cy + 10.0F, 12.0F, -10724260, null);
+               NVGRenderer.INSTANCE.textCentered("no favorites", cx, cy - 12.0F, 13.0F, -6513508, NVGRenderer.Font.REGULAR);
+               NVGRenderer.INSTANCE.textCentered("right-click any block in the selector to add", cx, cy + 10.0F, 12.0F, -10724260, NVGRenderer.Font.REGULAR);
                this.hoveredIdx = -1;
             } finally {
                NVGRenderer.INSTANCE.endFrame();

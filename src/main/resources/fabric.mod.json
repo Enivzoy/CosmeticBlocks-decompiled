@@ -11,14 +11,12 @@
   "entrypoints": {
     "main": [
       {
-        "value": "com.cb.Cb",
-        "adapter": "kotlin"
+        "value": "com.cb.Cb::INSTANCE"
       }
     ],
     "client": [
       {
-        "value": "com.cb.CbClient",
-        "adapter": "kotlin"
+        "value": "com.cb.CbClient::INSTANCE"
       }
     ]
   },

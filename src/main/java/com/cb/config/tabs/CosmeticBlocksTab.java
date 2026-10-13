@@ -27,19 +27,19 @@ public final class CosmeticBlocksTab extends SettingsTab {
    @NotNull
    private static final BooleanSetting weFillOnClick = INSTANCE.bool("WE Fill on Click", "Auto-fills the region when you set Pos2.", false);
    @NotNull
-   private static final NumberSetting fillModeLimit = INSTANCE.number("Fill Mode Limit", "Max blocks a single fill-mode flood fill can change.", 256.0, 1.0, 8192.0, 1.0, null);
+   private static final NumberSetting fillModeLimit = INSTANCE.number("Fill Mode Limit", "Max blocks a single fill-mode flood fill can change.", 256.0, 1.0, 8192.0, 1.0, "");
    @NotNull
-   private static final KeybindSetting placeModeKeybind = INSTANCE.keybind("Place Mode Keybind", "Toggles Place Mode.", 0);
+   private static final KeybindSetting placeModeKeybind = INSTANCE.keybind("Place Mode Keybind", "Toggles Place Mode.", -1);
    @NotNull
-   private static final KeybindSetting editModeKeybind = INSTANCE.keybind("Edit Mode Keybind", "Toggles interactive Edit Mode.", 0);
+   private static final KeybindSetting editModeKeybind = INSTANCE.keybind("Edit Mode Keybind", "Toggles interactive Edit Mode.", -1);
    @NotNull
-   private static final KeybindSetting worldEditKeybind = INSTANCE.keybind("World Edit Keybind", "Toggles region (WorldEdit) selection mode.", 0);
+   private static final KeybindSetting worldEditKeybind = INSTANCE.keybind("World Edit Keybind", "Toggles region (WorldEdit) selection mode.", -1);
    @NotNull
-   private static final KeybindSetting blockSelectorKeybind = INSTANCE.keybind("Block Selector Keybind", "Opens the block selector.", 0);
+   private static final KeybindSetting blockSelectorKeybind = INSTANCE.keybind("Block Selector Keybind", "Opens the block selector.", -1);
    @NotNull
-   private static final KeybindSetting blockWheelKeybind = INSTANCE.keybind("Block Wheel Keybind", "Opens the radial favourites wheel.", 0);
+   private static final KeybindSetting blockWheelKeybind = INSTANCE.keybind("Block Wheel Keybind", "Opens the radial favourites wheel.", -1);
    @NotNull
-   private static final KeybindSetting rulerKeybind = INSTANCE.keybind("Ruler Keybind", "Toggles the ruler tool.", 0);
+   private static final KeybindSetting rulerKeybind = INSTANCE.keybind("Ruler Keybind", "Toggles the ruler tool.", -1);
    @NotNull
    private static final BooleanSetting lavaAsWater = INSTANCE.bool("Lava as Water", "Makes lava look like water.", false);
    @NotNull
@@ -62,7 +62,7 @@ public final class CosmeticBlocksTab extends SettingsTab {
    );
    @NotNull
    private static final NumberSetting overlayRange = SettingKt.visibleWhen(
-      INSTANCE.number("Overlay Range", "Max distance to render overlays.", 32.0, 8.0, 64.0, 1.0, null),
+      INSTANCE.number("Overlay Range", "Max distance to render overlays.", 32.0, 8.0, 64.0, 1.0, ""),
       CosmeticBlocksTab::overlayRangeVisible
    );
 

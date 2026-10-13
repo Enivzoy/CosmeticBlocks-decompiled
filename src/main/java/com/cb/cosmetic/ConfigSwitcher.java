@@ -39,7 +39,7 @@ public final class ConfigSwitcher {
          dropdownInitialized = true;
          lastActiveConfig = CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue();
          if (loadedConfigName != null && !Intrinsics.areEqual(loadedConfigName, CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue())) {
-            ReplacementIO.INSTANCE.loadFrom$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client(null));
+            ReplacementIO.INSTANCE.loadFrom$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client(CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue()));
             DirtySections.INSTANCE.markAllCachedDirty$cb_client();
          }
       } else {
@@ -92,7 +92,7 @@ public final class ConfigSwitcher {
       }
 
       SaveScheduler.INSTANCE.awaitPendingSaves$cb_client();
-      ReplacementIO.INSTANCE.saveToFileSync$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client(null));
+      ReplacementIO.INSTANCE.saveToFileSync$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client(CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue()));
       DirtySections.INSTANCE.markAllCachedDirty$cb_client();
       CosmeticBlocksTab.INSTANCE.getActiveConfig().setValue(name);
       lastActiveConfig = name;

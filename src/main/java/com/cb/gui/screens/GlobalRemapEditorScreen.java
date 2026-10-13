@@ -105,7 +105,7 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
                this.py = (this.uiHeight - h) / 2.0F;
                NVGRenderer.INSTANCE.shadow(this.px, this.py, w, h, 10.0F, 16.0F, Integer.MIN_VALUE);
                NVGRenderer.INSTANCE.rect(this.px, this.py, w, h, -183233516, 10.0F);
-               NVGRenderer.INSTANCE.rectOutline(this.px, this.py, w, h, 352321535, 10.0F, 0.0F);
+               NVGRenderer.INSTANCE.rectOutline(this.px, this.py, w, h, 352321535, 10.0F, 1.0F);
                if (this.view == GlobalRemapEditorScreen.View.LIST) {
                   this.renderListView();
                } else {
@@ -124,7 +124,7 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
       float h = this.getPanelH();
       float cy = this.py + 10.0F;
       NVGRenderer.INSTANCE.text("Block Remaps", this.px + 10.0F, cy + 7.0F, 14.0F, -1184275, NVGRenderer.Font.BOLD);
-      NVGRenderer.INSTANCE.textRight(GlobalRemap.INSTANCE.sources().size() + " sources", this.px + w - 10.0F, cy + 7.0F, 12.0F, -6513508, null);
+      NVGRenderer.INSTANCE.textRight(GlobalRemap.INSTANCE.sources().size() + " sources", this.px + w - 10.0F, cy + 7.0F, 12.0F, -6513508, NVGRenderer.Font.REGULAR);
       cy += 24.0F;
       float bx = this.px + 10.0F;
       bx += this.pillButton("+ Add Remap", bx, cy, true, () -> onAddRemap(this)) + 6.0F;
@@ -163,10 +163,10 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
       }
 
       if (sources.isEmpty()) {
-         NVGRenderer.INSTANCE.textCentered("No remaps yet — click \"+ Add Remap\".", this.px + w / 2.0F, this.listTop + 24.0F, 12.0F, -10724260, null);
+         NVGRenderer.INSTANCE.textCentered("No remaps yet — click \"+ Add Remap\".", this.px + w / 2.0F, this.listTop + 24.0F, 12.0F, -10724260, NVGRenderer.Font.REGULAR);
       }
 
-      NVGRenderer.INSTANCE.textCentered("ESC to close", this.px + w / 2.0F, this.py + h - 10.0F, 12.0F, -10724260, null);
+      NVGRenderer.INSTANCE.textCentered("ESC to close", this.px + w / 2.0F, this.py + h - 10.0F, 12.0F, -10724260, NVGRenderer.Font.REGULAR);
    }
 
    private final float renderSourceBlock(String src, float startY) {
@@ -191,13 +191,13 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
          int i = targetIndex++;
          GlobalRemap.RemapTarget t = (GlobalRemap.RemapTarget)iterator.next();
          if ((Boolean)visible.invoke(ry)) {
-            NVGRenderer.INSTANCE.text("> " + this.prettify(t.getId()), this.px + 10.0F + 12.0F, ry + this.rowH / 2.0F, 12.0F, -6513508, null);
+            NVGRenderer.INSTANCE.text("> " + this.prettify(t.getId()), this.px + 10.0F + 12.0F, ry + this.rowH / 2.0F, 12.0F, -6513508, NVGRenderer.Font.REGULAR);
             float cx = this.px + w - 10.0F - 16.0F;
             this.iconButton("x", cx, ry + (this.rowH - 14.0F) / 2.0F, () -> onRemoveTarget(src, i));
             cx -= 22.0F;
             this.iconButton("+", cx, ry + (this.rowH - 14.0F) / 2.0F, () -> onIncreaseWeight(src, i, t));
             cx -= 30.0F;
-            NVGRenderer.INSTANCE.textCentered("x" + t.getWeight(), cx + 14.0F, ry + this.rowH / 2.0F, 12.0F, -1184275, null);
+            NVGRenderer.INSTANCE.textCentered("x" + t.getWeight(), cx + 14.0F, ry + this.rowH / 2.0F, 12.0F, -1184275, NVGRenderer.Font.REGULAR);
             cx -= 18.0F;
             this.iconButton("-", cx, ry + (this.rowH - 14.0F) / 2.0F, () -> onDecreaseWeight(src, i, t));
          }
@@ -230,7 +230,7 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
       cy += 24.0F;
       float searchH = 22.0F;
       NVGRenderer.INSTANCE.rect(this.px + 10.0F, cy, w - 20.0F, searchH, 1711276032, 5.0F);
-      NVGRenderer.INSTANCE.rectOutline(this.px + 10.0F, cy, w - 20.0F, searchH, 352321535, 5.0F, 0.0F);
+      NVGRenderer.INSTANCE.rectOutline(this.px + 10.0F, cy, w - 20.0F, searchH, 352321535, 5.0F, 1.0F);
       String searchText;
       if (this.search.length() == 0) {
          searchText = "type to filter...";
@@ -238,14 +238,14 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
          searchText = this.search;
       }
       int searchColorx = this.search.length() == 0 ? -10724260 : -1184275;
-      NVGRenderer.INSTANCE.text(searchText, this.px + 10.0F + 8.0F, cy + searchH / 2.0F, 13.0F, searchColorx, null);
+      NVGRenderer.INSTANCE.text(searchText, this.px + 10.0F + 8.0F, cy + searchH / 2.0F, 13.0F, searchColorx, NVGRenderer.Font.REGULAR);
       if (this.blink % 1.0F < 0.55F) {
-         float caretX = this.px + 10.0F + 8.0F + NVGRenderer.INSTANCE.textWidth(this.search, 13.0F, null);
+         float caretX = this.px + 10.0F + 8.0F + NVGRenderer.INSTANCE.textWidth(this.search, 13.0F, NVGRenderer.Font.REGULAR);
          NVGRenderer.INSTANCE.rect(caretX + 1.0F, cy + searchH / 2.0F - 6.0F, 1.2F, 12.0F, -1750963, 0.0F);
       }
 
       cy += searchH + 6.0F;
-      NVGRenderer.INSTANCE.text(this.filtered.size() + " result" + (this.filtered.size() == 1 ? "" : "s"), this.px + 10.0F, cy + 6.0F, 12.0F, -10724260, null);
+      NVGRenderer.INSTANCE.text(this.filtered.size() + " result" + (this.filtered.size() == 1 ? "" : "s"), this.px + 10.0F, cy + 6.0F, 12.0F, -10724260, NVGRenderer.Font.REGULAR);
       cy += 16.0F;
       this.pickListTop = cy;
       this.pickListBottom = this.py + h - 20.0F;
@@ -294,7 +294,7 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
                   NVGRenderer.INSTANCE.rect(this.px + 2.0F, ry, w - 4.0F, this.rowH, 318767103, 4.0F);
                }
 
-               NVGRenderer.INSTANCE.text(this.prettify(id), this.px + 10.0F + 4.0F, ry + this.rowH / 2.0F, 12.0F, -1184275, null);
+               NVGRenderer.INSTANCE.text(this.prettify(id), this.px + 10.0F + 4.0F, ry + this.rowH / 2.0F, 12.0F, -1184275, NVGRenderer.Font.REGULAR);
                if (i == last) {
                   break;
                }
@@ -306,7 +306,7 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
          renderer.restore();
       }
 
-      NVGRenderer.INSTANCE.textCentered("Enter confirm   |   ESC back", this.px + w / 2.0F, this.py + h - 10.0F, 12.0F, -10724260, null);
+      NVGRenderer.INSTANCE.textCentered("Enter confirm   |   ESC back", this.px + w / 2.0F, this.py + h - 10.0F, 12.0F, -10724260, NVGRenderer.Font.REGULAR);
    }
 
    private final float pillButton(String label, float x, float y, boolean accent, Function0<Unit> act) {
@@ -314,7 +314,7 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
       float bh;
       boolean hovered;
       label35: {
-         bw = NVGRenderer.INSTANCE.textWidth(label, 12.0F, null) + 16.0F;
+         bw = NVGRenderer.INSTANCE.textWidth(label, 12.0F, NVGRenderer.Font.REGULAR) + 16.0F;
          bh = 16.0F;
          float bg = x + bw;
          float cursor = this.mouseX;
@@ -332,7 +332,7 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
 
       int bg = accent ? -1750963 : (hovered ? 318767103 : -14013910);
       NVGRenderer.INSTANCE.rect(x, y, bw, bh, bg, 4.0F);
-      NVGRenderer.INSTANCE.textCentered(label, x + bw / 2.0F, y + bh / 2.0F, 12.0F, -1184275, null);
+      NVGRenderer.INSTANCE.textCentered(label, x + bw / 2.0F, y + bh / 2.0F, 12.0F, -1184275, NVGRenderer.Font.REGULAR);
       this.hits.add(new GlobalRemapEditorScreen.Hit(x, y, bw, bh, act));
       return bw;
    }
@@ -357,7 +357,7 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
       }
 
       NVGRenderer.INSTANCE.rect(x, y, s, s, hovered ? -1750963 : -14013910, 3.0F);
-      NVGRenderer.INSTANCE.textCentered(glyph, x + s / 2.0F, y + s / 2.0F, 12.0F, -1184275, null);
+      NVGRenderer.INSTANCE.textCentered(glyph, x + s / 2.0F, y + s / 2.0F, 12.0F, -1184275, NVGRenderer.Font.REGULAR);
       if (this.withinList(y)) {
          this.hits.add(new GlobalRemapEditorScreen.Hit(x, y, s, s, act));
       }
@@ -385,7 +385,7 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
       }
 
       NVGRenderer.INSTANCE.rect(x, y, wdt, s, hovered ? 318767103 : -14013910, 3.0F);
-      NVGRenderer.INSTANCE.textCentered(label, x + wdt / 2.0F, y + s / 2.0F, 12.0F, -1184275, null);
+      NVGRenderer.INSTANCE.textCentered(label, x + wdt / 2.0F, y + s / 2.0F, 12.0F, -1184275, NVGRenderer.Font.REGULAR);
       if (this.withinList(y)) {
          this.hits.add(new GlobalRemapEditorScreen.Hit(x, y, wdt, s, act));
       }

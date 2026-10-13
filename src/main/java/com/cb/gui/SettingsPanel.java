@@ -208,7 +208,7 @@ public final class SettingsPanel {
          }
       }
 
-      NVGRenderer.INSTANCE.rectOutline(this.x, this.y, this.getWidth(), panelHeight, 352321535, 10.0F, 0.0F);
+      NVGRenderer.INSTANCE.rectOutline(this.x, this.y, this.getWidth(), panelHeight, 352321535, 10.0F, 1.0F);
       if (tilting) {
          NVGRenderer.INSTANCE.restore();
       }
@@ -237,7 +237,7 @@ public final class SettingsPanel {
       float bottomRadius = this.shownContent > 0.5F ? 0.0F : radius;
       NVGRenderer.INSTANCE.rectVarying(this.x, this.y, this.getWidth(), 36.0F, radius, radius, bottomRadius, bottomRadius, -14935012);
       if (this.shownContent > 0.5F) {
-         NVGRenderer.INSTANCE.line(this.x, this.y + 36.0F, this.x + this.getWidth(), this.y + 36.0F, 352321535, 0.0F);
+         NVGRenderer.INSTANCE.line(this.x, this.y + 36.0F, this.x + this.getWidth(), this.y + 36.0F, 352321535, 1.0F);
       }
 
       NVGRenderer.INSTANCE.text(this.tab.getName(), this.x + 14.0F, this.y + 18.0F, 14.0F, -1184275, NVGRenderer.Font.BOLD);

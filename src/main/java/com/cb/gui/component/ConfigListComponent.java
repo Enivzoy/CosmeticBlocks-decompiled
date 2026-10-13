@@ -40,7 +40,7 @@ public final class ConfigListComponent extends SettingComponent<ConfigListSettin
       this.renderRowBase(mouseX, mouseY, delta);
       String display = this.getSetting().getValue();
       String shown = display.length() == 0 ? "—" : display;
-      NVGRenderer.INSTANCE.textRight(shown, this.getPadRight(), this.getY() + this.getRowH() / 2.0F, 12.0F, -6513508, null);
+      NVGRenderer.INSTANCE.textRight(shown, this.getPadRight(), this.getY() + this.getRowH() / 2.0F, 12.0F, -6513508, NVGRenderer.Font.REGULAR);
       this.expandAnim.setTarget(this.open ? 1.0F : 0.0F);
       this.expandAnim.update(delta);
       if (this.expandAnim.getValue() > 0.01F && !this.options.isEmpty()) {
@@ -58,7 +58,7 @@ public final class ConfigListComponent extends SettingComponent<ConfigListSettin
                }
 
                int color = Intrinsics.areEqual(opt, this.getSetting().getValue()) ? -1750963 : -6513508;
-               NVGRenderer.INSTANCE.text(opt, this.getX() + 18.0F, oy + this.optionH / 2.0F, 12.0F, color, null);
+               NVGRenderer.INSTANCE.text(opt, this.getX() + 18.0F, oy + this.optionH / 2.0F, 12.0F, color, NVGRenderer.Font.REGULAR);
                oy += this.optionH;
             }
          } finally {

@@ -10,7 +10,7 @@ public final class GuiTab extends SettingsTab {
    @NotNull
    private static final KeybindSetting openGuiKeybind = INSTANCE.keybind("Open GUI Keybind", "Opens this settings screen.", 344);
    @NotNull
-   private static final KeybindSetting openCliKeybind = INSTANCE.keybind("Open CLI Keybind", "Opens the command-line overlay.", 0);
+   private static final KeybindSetting openCliKeybind = INSTANCE.keybind("Open CLI Keybind", "Opens the command-line overlay.", -1);
 
    private GuiTab() {
       super("GUI");

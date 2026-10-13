@@ -67,7 +67,7 @@ public final class ColorComponent extends SettingComponent<ColorSetting> {
       float swatchX = this.getPadRight() - swatchWidth;
       float swatchY = this.getY() + (26.0F - swatchHeight) / 2.0F;
       NVGRenderer.INSTANCE.rect(swatchX, swatchY, swatchWidth, swatchHeight, this.getSetting().getValue().intValue(), 4.0F);
-      NVGRenderer.INSTANCE.rectOutline(swatchX, swatchY, swatchWidth, swatchHeight, 352321535, 4.0F, 0.0F);
+      NVGRenderer.INSTANCE.rectOutline(swatchX, swatchY, swatchWidth, swatchHeight, 352321535, 4.0F, 1.0F);
       if (!(this.openAnim.getValue() <= 0.01F)) {
          if (this.drag != ColorComponent.Drag.NONE) {
             this.updateDrag(mouseX, mouseY);
@@ -90,7 +90,7 @@ public final class ColorComponent extends SettingComponent<ColorSetting> {
       int hueRgb = Color.HSBtoRGB(this.getSetting().getHue(), 1.0F, 1.0F) & 16777215 | 0xFF000000;
       NVGRenderer.INSTANCE.gradientRect(this.getPadLeft(), this.getSvY(), this.getInnerWidth(), 86.0F, 5.0F, -1, hueRgb, true);
       NVGRenderer.INSTANCE.gradientRect(this.getPadLeft(), this.getSvY(), this.getInnerWidth(), 86.0F, 5.0F, 0, -16777216, false);
-      NVGRenderer.INSTANCE.rectOutline(this.getPadLeft(), this.getSvY(), this.getInnerWidth(), 86.0F, 352321535, 5.0F, 0.0F);
+      NVGRenderer.INSTANCE.rectOutline(this.getPadLeft(), this.getSvY(), this.getInnerWidth(), 86.0F, 352321535, 5.0F, 1.0F);
       float selX = this.getPadLeft() + this.getSetting().getSaturation() * this.getInnerWidth();
       float selY = this.getSvY() + (1.0F - this.getSetting().getBrightness()) * 86.0F;
       NVGRenderer.INSTANCE.circle(selX, selY, 5.0F, -16777216);
@@ -108,7 +108,7 @@ public final class ColorComponent extends SettingComponent<ColorSetting> {
          NVGRenderer.INSTANCE.gradientRect(this.getPadLeft() + i * segmentWidth, this.getHueY(), segmentWidth + 0.5F, 10.0F, 0.0F, from, to, true);
       }
 
-      NVGRenderer.INSTANCE.rectOutline(this.getPadLeft(), this.getHueY(), this.getInnerWidth(), 10.0F, 352321535, 3.0F, 0.0F);
+      NVGRenderer.INSTANCE.rectOutline(this.getPadLeft(), this.getHueY(), this.getInnerWidth(), 10.0F, 352321535, 3.0F, 1.0F);
       this.selectorLine(this.getPadLeft() + this.getSetting().getHue() * this.getInnerWidth(), this.getHueY());
    }
 
@@ -125,7 +125,7 @@ public final class ColorComponent extends SettingComponent<ColorSetting> {
             this.getSetting().getOpaqueRgb(),
             true
          );
-      NVGRenderer.INSTANCE.rectOutline(this.getPadLeft(), this.getAlphaY(), this.getInnerWidth(), 10.0F, 352321535, 3.0F, 0.0F);
+      NVGRenderer.INSTANCE.rectOutline(this.getPadLeft(), this.getAlphaY(), this.getInnerWidth(), 10.0F, 352321535, 3.0F, 1.0F);
       this.selectorLine(this.getPadLeft() + this.getSetting().getAlpha() * this.getInnerWidth(), this.getAlphaY());
    }
 
@@ -183,13 +183,13 @@ public final class ColorComponent extends SettingComponent<ColorSetting> {
          float fx = RangesKt.coerceIn((mouseX - this.getPadLeft()) / this.getInnerWidth(), 0.0F, 1.0F);
          switch (this.drag) {
             case SV:
-               this.getSetting().setHsba(0.0F, fx, 1.0F - RangesKt.coerceIn((mouseY - this.getSvY()) / 86.0F, 0.0F, 1.0F), 0.0F);
+               this.getSetting().setHsba(this.getSetting().getHue(), fx, 1.0F - RangesKt.coerceIn((mouseY - this.getSvY()) / 86.0F, 0.0F, 1.0F), this.getSetting().getAlpha());
                break;
             case HUE:
-               this.getSetting().setHsba(fx, 0.0F, 0.0F, 0.0F);
+               this.getSetting().setHsba(fx, this.getSetting().getSaturation(), this.getSetting().getBrightness(), this.getSetting().getAlpha());
                break;
             case ALPHA:
-               this.getSetting().setHsba(0.0F, 0.0F, 0.0F, fx);
+               this.getSetting().setHsba(this.getSetting().getHue(), this.getSetting().getSaturation(), this.getSetting().getBrightness(), fx);
             case NONE:
                break;
             default:

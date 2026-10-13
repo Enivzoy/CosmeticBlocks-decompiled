@@ -12,7 +12,6 @@
         "LevelEventHandlerMixin",
         "MultiPlayerGameModeMixin",
         "LevelRendererCompatMixin",
-        "RoomScannerCompatMixin",
         "LevelRendererMixin",
         "GuiCompatMixin",
         "MinecraftCompatMixin",

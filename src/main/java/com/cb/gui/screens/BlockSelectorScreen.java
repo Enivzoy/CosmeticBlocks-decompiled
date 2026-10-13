@@ -136,14 +136,14 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
                this.py = (this.uiHeight - h) / 2.0F;
                NVGRenderer.INSTANCE.shadow(this.px, this.py, w, h, 10.0F, 16.0F, Integer.MIN_VALUE);
                NVGRenderer.INSTANCE.rect(this.px, this.py, w, h, -183233516, 10.0F);
-               NVGRenderer.INSTANCE.rectOutline(this.px, this.py, w, h, 352321535, 10.0F, 0.0F);
+               NVGRenderer.INSTANCE.rectOutline(this.px, this.py, w, h, 352321535, 10.0F, 1.0F);
                float cy = this.py + 10.0F;
                NVGRenderer.INSTANCE.text("Brush Block", this.px + 10.0F, cy + 7.0F, 14.0F, -1184275, NVGRenderer.Font.BOLD);
-               NVGRenderer.INSTANCE.textRight("Current: " + this.prettify(CosmeticBlocks.INSTANCE.getSelectedBlock()), this.px + w - 10.0F, cy + 7.0F, 12.0F, -6513508, null);
+               NVGRenderer.INSTANCE.textRight("Current: " + this.prettify(CosmeticBlocks.INSTANCE.getSelectedBlock()), this.px + w - 10.0F, cy + 7.0F, 12.0F, -6513508, NVGRenderer.Font.REGULAR);
                cy += 22.0F;
                float searchH = 22.0F;
                NVGRenderer.INSTANCE.rect(this.px + 10.0F, cy, w - 20.0F, searchH, 1711276032, 5.0F);
-               NVGRenderer.INSTANCE.rectOutline(this.px + 10.0F, cy, w - 20.0F, searchH, 352321535, 5.0F, 0.0F);
+               NVGRenderer.INSTANCE.rectOutline(this.px + 10.0F, cy, w - 20.0F, searchH, 352321535, 5.0F, 1.0F);
                CharSequence searchChars = this.search;
                CharSequence searchShown;
                if (searchChars.length() == 0) {
@@ -154,9 +154,9 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
 
                String searchText = (String)searchShown;
                int searchTextColor = this.search.length() == 0 ? -10724260 : -1184275;
-               NVGRenderer.INSTANCE.text(searchText, this.px + 10.0F + 8.0F, cy + searchH / 2.0F, 13.0F, searchTextColor, null);
+               NVGRenderer.INSTANCE.text(searchText, this.px + 10.0F + 8.0F, cy + searchH / 2.0F, 13.0F, searchTextColor, NVGRenderer.Font.REGULAR);
                if (this.blink % 1.0F < 0.55F) {
-                  float caretX = this.px + 10.0F + 8.0F + NVGRenderer.INSTANCE.textWidth(this.search, 13.0F, null);
+                  float caretX = this.px + 10.0F + 8.0F + NVGRenderer.INSTANCE.textWidth(this.search, 13.0F, NVGRenderer.Font.REGULAR);
                   NVGRenderer.INSTANCE.rect(caretX + 1.0F, cy + searchH / 2.0F - 6.0F, 1.2F, 12.0F, -1750963, 0.0F);
                }
 
@@ -170,7 +170,7 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
 
                this.favRects = CollectionsKt.emptyList();
                if (!favs.isEmpty()) {
-                  NVGRenderer.INSTANCE.text("FAVORITES", this.px + 10.0F, cy + 6.0F, 12.0F, -10724260, null);
+                  NVGRenderer.INSTANCE.text("FAVORITES", this.px + 10.0F, cy + 6.0F, 12.0F, -10724260, NVGRenderer.Font.REGULAR);
                   cy += 14.0F;
                   List chips = new ArrayList();
                   float chipX = this.px + 10.0F;
@@ -179,7 +179,7 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
 
                   for (String id : favs) {
                      String label = "★ " + this.prettify(id);
-                     float cw = NVGRenderer.INSTANCE.textWidth(label, 12.0F, null) + 14.0F;
+                     float cw = NVGRenderer.INSTANCE.textWidth(label, 12.0F, NVGRenderer.Font.REGULAR) + 14.0F;
                      if (chipX + cw > maxX) {
                         break;
                      }
@@ -200,7 +200,7 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
                         hovered = false;
                      }
                      NVGRenderer.INSTANCE.rect(chipX, cy, cw, chipH, hovered ? 318767103 : -14935012, 4.0F);
-                     NVGRenderer.INSTANCE.text(label, chipX + 7.0F, cy + chipH / 2.0F, 12.0F, -1750963, null);
+                     NVGRenderer.INSTANCE.text(label, chipX + 7.0F, cy + chipH / 2.0F, 12.0F, -1750963, NVGRenderer.Font.REGULAR);
                      chips.add(new Triple<>(id, chipX, cw));
                      chipX += cw + 6.0F;
                   }
@@ -210,12 +210,12 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
                }
 
                this.favStripBottom = cy;
-               NVGRenderer.INSTANCE.text(this.filtered.size() + " result" + (this.filtered.size() == 1 ? "" : "s"), this.px + 10.0F, cy + 6.0F, 12.0F, -10724260, null);
+               NVGRenderer.INSTANCE.text(this.filtered.size() + " result" + (this.filtered.size() == 1 ? "" : "s"), this.px + 10.0F, cy + 6.0F, 12.0F, -10724260, NVGRenderer.Font.REGULAR);
                cy += 16.0F;
                this.listTop = cy;
                this.listBottom = this.py + h - 24.0F;
                this.renderList(favs);
-               NVGRenderer.INSTANCE.textCentered("Up/Down navigate   |   Enter confirm   |   Right-click toggle favorite", this.px + w / 2.0F, this.py + h - 12.0F, 12.0F, -10724260, null);
+               NVGRenderer.INSTANCE.textCentered("Up/Down navigate   |   Enter confirm   |   Right-click toggle favorite", this.px + w / 2.0F, this.py + h - 12.0F, 12.0F, -10724260, NVGRenderer.Font.REGULAR);
             } finally {
                NVGRenderer.INSTANCE.endFrame();
             }
@@ -283,13 +283,13 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
                   NVGRenderer.INSTANCE.rect(this.px + 2.0F, ry, w - 4.0F, this.rowH, 318767103, 4.0F);
                }
 
-               NVGRenderer.INSTANCE.text(this.prettify(id), this.px + 10.0F + 4.0F, ry + this.rowH / 2.0F, 12.0F, -1184275, null);
+               NVGRenderer.INSTANCE.text(this.prettify(id), this.px + 10.0F + 4.0F, ry + this.rowH / 2.0F, 12.0F, -1184275, NVGRenderer.Font.REGULAR);
                boolean isCurrent = Intrinsics.areEqual(id, CosmeticBlocks.INSTANCE.getSelectedBlock());
                boolean isFav = favs.contains(id);
                if (isCurrent) {
-                  NVGRenderer.INSTANCE.textRight("● active", this.px + w - 10.0F, ry + this.rowH / 2.0F, 12.0F, -1750963, null);
+                  NVGRenderer.INSTANCE.textRight("● active", this.px + w - 10.0F, ry + this.rowH / 2.0F, 12.0F, -1750963, NVGRenderer.Font.REGULAR);
                } else if (isFav) {
-                  NVGRenderer.INSTANCE.textRight("★", this.px + w - 10.0F, ry + this.rowH / 2.0F, 12.0F, -15821, null);
+                  NVGRenderer.INSTANCE.textRight("★", this.px + w - 10.0F, ry + this.rowH / 2.0F, 12.0F, -15821, NVGRenderer.Font.REGULAR);
                }
 
                if (i == last) {
@@ -304,7 +304,7 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
       }
 
       if (this.filtered.isEmpty()) {
-         NVGRenderer.INSTANCE.textCentered("No blocks match.", this.px + w / 2.0F, this.listTop + 16.0F, 12.0F, -10724260, null);
+         NVGRenderer.INSTANCE.textCentered("No blocks match.", this.px + w / 2.0F, this.listTop + 16.0F, 12.0F, -10724260, NVGRenderer.Font.REGULAR);
       }
    }
 

@@ -36,7 +36,7 @@ public final class ReplacementIO {
          SaveScheduler.INSTANCE.setNeedsSave$cb_client(false);
          SaveScheduler.INSTANCE.setLastSaveTime$cb_client(System.currentTimeMillis());
          Map snapshot = ReplacementStore.INSTANCE.snapshotReplacements$cb_client();
-         File file = ReplacementStore.INSTANCE.getConfigFile$cb_client(null);
+         File file = ReplacementStore.INSTANCE.getConfigFile$cb_client(CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue());
          SaveScheduler.INSTANCE.setSaveInFlight$cb_client(true);
          SaveScheduler.INSTANCE.getSaveExecutor$cb_client().execute(() -> saveAsync(snapshot, file));
       }
@@ -120,7 +120,7 @@ public final class ReplacementIO {
       SaveScheduler.INSTANCE.flushSave$cb_client();
       SaveScheduler.INSTANCE.awaitPendingSaves$cb_client();
       ConfigSwitcher.INSTANCE.setLoadedConfigName$cb_client(CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue());
-      this.loadFrom$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client(null));
+      this.loadFrom$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client(CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue()));
       DirtySections.INSTANCE.markAllCachedDirty$cb_client();
    }
 

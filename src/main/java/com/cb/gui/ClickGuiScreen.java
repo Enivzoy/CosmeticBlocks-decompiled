@@ -122,15 +122,15 @@ public final class ClickGuiScreen extends Screen implements NvgScreen {
          this.tooltipTimer += delta;
          if (!(this.tooltipTimer < 0.55F)) {
             float size = 12.0F;
-            float textWidth = NVGRenderer.INSTANCE.textWidth(request, size, null);
+            float textWidth = NVGRenderer.INSTANCE.textWidth(request, size, NVGRenderer.Font.REGULAR);
             float boxWidth = textWidth + 16.0F;
             float boxHeight = 22.0F;
             this.tooltipX = RangesKt.coerceAtMost(mouseX + 12.0F, this.uiWidth - boxWidth - 4.0F);
             this.tooltipY = RangesKt.coerceAtMost(mouseY + 14.0F, this.uiHeight - boxHeight - 4.0F);
             NVGRenderer.INSTANCE.shadow(this.tooltipX, this.tooltipY, boxWidth, boxHeight, 5.0F, 8.0F, 1711276032);
             NVGRenderer.INSTANCE.rect(this.tooltipX, this.tooltipY, boxWidth, boxHeight, -14935012, 5.0F);
-            NVGRenderer.INSTANCE.rectOutline(this.tooltipX, this.tooltipY, boxWidth, boxHeight, 352321535, 5.0F, 0.0F);
-            NVGRenderer.INSTANCE.text(request, this.tooltipX + 8.0F, this.tooltipY + boxHeight / 2.0F, size, -6513508, null);
+            NVGRenderer.INSTANCE.rectOutline(this.tooltipX, this.tooltipY, boxWidth, boxHeight, 352321535, 5.0F, 1.0F);
+            NVGRenderer.INSTANCE.text(request, this.tooltipX + 8.0F, this.tooltipY + boxHeight / 2.0F, size, -6513508, NVGRenderer.Font.REGULAR);
          }
       }
    }

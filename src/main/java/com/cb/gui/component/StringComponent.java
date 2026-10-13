@@ -32,7 +32,7 @@ public final class StringComponent extends SettingComponent<StringSetting> {
       boolean empty = value.length() == 0;
       String display = empty && !this.focused ? this.getSetting().getPlaceholder() : value;
       int color = this.focused ? -1184275 : (empty ? -10724260 : -6513508);
-      float nameWidth = NVGRenderer.INSTANCE.textWidth(this.getSetting().getName(), 12.0F, null) + 12.0F;
+      float nameWidth = NVGRenderer.INSTANCE.textWidth(this.getSetting().getName(), 12.0F, NVGRenderer.Font.REGULAR) + 12.0F;
       float maxTextWidth = RangesKt.coerceAtLeast(this.getPadRight() - this.getPadLeft() - nameWidth, 20.0F);
       float midY = this.getY() + 13.0F;
       NVGRenderer.INSTANCE.save();
@@ -41,11 +41,11 @@ public final class StringComponent extends SettingComponent<StringSetting> {
       try {
          NVGRenderer.INSTANCE.textRight(display, this.getPadRight(), midY, 12.0F, color, NVGRenderer.Font.REGULAR);
          if (this.focused && this.blinkTimer % 1.0F < 0.55F) {
-            float textWidth = NVGRenderer.INSTANCE.textWidth(value, 12.0F, null);
+            float textWidth = NVGRenderer.INSTANCE.textWidth(value, 12.0F, NVGRenderer.Font.REGULAR);
             float textStart = this.getPadRight() - textWidth;
             String prefix = value.substring(0, this.cursor);
             Intrinsics.checkNotNullExpressionValue(prefix, "substring(...)");
-            float caretX = textStart + NVGRenderer.INSTANCE.textWidth(prefix, 12.0F, null);
+            float caretX = textStart + NVGRenderer.INSTANCE.textWidth(prefix, 12.0F, NVGRenderer.Font.REGULAR);
             NVGRenderer.INSTANCE.rect(RangesKt.coerceAtMost(caretX, this.getPadRight()), midY - 6.0F, 1.2F, 12.0F, -1750963, 0.0F);
          }
       } finally {
