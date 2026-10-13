@@ -11,13 +11,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
-import kotlin.Metadata;
 import kotlin.Pair;
 import kotlin.TuplesKt;
 import kotlin.collections.CollectionsKt;
 import kotlin.collections.MapsKt;
 import kotlin.jvm.internal.Intrinsics;
-import kotlin.jvm.internal.SourceDebugExtension;
 import kotlin.ranges.RangesKt;
 import kotlin.text.StringsKt;
 import net.minecraft.client.Minecraft;
@@ -39,76 +37,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-@Metadata(
-   mv = {2, 3, 0},
-   k = 1,
-   xi = 48,
-   d1 = "\u0000L\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0010\u000b\n\u0002\b\u0003\n\u0002\u0010\u000e\n\u0002\b\u000e\n\u0002\u0010\u0002\n\u0002\b\t\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0005\n\u0002\u0010\u0006\n\u0002\b\u0006\n\u0002\u0010\b\n\u0002\b\u0005\bÆ\u0002\u0018\u00002\u00020\u0001B\t\b\u0002¢\u0006\u0004\b\u0002\u0010\u0003J\u0006\u0010\u001b\u001a\u00020\u001cJ\u0006\u0010\u001d\u001a\u00020\u001cJ\u0006\u0010\u001e\u001a\u00020\tJ\u000e\u0010\u001f\u001a\u00020\u001c2\u0006\u0010 \u001a\u00020\rJ\u0006\u0010!\u001a\u00020\tJ\u0016\u0010\"\u001a\u00020\u001c2\u0006\u0010#\u001a\u00020\r2\u0006\u0010\b\u001a\u00020\rJ\u0006\u0010$\u001a\u00020\u001cJ\u001b\u0010%\u001a\u0010\u0012\u0004\u0012\u00020'\u0012\u0004\u0012\u00020(\u0018\u00010&H\u0000¢\u0006\u0002\b)J\u000f\u0010*\u001a\u0004\u0018\u00010'H\u0000¢\u0006\u0002\b+JP\u0010,\u001a\u00020(2\u0006\u0010-\u001a\u00020.2\u0006\u0010/\u001a\u00020.2\u0006\u00100\u001a\u00020.2\u0006\u00101\u001a\u00020.2\u0006\u00102\u001a\u00020.2\u0006\u00103\u001a\u00020.2\u0006\u00104\u001a\u0002052\u0006\u00106\u001a\u0002052\u0006\u00107\u001a\u000205H\u0002J\r\u00108\u001a\u00020\u001cH\u0000¢\u0006\u0002\b9R\u0014\u0010\u0004\u001a\u00020\u00058BX\u0082\u0004¢\u0006\u0006\u001a\u0004\b\u0006\u0010\u0007R\u001e\u0010\n\u001a\u00020\t2\u0006\u0010\b\u001a\u00020\t@BX\u0086\u000e¢\u0006\b\n\u0000\u001a\u0004\b\u000b\u0010\fR$\u0010\u000e\u001a\u00020\r2\u0006\u0010\b\u001a\u00020\r@@X\u0086\u000e¢\u0006\u000e\n\u0000\u001a\u0004\b\u000f\u0010\u0010\"\u0004\b\u0011\u0010\u0012R\u000e\u0010\u0013\u001a\u00020\tX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u0014\u001a\u00020\tX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u0015\u001a\u00020\tX\u0082\u000e¢\u0006\u0002\n\u0000R\u001c\u0010\u0016\u001a\u0004\u0018\u00010\rX\u0086\u000e¢\u0006\u000e\n\u0000\u001a\u0004\b\u0017\u0010\u0010\"\u0004\b\u0018\u0010\u0012R\u001e\u0010\u0019\u001a\u00020\t2\u0006\u0010\b\u001a\u00020\t@BX\u0086\u000e¢\u0006\b\n\u0000\u001a\u0004\b\u001a\u0010\f¨\u0006:",
-   d2 = {
-         "Lcom/cb/cosmetic/EditMode;",
-         "",
-         "<init>",
-         "()V",
-         "mc",
-         "Lnet/minecraft/client/Minecraft;",
-         "getMc",
-         "()Lnet/minecraft/client/Minecraft;",
-         "value",
-         "",
-         "editMode",
-         "getEditMode",
-         "()Z",
-         "",
-         "selectedBlock",
-         "getSelectedBlock",
-         "()Ljava/lang/String;",
-         "setSelectedBlock$cb_client",
-         "(Ljava/lang/String;)V",
-         "leftWasPressed",
-         "rightWasPressed",
-         "middleWasPressed",
-         "currentShape",
-         "getCurrentShape",
-         "setCurrentShape",
-         "fillMode",
-         "getFillMode",
-         "toggleFillMode",
-         "",
-         "toggleEditMode",
-         "tryPickCosmeticAtCrosshair",
-         "setBlock",
-         "blockId",
-         "hasExplicitProperties",
-         "setBlockProperty",
-         "property",
-         "listBlockProperties",
-         "findPhantomHitResult",
-         "Lkotlin/Pair;",
-         "Lnet/minecraft/core/BlockPos;",
-         "Lnet/minecraft/core/Direction;",
-         "findPhantomHitResult$cb_client",
-         "findPhantomTarget",
-         "findPhantomTarget$cb_client",
-         "getEntryFace",
-         "eyeX",
-         "",
-         "eyeY",
-         "eyeZ",
-         "dirX",
-         "dirY",
-         "dirZ",
-         "blockX",
-         "",
-         "blockY",
-         "blockZ",
-         "tickEditMode",
-         "tickEditMode$cb_client",
-         "cb_client"
-   }
-)
-@SourceDebugExtension(
-   "SMAP\nEditMode.kt\nKotlin\n*S Kotlin\n*F\n+ 1 EditMode.kt\ncom/cb/cosmetic/EditMode\n+ 2 _Collections.kt\nkotlin/collections/CollectionsKt___CollectionsKt\n*L\n1#1,404:1\n1205#2,2:405\n1282#2,4:407\n*S KotlinDebug\n*F\n+ 1 EditMode.kt\ncom/cb/cosmetic/EditMode\n*L\n170#1:405,2\n170#1:407,4\n*E\n"
-)
 public final class EditMode {
    @NotNull
    public static final EditMode INSTANCE = new EditMode();

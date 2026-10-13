@@ -11,14 +11,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import kotlin.Metadata;
 import kotlin.Pair;
 import kotlin.TuplesKt;
 import kotlin.collections.CollectionsKt;
 import kotlin.collections.MapsKt;
 import kotlin.io.TextStreamsKt;
 import kotlin.jvm.internal.Intrinsics;
-import kotlin.jvm.internal.SourceDebugExtension;
 import kotlin.ranges.IntRange;
 import kotlin.ranges.RangesKt;
 import kotlin.text.Charsets;
@@ -36,83 +34,6 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Metadata(
-   mv = {2, 3, 0},
-   k = 1,
-   xi = 48,
-   d1 = "\u0000|\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0003\n\u0002\u0010\b\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0010 \n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010$\n\u0000\n\u0002\u0010\u000b\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0004\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u0002\n\u0002\b\t\n\u0002\u0018\u0002\n\u0002\b\u0004\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0010#\n\u0002\b\u0007\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0010\u000e\n\u0002\b\u0004\bÆ\u0002\u0018\u00002\u00020\u0001:\u0001@B\t\b\u0002¢\u0006\u0004\b\u0002\u0010\u0003J\u0006\u0010\u001d\u001a\u00020\u001eJ\u0006\u0010\u001f\u001a\u00020\u001eJ\b\u0010 \u001a\u00020\u001eH\u0002J\u0006\u0010!\u001a\u00020\u0015J\u0016\u0010\"\u001a\u00020\u001c2\u0006\u0010#\u001a\u00020\u00052\u0006\u0010$\u001a\u00020\u0005J\u001a\u0010%\u001a\u0004\u0018\u00010\u00172\u0006\u0010&\u001a\u00020\u001c2\u0006\u0010'\u001a\u00020(H\u0002J \u0010)\u001a\u00020\u00052\u0006\u0010*\u001a\u00020\u00052\u0006\u0010+\u001a\u00020\u00052\u0006\u0010,\u001a\u00020-H\u0002J(\u0010.\u001a\u00020\u00052\u0006\u0010*\u001a\u00020\u00052\u0006\u0010+\u001a\u00020\u00052\u0006\u0010/\u001a\u00020\u00052\u0006\u0010,\u001a\u00020-H\u0002JT\u00100\u001a\b\u0012\u0004\u0012\u00020\u001c012\u0006\u0010&\u001a\u00020\u001c2\f\u00102\u001a\b\u0012\u0004\u0012\u00020\u00050\f2\u0006\u0010/\u001a\u00020\u00052\u0006\u0010'\u001a\u00020(2\u000e\b\u0002\u00103\u001a\b\u0012\u0004\u0012\u00020\u001c012\u000e\b\u0002\u00104\u001a\b\u0012\u0004\u0012\u00020\u001c01H\u0002J \u00105\u001a\u00020\u001e2\u0006\u00106\u001a\u00020\u00172\u0006\u0010/\u001a\u00020\u00052\u0006\u0010'\u001a\u00020(H\u0002J\u0018\u00107\u001a\u00020\u00152\u0006\u00108\u001a\u0002092\u0006\u0010'\u001a\u00020(H\u0002J\u0006\u0010:\u001a\u00020\u0015J\u0018\u0010;\u001a\u0004\u0018\u00010\u00172\u0006\u0010&\u001a\u00020\u001c2\u0006\u0010'\u001a\u00020(J \u0010<\u001a\u0004\u0018\u00010=2\u0006\u0010>\u001a\u00020\u00052\u0006\u0010?\u001a\u00020\u00052\u0006\u0010'\u001a\u00020(R\u000e\u0010\u0004\u001a\u00020\u0005X\u0082T¢\u0006\u0002\n\u0000R\u000e\u0010\u0006\u001a\u00020\u0005X\u0082T¢\u0006\u0002\n\u0000R\u0014\u0010\u0007\u001a\u00020\b8BX\u0082\u0004¢\u0006\u0006\u001a\u0004\b\t\u0010\nR\u0014\u0010\u000b\u001a\b\u0012\u0004\u0012\u00020\r0\fX\u0082\u0004¢\u0006\u0002\n\u0000R\u000e\u0010\u000e\u001a\u00020\u000fX\u0082\u0004¢\u0006\u0002\n\u0000R\u0014\u0010\u0010\u001a\b\u0012\u0004\u0012\u00020\u00110\fX\u0082\u000e¢\u0006\u0002\n\u0000R\u001a\u0010\u0012\u001a\u000e\u0012\u0004\u0012\u00020\u0005\u0012\u0004\u0012\u00020\u00110\u0013X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u0014\u001a\u00020\u0015X\u0082\u000e¢\u0006\u0002\n\u0000R\"\u0010\u0018\u001a\u0004\u0018\u00010\u00172\b\u0010\u0016\u001a\u0004\u0018\u00010\u0017@BX\u0086\u000e¢\u0006\b\n\u0000\u001a\u0004\b\u0019\u0010\u001aR\u0010\u0010\u001b\u001a\u0004\u0018\u00010\u001cX\u0082\u000e¢\u0006\u0002\n\u0000¨\u0006A",
-   d2 = {
-         "Lcom/cb/dungeon/RoomScanner;",
-         "",
-         "<init>",
-         "()V",
-         "START",
-         "",
-         "ROOM_SIZE_SHIFT",
-         "mc",
-         "Lnet/minecraft/client/Minecraft;",
-         "getMc",
-         "()Lnet/minecraft/client/Minecraft;",
-         "horizontals",
-         "",
-         "Lnet/minecraft/core/Direction;",
-         "mutableBlockPos",
-         "Lnet/minecraft/core/BlockPos$MutableBlockPos;",
-         "roomDatabase",
-         "Lcom/cb/dungeon/RoomInfo;",
-         "coreToRoom",
-         "",
-         "loaded",
-         "",
-         "value",
-         "Lcom/cb/dungeon/ScannedRoom;",
-         "currentRoom",
-         "getCurrentRoom",
-         "()Lcom/cb/dungeon/ScannedRoom;",
-         "lastRoomCenter",
-         "Lcom/cb/dungeon/Vec2i;",
-         "init",
-         "",
-         "unload",
-         "loadRoomDatabase",
-         "tick",
-         "getRoomCenter",
-         "posX",
-         "posZ",
-         "scanRoom",
-         "center",
-         "level",
-         "Lnet/minecraft/client/multiplayer/ClientLevel;",
-         "getTopLayerOfRoom",
-         "x",
-         "z",
-         "chunk",
-         "Lnet/minecraft/world/level/chunk/LevelChunk;",
-         "getCoreAtHeight",
-         "roomHeight",
-         "findComponentsRecursive",
-         "",
-         "cores",
-         "visited",
-         "tiles",
-         "findRotation",
-         "room",
-         "validateClay",
-         "pos",
-         "Lnet/minecraft/core/BlockPos;",
-         "isReady",
-         "scanAt",
-         "detectDoorType",
-         "",
-         "worldX",
-         "worldZ",
-         "RoomJsonEntry",
-         "cb_client"
-   }
-)
-@SourceDebugExtension(
-   "SMAP\nRoomScanner.kt\nKotlin\n*S Kotlin\n*F\n+ 1 RoomScanner.kt\ncom/cb/dungeon/RoomScanner\n+ 2 fake.kt\nkotlin/jvm/internal/FakeKt\n+ 3 _Collections.kt\nkotlin/collections/CollectionsKt___CollectionsKt\n*L\n1#1,320:1\n1#2:321\n1586#3:322\n1661#3,3:323\n1391#3:326\n1480#3,2:327\n1586#3:329\n1661#3,3:330\n1482#3,3:333\n*S KotlinDebug\n*F\n+ 1 RoomScanner.kt\ncom/cb/dungeon/RoomScanner\n*L\n56#1:322\n56#1:323,3\n66#1:326\n66#1:327,2\n67#1:329\n67#1:330,3\n66#1:333,3\n*E\n"
-)
 public final class RoomScanner {
    @NotNull
    public static final RoomScanner INSTANCE = new RoomScanner();
@@ -470,52 +391,6 @@ public final class RoomScanner {
       horizontals = CollectionsKt.listOf(directions);
    }
 
-   @Metadata(
-      mv = {2, 3, 0},
-      k = 1,
-      xi = 48,
-      d1 = "\u0000&\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0010\u000e\n\u0002\b\u0002\n\u0002\u0010 \n\u0002\u0010\b\n\u0002\b\u0019\n\u0002\u0010\u000b\n\u0002\b\u0004\b\u0082\b\u0018\u00002\u00020\u0001BS\u0012\b\b\u0002\u0010\u0002\u001a\u00020\u0003\u0012\b\b\u0002\u0010\u0004\u001a\u00020\u0003\u0012\u000e\b\u0002\u0010\u0005\u001a\b\u0012\u0004\u0012\u00020\u00070\u0006\u0012\b\b\u0002\u0010\b\u001a\u00020\u0007\u0012\b\b\u0002\u0010\t\u001a\u00020\u0007\u0012\b\b\u0002\u0010\n\u001a\u00020\u0007\u0012\b\b\u0002\u0010\u000b\u001a\u00020\u0003¢\u0006\u0004\b\f\u0010\rJ\t\u0010\u0018\u001a\u00020\u0003HÆ\u0003J\t\u0010\u0019\u001a\u00020\u0003HÆ\u0003J\u000f\u0010\u001a\u001a\b\u0012\u0004\u0012\u00020\u00070\u0006HÆ\u0003J\t\u0010\u001b\u001a\u00020\u0007HÆ\u0003J\t\u0010\u001c\u001a\u00020\u0007HÆ\u0003J\t\u0010\u001d\u001a\u00020\u0007HÆ\u0003J\t\u0010\u001e\u001a\u00020\u0003HÆ\u0003JU\u0010\u001f\u001a\u00020\u00002\b\b\u0002\u0010\u0002\u001a\u00020\u00032\b\b\u0002\u0010\u0004\u001a\u00020\u00032\u000e\b\u0002\u0010\u0005\u001a\b\u0012\u0004\u0012\u00020\u00070\u00062\b\b\u0002\u0010\b\u001a\u00020\u00072\b\b\u0002\u0010\t\u001a\u00020\u00072\b\b\u0002\u0010\n\u001a\u00020\u00072\b\b\u0002\u0010\u000b\u001a\u00020\u0003HÆ\u0001J\u0014\u0010 \u001a\u00020!2\b\u0010\"\u001a\u0004\u0018\u00010\u0001HÖ\u0083\u0004J\n\u0010#\u001a\u00020\u0007HÖ\u0081\u0004J\n\u0010$\u001a\u00020\u0003HÖ\u0081\u0004R\u0011\u0010\u0002\u001a\u00020\u0003¢\u0006\b\n\u0000\u001a\u0004\b\u000e\u0010\u000fR\u0011\u0010\u0004\u001a\u00020\u0003¢\u0006\b\n\u0000\u001a\u0004\b\u0010\u0010\u000fR\u0017\u0010\u0005\u001a\b\u0012\u0004\u0012\u00020\u00070\u0006¢\u0006\b\n\u0000\u001a\u0004\b\u0011\u0010\u0012R\u0011\u0010\b\u001a\u00020\u0007¢\u0006\b\n\u0000\u001a\u0004\b\u0013\u0010\u0014R\u0011\u0010\t\u001a\u00020\u0007¢\u0006\b\n\u0000\u001a\u0004\b\u0015\u0010\u0014R\u0011\u0010\n\u001a\u00020\u0007¢\u0006\b\n\u0000\u001a\u0004\b\u0016\u0010\u0014R\u0011\u0010\u000b\u001a\u00020\u0003¢\u0006\b\n\u0000\u001a\u0004\b\u0017\u0010\u000f¨\u0006%",
-      d2 = {
-            "Lcom/cb/dungeon/RoomScanner$RoomJsonEntry;",
-            "",
-            "name",
-            "",
-            "type",
-            "cores",
-            "",
-            "",
-            "secrets",
-            "crypts",
-            "trappedChests",
-            "shape",
-            "<init>",
-            "(Ljava/lang/String;Ljava/lang/String;Ljava/util/List;IIILjava/lang/String;)V",
-            "getName",
-            "()Ljava/lang/String;",
-            "getType",
-            "getCores",
-            "()Ljava/util/List;",
-            "getSecrets",
-            "()I",
-            "getCrypts",
-            "getTrappedChests",
-            "getShape",
-            "component1",
-            "component2",
-            "component3",
-            "component4",
-            "component5",
-            "component6",
-            "component7",
-            "copy",
-            "equals",
-            "",
-            "other",
-            "hashCode",
-            "toString",
-            "cb_client"
-      }
-   )
    private static final class RoomJsonEntry {
       @NotNull
       private final String name;

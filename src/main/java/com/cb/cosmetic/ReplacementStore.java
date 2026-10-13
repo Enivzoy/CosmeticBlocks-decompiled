@@ -10,67 +10,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import kotlin.Metadata;
 import kotlin.collections.CollectionsKt;
 import kotlin.jvm.internal.Intrinsics;
-import kotlin.jvm.internal.SourceDebugExtension;
 import kotlin.text.StringsKt;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
-@Metadata(
-   mv = {2, 3, 0},
-   k = 1,
-   xi = 48,
-   d1 = "\u0000Z\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\b\u0004\n\u0002\u0010\u000e\n\u0002\b\u0002\n\u0002\u0010%\n\u0002\b\u0003\n\u0002\u0010\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\u000b\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0010\b\n\u0002\b\u0005\n\u0002\u0010 \n\u0002\b\u0002\n\u0002\u0010$\n\u0002\b\u0002\bÆ\u0002\u0018\u00002\u00020\u0001B\t\b\u0002¢\u0006\u0004\b\u0002\u0010\u0003J\u0017\u0010\b\u001a\u00020\u00052\b\b\u0002\u0010\t\u001a\u00020\nH\u0000¢\u0006\u0002\b\u000bJ \u0010\u0010\u001a\u00020\u00112\u0006\u0010\u0012\u001a\u00020\u00132\u0006\u0010\u0014\u001a\u00020\n2\b\b\u0002\u0010\u0015\u001a\u00020\u0016J \u0010\u0017\u001a\u00020\u00112\u0006\u0010\u0012\u001a\u00020\u00132\u0006\u0010\u0018\u001a\u00020\u00192\b\b\u0002\u0010\u0015\u001a\u00020\u0016J\u000e\u0010\u001a\u001a\u00020\u00162\u0006\u0010\u0012\u001a\u00020\u0013J\u001e\u0010\u001b\u001a\u00020\u00162\u0006\u0010\u001c\u001a\u00020\u001d2\u0006\u0010\u001e\u001a\u00020\u001d2\u0006\u0010\u001f\u001a\u00020\u001dJ\u0006\u0010 \u001a\u00020\u001dJ\u0006\u0010!\u001a\u00020\u001dJ\f\u0010\"\u001a\b\u0012\u0004\u0012\u00020\n0#J\u0006\u0010$\u001a\u00020\u001dJ%\u0010%\u001a\u001a\u0012\u0004\u0012\u00020\n\u0012\u0010\u0012\u000e\u0012\u0004\u0012\u00020\n\u0012\u0004\u0012\u00020\n0&0&H\u0000¢\u0006\u0002\b'R\u0014\u0010\u0004\u001a\u00020\u0005X\u0080\u0004¢\u0006\b\n\u0000\u001a\u0004\b\u0006\u0010\u0007R,\u0010\f\u001a\u001a\u0012\u0004\u0012\u00020\n\u0012\u0010\u0012\u000e\u0012\u0004\u0012\u00020\n\u0012\u0004\u0012\u00020\n0\r0\rX\u0080\u0004¢\u0006\b\n\u0000\u001a\u0004\b\u000e\u0010\u000f¨\u0006(",
-   d2 = {
-         "Lcom/cb/cosmetic/ReplacementStore;",
-         "",
-         "<init>",
-         "()V",
-         "configDir",
-         "Ljava/io/File;",
-         "getConfigDir$cb_client",
-         "()Ljava/io/File;",
-         "getConfigFile",
-         "name",
-         "",
-         "getConfigFile$cb_client",
-         "replacements",
-         "",
-         "getReplacements$cb_client",
-         "()Ljava/util/Map;",
-         "setReplacement",
-         "",
-         "pos",
-         "Lnet/minecraft/core/BlockPos;",
-         "blockId",
-         "phantom",
-         "",
-         "setReplacementState",
-         "state",
-         "Lnet/minecraft/world/level/block/state/BlockState;",
-         "removeReplacement",
-         "removeAt",
-         "x",
-         "",
-         "y",
-         "z",
-         "clearDimension",
-         "clearAll",
-         "listReplacements",
-         "",
-         "getReplacementCount",
-         "snapshotReplacements",
-         "",
-         "snapshotReplacements$cb_client",
-         "cb_client"
-   }
-)
-@SourceDebugExtension(
-   "SMAP\nReplacementStore.kt\nKotlin\n*S Kotlin\n*F\n+ 1 ReplacementStore.kt\ncom/cb/cosmetic/ReplacementStore\n+ 2 Maps.kt\nkotlin/collections/MapsKt__MapsKt\n+ 3 _Collections.kt\nkotlin/collections/CollectionsKt___CollectionsKt\n*L\n1#1,183:1\n410#2,7:184\n410#2,7:191\n1586#3:198\n1661#3,3:199\n1586#3:202\n1661#3,3:203\n*S KotlinDebug\n*F\n+ 1 ReplacementStore.kt\ncom/cb/cosmetic/ReplacementStore\n*L\n30#1:184,7\n66#1:191,7\n154#1:198\n154#1:199,3\n160#1:202\n160#1:203,3\n*E\n"
-)
 public final class ReplacementStore {
    @NotNull
    public static final ReplacementStore INSTANCE = new ReplacementStore();

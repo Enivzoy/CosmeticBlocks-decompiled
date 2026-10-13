@@ -16,10 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import kotlin.Metadata;
 import kotlin.collections.CollectionsKt;
 import kotlin.jvm.internal.Intrinsics;
-import kotlin.jvm.internal.SourceDebugExtension;
 import kotlin.ranges.RangesKt;
 import kotlin.text.StringsKt;
 import net.minecraft.client.Minecraft;
@@ -32,91 +30,6 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Metadata(
-   mv = {2, 3, 0},
-   k = 1,
-   xi = 48,
-   d1 = "\u0000x\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0010 \n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u0007\n\u0002\b\n\n\u0002\u0010\u000e\n\u0000\n\u0002\u0010\u000b\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0006\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\u0002\n\u0002\b\f\n\u0002\u0010\u0006\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\b\u0005\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0006\n\u0002\u0018\u0002\n\u0002\u0010\b\n\u0002\b\u0005\u0018\u00002\u00020\u00012\u00020\u0002:\u0001HB\u0007¢\u0006\u0004\b\u0003\u0010\u0004J\u000e\u0010\"\u001a\b\u0012\u0004\u0012\u00020\u00070\u0006H\u0002J\u0010\u0010#\u001a\u00020$2\u0006\u0010%\u001a\u00020\tH\u0016J \u0010&\u001a\u00020$2\u0006\u0010'\u001a\u00020\t2\u0006\u0010(\u001a\u00020\t2\u0006\u0010%\u001a\u00020\tH\u0002JH\u0010)\u001a\u00020$2\u0006\u0010*\u001a\u00020\u00072\u0006\u0010+\u001a\u00020\t2\u0006\u0010,\u001a\u00020\t2\u0006\u0010-\u001a\u00020\t2\u0006\u0010'\u001a\u00020\t2\u0006\u0010(\u001a\u00020\t2\u0006\u0010%\u001a\u00020\t2\u0006\u0010.\u001a\u00020\u0016H\u0002J\u0010\u0010/\u001a\u00020\t2\u0006\u00100\u001a\u000201H\u0002J\u0018\u00102\u001a\u00020\u00162\u0006\u00103\u001a\u0002042\u0006\u00105\u001a\u00020\u0016H\u0016J(\u00106\u001a\u00020\u00162\u0006\u0010'\u001a\u0002012\u0006\u0010(\u001a\u0002012\u0006\u00107\u001a\u0002012\u0006\u00108\u001a\u000201H\u0016J\u0010\u00109\u001a\u00020\u00162\u0006\u00103\u001a\u00020:H\u0016J\u0010\u0010;\u001a\u00020\u00162\u0006\u00103\u001a\u00020<H\u0016J8\u0010=\u001a\u00020\u00162\u0006\u0010>\u001a\u00020\t2\u0006\u0010?\u001a\u00020\t2\u0006\u0010+\u001a\u00020\t2\u0006\u0010,\u001a\u00020\t2\u0006\u0010-\u001a\u00020\t2\u0006\u0010@\u001a\u00020\tH\u0002J(\u0010A\u001a\u00020$2\u0006\u0010B\u001a\u00020C2\u0006\u0010'\u001a\u00020D2\u0006\u0010(\u001a\u00020D2\u0006\u0010E\u001a\u00020\tH\u0016J\b\u0010F\u001a\u00020\u0016H\u0016J\b\u0010G\u001a\u00020$H\u0016R\u0014\u0010\u0005\u001a\b\u0012\u0004\u0012\u00020\u00070\u0006X\u0082\u0004¢\u0006\u0002\n\u0000R\u000e\u0010\b\u001a\u00020\tX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\n\u001a\u00020\tX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u000b\u001a\u00020\tX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\f\u001a\u00020\tX\u0082D¢\u0006\u0002\n\u0000R\u000e\u0010\r\u001a\u00020\tX\u0082D¢\u0006\u0002\n\u0000R\u000e\u0010\u000e\u001a\u00020\tX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u000f\u001a\u00020\tX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u0010\u001a\u00020\tX\u0082D¢\u0006\u0002\n\u0000R\u000e\u0010\u0011\u001a\u00020\tX\u0082D¢\u0006\u0002\n\u0000R\u000e\u0010\u0012\u001a\u00020\tX\u0082D¢\u0006\u0002\n\u0000R\u000e\u0010\u0013\u001a\u00020\u0014X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u0015\u001a\u00020\u0016X\u0082\u000e¢\u0006\u0002\n\u0000R\u0010\u0010\u0017\u001a\u0004\u0018\u00010\u0018X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u0019\u001a\u00020\tX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u001a\u001a\u00020\tX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u001b\u001a\u00020\tX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u001c\u001a\u00020\tX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u001d\u001a\u00020\tX\u0082\u000e¢\u0006\u0002\n\u0000R*\u0010\u001e\u001a\u001e\u0012\u0004\u0012\u00020\u0014\u0012\u0004\u0012\u00020 0\u001fj\u000e\u0012\u0004\u0012\u00020\u0014\u0012\u0004\u0012\u00020 `!X\u0082\u0004¢\u0006\u0002\n\u0000¨\u0006I",
-   d2 = {
-         "Lcom/cb/gui/screens/KeybindEditorScreen;",
-         "Lnet/minecraft/client/gui/screens/Screen;",
-         "Lcom/cb/gui/NvgScreen;",
-         "<init>",
-         "()V",
-         "allRows",
-         "",
-         "Lcom/cb/gui/screens/KeybindEditorScreen$Row;",
-         "uiScale",
-         "",
-         "uiWidth",
-         "uiHeight",
-         "panelWidth",
-         "panelHeight",
-         "panelX",
-         "panelY",
-         "headerHeight",
-         "searchRowHeight",
-         "rowHeight",
-         "search",
-         "",
-         "searchFocused",
-         "",
-         "capturing",
-         "Lcom/cb/setting/KeybindSetting;",
-         "scroll",
-         "maxScroll",
-         "caretBlink",
-         "listTop",
-         "listBottom",
-         "rowHover",
-         "Ljava/util/HashMap;",
-         "Lcom/cb/render/Anim;",
-         "Lkotlin/collections/HashMap;",
-         "filtered",
-         "renderOverlay",
-         "",
-         "delta",
-         "draw",
-         "mouseX",
-         "mouseY",
-         "drawRow",
-         "row",
-         "x",
-         "y",
-         "w",
-         "sectionStart",
-         "toUi",
-         "scaled",
-         "",
-         "mouseClicked",
-         "event",
-         "Lnet/minecraft/client/input/MouseButtonEvent;",
-         "doubled",
-         "mouseScrolled",
-         "scrollX",
-         "scrollY",
-         "keyPressed",
-         "Lnet/minecraft/client/input/KeyEvent;",
-         "charTyped",
-         "Lnet/minecraft/client/input/CharacterEvent;",
-         "inside",
-         "mx",
-         "my",
-         "h",
-         "extractBackground",
-         "extractor",
-         "Lnet/minecraft/client/gui/GuiGraphicsExtractor;",
-         "",
-         "partialTick",
-         "isPauseScreen",
-         "onClose",
-         "Row",
-         "cb_client"
-   }
-)
-@SourceDebugExtension(
-   "SMAP\nKeybindEditorScreen.kt\nKotlin\n*S Kotlin\n*F\n+ 1 KeybindEditorScreen.kt\ncom/cb/gui/screens/KeybindEditorScreen\n+ 2 _Collections.kt\nkotlin/collections/CollectionsKt___CollectionsKt\n+ 3 NVGRenderer.kt\ncom/cb/render/NVGRenderer\n+ 4 Maps.kt\nkotlin/collections/MapsKt__MapsKt\n*L\n1#1,325:1\n1391#2:326\n1480#2,2:327\n812#2,12:329\n1586#2:341\n1661#2,3:342\n1482#2,3:345\n777#2:348\n873#2,2:349\n445#3,8:351\n410#4,7:359\n*S KotlinDebug\n*F\n+ 1 KeybindEditorScreen.kt\ncom/cb/gui/screens/KeybindEditorScreen\n*L\n32#1:326\n32#1:327,2\n33#1:329,12\n33#1:341\n33#1:342,3\n32#1:345,3\n65#1:348\n65#1:349,2\n152#1:351,8\n172#1:359,7\n*E\n"
-)
 public final class KeybindEditorScreen extends Screen implements NvgScreen {
    @NotNull
    private final List<KeybindEditorScreen.Row> allRows;
@@ -497,36 +410,6 @@ public final class KeybindEditorScreen extends Screen implements NvgScreen {
       }
    }
 
-   @Metadata(
-      mv = {2, 3, 0},
-      k = 1,
-      xi = 48,
-      d1 = "\u0000(\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0010\u000e\n\u0000\n\u0002\u0018\u0002\n\u0002\b\n\n\u0002\u0010\u000b\n\u0002\b\u0002\n\u0002\u0010\b\n\u0002\b\u0002\b\u0082\b\u0018\u00002\u00020\u0001B\u0017\u0012\u0006\u0010\u0002\u001a\u00020\u0003\u0012\u0006\u0010\u0004\u001a\u00020\u0005¢\u0006\u0004\b\u0006\u0010\u0007J\t\u0010\f\u001a\u00020\u0003HÆ\u0003J\t\u0010\r\u001a\u00020\u0005HÆ\u0003J\u001d\u0010\u000e\u001a\u00020\u00002\b\b\u0002\u0010\u0002\u001a\u00020\u00032\b\b\u0002\u0010\u0004\u001a\u00020\u0005HÆ\u0001J\u0014\u0010\u000f\u001a\u00020\u00102\b\u0010\u0011\u001a\u0004\u0018\u00010\u0001HÖ\u0083\u0004J\n\u0010\u0012\u001a\u00020\u0013HÖ\u0081\u0004J\n\u0010\u0014\u001a\u00020\u0003HÖ\u0081\u0004R\u0011\u0010\u0002\u001a\u00020\u0003¢\u0006\b\n\u0000\u001a\u0004\b\b\u0010\tR\u0011\u0010\u0004\u001a\u00020\u0005¢\u0006\b\n\u0000\u001a\u0004\b\n\u0010\u000b¨\u0006\u0015",
-      d2 = {
-            "Lcom/cb/gui/screens/KeybindEditorScreen$Row;",
-            "",
-            "tabName",
-            "",
-            "setting",
-            "Lcom/cb/setting/KeybindSetting;",
-            "<init>",
-            "(Ljava/lang/String;Lcom/cb/setting/KeybindSetting;)V",
-            "getTabName",
-            "()Ljava/lang/String;",
-            "getSetting",
-            "()Lcom/cb/setting/KeybindSetting;",
-            "component1",
-            "component2",
-            "copy",
-            "equals",
-            "",
-            "other",
-            "hashCode",
-            "",
-            "toString",
-            "cb_client"
-      }
-   )
    private static final class Row {
       @NotNull
       private final String tabName;

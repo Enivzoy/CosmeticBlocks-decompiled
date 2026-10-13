@@ -1,6 +1,4 @@
 package com.cb.dungeon;
-
-import kotlin.Metadata;
 import kotlin.NoWhenBranchMatchedException;
 import kotlin.jvm.internal.Intrinsics;
 import net.minecraft.core.BlockPos;
@@ -8,22 +6,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import org.jetbrains.annotations.NotNull;
 
-@Metadata(
-   mv = {2, 3, 0},
-   k = 2,
-   xi = 48,
-   d1 = "\u0000\u0018\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0000\u001a\u0012\u0010\u0000\u001a\u00020\u0001*\u00020\u00012\u0006\u0010\u0002\u001a\u00020\u0003\u001a\u0012\u0010\u0004\u001a\u00020\u0001*\u00020\u00012\u0006\u0010\u0002\u001a\u00020\u0003\u001a\u0012\u0010\u0000\u001a\u00020\u0005*\u00020\u00052\u0006\u0010\u0002\u001a\u00020\u0003\u001a\u0012\u0010\u0004\u001a\u00020\u0005*\u00020\u00052\u0006\u0010\u0002\u001a\u00020\u0003\u001a\u0012\u0010\u0000\u001a\u00020\u0006*\u00020\u00062\u0006\u0010\u0002\u001a\u00020\u0003\u001a\u0012\u0010\u0004\u001a\u00020\u0006*\u00020\u00062\u0006\u0010\u0002\u001a\u00020\u0003¨\u0006\u0007",
-   d2 = {
-         "rotateToNorth",
-         "Lnet/minecraft/core/BlockPos;",
-         "rotation",
-         "Lcom/cb/dungeon/Rotation;",
-         "rotateAroundNorth",
-         "Lnet/minecraft/core/Direction;",
-         "Lnet/minecraft/core/Direction$Axis;",
-         "cb_client"
-   }
-)
 public final class RoomDataKt {
    @NotNull
    public static final BlockPos rotateToNorth(@NotNull BlockPos pos, @NotNull Rotation rotation) {

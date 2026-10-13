@@ -7,39 +7,11 @@ import com.cb.setting.BooleanSetting;
 import com.cb.setting.ButtonSetting;
 import com.cb.setting.SettingKt;
 import com.cb.utils.ChatUtil;
-import kotlin.Metadata;
 import kotlin.Unit;
 import kotlin.jvm.internal.Intrinsics;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 
-@Metadata(
-   mv = {2, 3, 0},
-   k = 1,
-   xi = 48,
-   d1 = "\u0000\u001c\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\b\u0005\n\u0002\u0018\u0002\n\u0002\b\u0007\bÆ\u0002\u0018\u00002\u00020\u0001B\t\b\u0002¢\u0006\u0004\b\u0002\u0010\u0003R\u0011\u0010\u0004\u001a\u00020\u0005¢\u0006\b\n\u0000\u001a\u0004\b\u0006\u0010\u0007R\u0011\u0010\b\u001a\u00020\u0005¢\u0006\b\n\u0000\u001a\u0004\b\t\u0010\u0007R\u0011\u0010\n\u001a\u00020\u000b¢\u0006\b\n\u0000\u001a\u0004\b\f\u0010\rR\u0011\u0010\u000e\u001a\u00020\u000b¢\u0006\b\n\u0000\u001a\u0004\b\u000f\u0010\rR\u0011\u0010\u0010\u001a\u00020\u000b¢\u0006\b\n\u0000\u001a\u0004\b\u0011\u0010\r¨\u0006\u0012",
-   d2 = {
-         "Lcom/cb/config/tabs/BlockRemapsTab;",
-         "Lcom/cb/config/SettingsTab;",
-         "<init>",
-         "()V",
-         "enabled",
-         "Lcom/cb/setting/BooleanSetting;",
-         "getEnabled",
-         "()Lcom/cb/setting/BooleanSetting;",
-         "keepShape",
-         "getKeepShape",
-         "openEditor",
-         "Lcom/cb/setting/ButtonSetting;",
-         "getOpenEditor",
-         "()Lcom/cb/setting/ButtonSetting;",
-         "export",
-         "getExport",
-         "import",
-         "getImport",
-         "cb_client"
-   }
-)
 public final class BlockRemapsTab extends SettingsTab {
    @NotNull
    public static final BlockRemapsTab INSTANCE = new BlockRemapsTab();

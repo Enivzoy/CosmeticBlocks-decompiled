@@ -23,99 +23,16 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentHashMap.KeySetView;
-import kotlin.Metadata;
 import kotlin.collections.CollectionsKt;
 import kotlin.io.CloseableKt;
 import kotlin.io.FilesKt;
 import kotlin.jvm.internal.Intrinsics;
-import kotlin.jvm.internal.SourceDebugExtension;
 import kotlin.text.StringsKt;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Metadata(
-   mv = {2, 3, 0},
-   k = 1,
-   xi = 48,
-   d1 = "\u0000j\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0003\n\u0002\u0010%\n\u0002\u0010\u000e\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010#\n\u0002\u0010\t\n\u0002\b\b\n\u0002\u0010 \n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u0002\n\u0000\n\u0002\u0010\u000b\n\u0002\b\u0005\n\u0002\u0010$\n\u0002\b\u0004\n\u0002\u0018\u0002\n\u0002\b\u0007\n\u0002\u0018\u0002\n\u0002\b\f\n\u0002\u0018\u0002\n\u0002\b\u0004\n\u0002\u0010\b\n\u0002\b\u0005\bÆ\u0002\u0018\u00002\u00020\u0001:\u0001DB\t\b\u0002¢\u0006\u0004\b\u0002\u0010\u0003J\u0006\u0010\u0018\u001a\u00020\u0019J\u0010\u0010\u001a\u001a\u00020\u001b2\u0006\u0010\u001c\u001a\u00020\nH\u0002J\r\u0010\u001d\u001a\u00020\u0019H\u0000¢\u0006\u0002\b\u001eJ\u0006\u0010\u001f\u001a\u00020\u0019J \u0010 \u001a\u001a\u0012\u0004\u0012\u00020\u0006\u0012\u0010\u0012\u000e\u0012\u0004\u0012\u00020\u0006\u0012\u0004\u0012\u00020\u00060!0!H\u0002J(\u0010\"\u001a\u00020\u00192\u001e\u0010#\u001a\u001a\u0012\u0004\u0012\u00020\u0006\u0012\u0010\u0012\u000e\u0012\u0004\u0012\u00020\u0006\u0012\u0004\u0012\u00020\u00060!0!H\u0002J\u0017\u0010$\u001a\u00020\u00192\b\u0010%\u001a\u0004\u0018\u00010&H\u0000¢\u0006\u0002\b'J\u0015\u0010(\u001a\u00020\u00192\u0006\u0010)\u001a\u00020\u0006H\u0000¢\u0006\u0002\b*J\u0006\u0010+\u001a\u00020\u0019J-\u0010,\u001a\u00020\u00192\u0006\u0010-\u001a\u00020.2\u0006\u0010/\u001a\u00020\u00062\u0006\u00100\u001a\u00020\u001b2\u0006\u00101\u001a\u00020&H\u0000¢\u0006\u0002\b2J-\u00103\u001a\u00020\u00192\u0006\u0010-\u001a\u00020.2\u0006\u0010/\u001a\u00020\u00062\u0006\u00100\u001a\u00020\u001b2\u0006\u00101\u001a\u00020&H\u0000¢\u0006\u0002\b4J\u001f\u00105\u001a\u0004\u0018\u00010\u00062\u0006\u0010-\u001a\u00020.2\u0006\u00101\u001a\u00020&H\u0000¢\u0006\u0002\b6J+\u00107\u001a\u00020\u00192\u0014\u0010#\u001a\u0010\u0012\u0004\u0012\u00020\u0006\u0012\u0006\u0012\u0004\u0018\u00010\u00060!2\u0006\u00101\u001a\u00020&H\u0000¢\u0006\u0002\b8J-\u00109\u001a\u00020\u00192\u0006\u0010-\u001a\u00020.2\u0006\u0010:\u001a\u00020;2\u0006\u00100\u001a\u00020\u001b2\u0006\u00101\u001a\u00020&H\u0000¢\u0006\u0002\b<J\u001d\u0010=\u001a\u00020\u001b2\u0006\u0010-\u001a\u00020.2\u0006\u00101\u001a\u00020&H\u0000¢\u0006\u0002\b>J\u000e\u0010?\u001a\u00020@2\u0006\u0010)\u001a\u00020\u0006J\u0006\u0010A\u001a\u00020@J\f\u0010B\u001a\b\u0012\u0004\u0012\u00020\u00060\u0016J\u000e\u0010C\u001a\u00020@2\u0006\u0010)\u001a\u00020\u0006R,\u0010\u0004\u001a\u001a\u0012\u0004\u0012\u00020\u0006\u0012\u0010\u0012\u000e\u0012\u0004\u0012\u00020\u0006\u0012\u0004\u0012\u00020\u00060\u00050\u0005X\u0080\u0004¢\u0006\b\n\u0000\u001a\u0004\b\u0007\u0010\bR\u000e\u0010\t\u001a\u00020\nX\u0082\u0004¢\u0006\u0002\n\u0000R\u001a\u0010\u000b\u001a\b\u0012\u0004\u0012\u00020\r0\fX\u0080\u0004¢\u0006\b\n\u0000\u001a\u0004\b\u000e\u0010\u000fR\u001c\u0010\u0010\u001a\u0004\u0018\u00010\u0006X\u0080\u000e¢\u0006\u000e\n\u0000\u001a\u0004\b\u0011\u0010\u0012\"\u0004\b\u0013\u0010\u0014R \u0010\u0015\u001a\u0014\u0012\u0004\u0012\u00020\u0006\u0012\n\u0012\b\u0012\u0004\u0012\u00020\u00170\u00160\u0005X\u0082\u0004¢\u0006\u0002\n\u0000¨\u0006E",
-   d2 = {
-         "Lcom/cb/cosmetic/RoomStore;",
-         "",
-         "<init>",
-         "()V",
-         "roomBlocks",
-         "",
-         "",
-         "getRoomBlocks$cb_client",
-         "()Ljava/util/Map;",
-         "roomBlocksFile",
-         "Ljava/io/File;",
-         "roomCacheKeys",
-         "",
-         "",
-         "getRoomCacheKeys$cb_client",
-         "()Ljava/util/Set;",
-         "lastScannedRoom",
-         "getLastScannedRoom$cb_client",
-         "()Ljava/lang/String;",
-         "setLastScannedRoom$cb_client",
-         "(Ljava/lang/String;)V",
-         "resolvedRoomCache",
-         "",
-         "Lcom/cb/cosmetic/RoomStore$ResolvedRoomBlock;",
-         "loadRoomBlocks",
-         "",
-         "tryLoadRoomFile",
-         "",
-         "file",
-         "saveRoomBlocksAsync",
-         "saveRoomBlocksAsync$cb_client",
-         "forceRoomSave",
-         "snapshotRoomBlocks",
-         "",
-         "writeRoomConfig",
-         "snapshot",
-         "onRoomChanged",
-         "newRoom",
-         "Lcom/cb/dungeon/ScannedRoom;",
-         "onRoomChanged$cb_client",
-         "resolveRoomBlocks",
-         "roomName",
-         "resolveRoomBlocks$cb_client",
-         "resolveAllRoomBlocks",
-         "setRoomReplacement",
-         "pos",
-         "Lnet/minecraft/core/BlockPos;",
-         "blockId",
-         "phantom",
-         "room",
-         "setRoomReplacement$cb_client",
-         "setRoomReplacementRaw",
-         "setRoomReplacementRaw$cb_client",
-         "rawAtWorld",
-         "rawAtWorld$cb_client",
-         "restoreRoomFill",
-         "restoreRoomFill$cb_client",
-         "setRoomReplacementState",
-         "state",
-         "Lnet/minecraft/world/level/block/state/BlockState;",
-         "setRoomReplacementState$cb_client",
-         "removeRoomReplacement",
-         "removeRoomReplacement$cb_client",
-         "clearRoom",
-         "",
-         "clearAllRooms",
-         "listRoomNames",
-         "getRoomBlockCount",
-         "ResolvedRoomBlock",
-         "cb_client"
-   }
-)
-@SourceDebugExtension(
-   "SMAP\nRoomStore.kt\nKotlin\n*S Kotlin\n*F\n+ 1 RoomStore.kt\ncom/cb/cosmetic/RoomStore\n+ 2 Maps.kt\nkotlin/collections/MapsKt__MapsKt\n*L\n1#1,361:1\n410#2,7:362\n410#2,7:369\n410#2,7:376\n*S KotlinDebug\n*F\n+ 1 RoomStore.kt\ncom/cb/cosmetic/RoomStore\n*L\n237#1:362,7\n276#1:369,7\n291#1:376,7\n*E\n"
-)
 public final class RoomStore {
    @NotNull
    public static final RoomStore INSTANCE = new RoomStore();
@@ -667,47 +584,6 @@ public final class RoomStore {
       roomCacheKeys = keys;
    }
 
-   @Metadata(
-      mv = {2, 3, 0},
-      k = 1,
-      xi = 48,
-      d1 = "\u0000*\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u000b\n\u0002\b\u0015\n\u0002\u0010\b\n\u0000\n\u0002\u0010\u000e\n\u0000\b\u0082\b\u0018\u00002\u00020\u0001B3\u0012\u0006\u0010\u0002\u001a\u00020\u0003\u0012\u0006\u0010\u0004\u001a\u00020\u0005\u0012\u0006\u0010\u0006\u001a\u00020\u0007\u0012\b\u0010\b\u001a\u0004\u0018\u00010\u0005\u0012\b\u0010\t\u001a\u0004\u0018\u00010\u0005¢\u0006\u0004\b\n\u0010\u000bJ\t\u0010\u0014\u001a\u00020\u0003HÆ\u0003J\t\u0010\u0015\u001a\u00020\u0005HÆ\u0003J\t\u0010\u0016\u001a\u00020\u0007HÆ\u0003J\u000b\u0010\u0017\u001a\u0004\u0018\u00010\u0005HÆ\u0003J\u000b\u0010\u0018\u001a\u0004\u0018\u00010\u0005HÆ\u0003J?\u0010\u0019\u001a\u00020\u00002\b\b\u0002\u0010\u0002\u001a\u00020\u00032\b\b\u0002\u0010\u0004\u001a\u00020\u00052\b\b\u0002\u0010\u0006\u001a\u00020\u00072\n\b\u0002\u0010\b\u001a\u0004\u0018\u00010\u00052\n\b\u0002\u0010\t\u001a\u0004\u0018\u00010\u0005HÆ\u0001J\u0014\u0010\u001a\u001a\u00020\u00072\b\u0010\u001b\u001a\u0004\u0018\u00010\u0001HÖ\u0083\u0004J\n\u0010\u001c\u001a\u00020\u001dHÖ\u0081\u0004J\n\u0010\u001e\u001a\u00020\u001fHÖ\u0081\u0004R\u0011\u0010\u0002\u001a\u00020\u0003¢\u0006\b\n\u0000\u001a\u0004\b\f\u0010\rR\u0011\u0010\u0004\u001a\u00020\u0005¢\u0006\b\n\u0000\u001a\u0004\b\u000e\u0010\u000fR\u0011\u0010\u0006\u001a\u00020\u0007¢\u0006\b\n\u0000\u001a\u0004\b\u0010\u0010\u0011R\u0013\u0010\b\u001a\u0004\u0018\u00010\u0005¢\u0006\b\n\u0000\u001a\u0004\b\u0012\u0010\u000fR\u0013\u0010\t\u001a\u0004\u0018\u00010\u0005¢\u0006\b\n\u0000\u001a\u0004\b\u0013\u0010\u000f¨\u0006 ",
-      d2 = {
-            "Lcom/cb/cosmetic/RoomStore$ResolvedRoomBlock;",
-            "",
-            "relPos",
-            "Lnet/minecraft/core/BlockPos;",
-            "state",
-            "Lnet/minecraft/world/level/block/state/BlockState;",
-            "phantom",
-            "",
-            "shapeState",
-            "textureState",
-            "<init>",
-            "(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;ZLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;)V",
-            "getRelPos",
-            "()Lnet/minecraft/core/BlockPos;",
-            "getState",
-            "()Lnet/minecraft/world/level/block/state/BlockState;",
-            "getPhantom",
-            "()Z",
-            "getShapeState",
-            "getTextureState",
-            "component1",
-            "component2",
-            "component3",
-            "component4",
-            "component5",
-            "copy",
-            "equals",
-            "other",
-            "hashCode",
-            "",
-            "toString",
-            "",
-            "cb_client"
-      }
-   )
    private static final class ResolvedRoomBlock {
       @NotNull
       private final BlockPos relPos;

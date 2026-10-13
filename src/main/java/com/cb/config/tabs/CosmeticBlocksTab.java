@@ -9,72 +9,8 @@ import com.cb.setting.KeybindSetting;
 import com.cb.setting.NumberSetting;
 import com.cb.setting.SettingKt;
 import java.util.List;
-import kotlin.Metadata;
 import org.jetbrains.annotations.NotNull;
 
-@Metadata(
-   mv = {2, 3, 0},
-   k = 1,
-   xi = 48,
-   d1 = "\u00004\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\b\r\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\b\u0011\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\b\t\bÆ\u0002\u0018\u00002\u00020\u0001B\t\b\u0002¢\u0006\u0004\b\u0002\u0010\u0003R\u0011\u0010\u0004\u001a\u00020\u0005¢\u0006\b\n\u0000\u001a\u0004\b\u0006\u0010\u0007R\u0011\u0010\b\u001a\u00020\u0005¢\u0006\b\n\u0000\u001a\u0004\b\t\u0010\u0007R\u0011\u0010\n\u001a\u00020\u0005¢\u0006\b\n\u0000\u001a\u0004\b\u000b\u0010\u0007R\u0011\u0010\f\u001a\u00020\u0005¢\u0006\b\n\u0000\u001a\u0004\b\r\u0010\u0007R\u0011\u0010\u000e\u001a\u00020\u0005¢\u0006\b\n\u0000\u001a\u0004\b\u000f\u0010\u0007R\u0011\u0010\u0010\u001a\u00020\u0005¢\u0006\b\n\u0000\u001a\u0004\b\u0011\u0010\u0007R\u0011\u0010\u0012\u001a\u00020\u0013¢\u0006\b\n\u0000\u001a\u0004\b\u0014\u0010\u0015R\u0011\u0010\u0016\u001a\u00020\u0017¢\u0006\b\n\u0000\u001a\u0004\b\u0018\u0010\u0019R\u0011\u0010\u001a\u001a\u00020\u0017¢\u0006\b\n\u0000\u001a\u0004\b\u001b\u0010\u0019R\u0011\u0010\u001c\u001a\u00020\u0017¢\u0006\b\n\u0000\u001a\u0004\b\u001d\u0010\u0019R\u0011\u0010\u001e\u001a\u00020\u0017¢\u0006\b\n\u0000\u001a\u0004\b\u001f\u0010\u0019R\u0011\u0010 \u001a\u00020\u0017¢\u0006\b\n\u0000\u001a\u0004\b!\u0010\u0019R\u0011\u0010\"\u001a\u00020\u0017¢\u0006\b\n\u0000\u001a\u0004\b#\u0010\u0019R\u0011\u0010$\u001a\u00020\u0005¢\u0006\b\n\u0000\u001a\u0004\b%\u0010\u0007R\u0011\u0010&\u001a\u00020\u0005¢\u0006\b\n\u0000\u001a\u0004\b'\u0010\u0007R\u0011\u0010(\u001a\u00020)¢\u0006\b\n\u0000\u001a\u0004\b*\u0010+R\u0011\u0010,\u001a\u00020-¢\u0006\b\n\u0000\u001a\u0004\b.\u0010/R\u0011\u00100\u001a\u00020\u0005¢\u0006\b\n\u0000\u001a\u0004\b1\u0010\u0007R\u0011\u00102\u001a\u00020)¢\u0006\b\n\u0000\u001a\u0004\b3\u0010+R\u0011\u00104\u001a\u00020\u0013¢\u0006\b\n\u0000\u001a\u0004\b5\u0010\u0015¨\u00066",
-   d2 = {
-         "Lcom/cb/config/tabs/CosmeticBlocksTab;",
-         "Lcom/cb/config/SettingsTab;",
-         "<init>",
-         "()V",
-         "enabled",
-         "Lcom/cb/setting/BooleanSetting;",
-         "getEnabled",
-         "()Lcom/cb/setting/BooleanSetting;",
-         "keepBlockSize",
-         "getKeepBlockSize",
-         "onlyInDungeons",
-         "getOnlyInDungeons",
-         "roomScanning",
-         "getRoomScanning",
-         "placeMode",
-         "getPlaceMode",
-         "weFillOnClick",
-         "getWeFillOnClick",
-         "fillModeLimit",
-         "Lcom/cb/setting/NumberSetting;",
-         "getFillModeLimit",
-         "()Lcom/cb/setting/NumberSetting;",
-         "placeModeKeybind",
-         "Lcom/cb/setting/KeybindSetting;",
-         "getPlaceModeKeybind",
-         "()Lcom/cb/setting/KeybindSetting;",
-         "editModeKeybind",
-         "getEditModeKeybind",
-         "worldEditKeybind",
-         "getWorldEditKeybind",
-         "blockSelectorKeybind",
-         "getBlockSelectorKeybind",
-         "blockWheelKeybind",
-         "getBlockWheelKeybind",
-         "rulerKeybind",
-         "getRulerKeybind",
-         "lavaAsWater",
-         "getLavaAsWater",
-         "customWaterColor",
-         "getCustomWaterColor",
-         "waterColor",
-         "Lcom/cb/setting/ColorSetting;",
-         "getWaterColor",
-         "()Lcom/cb/setting/ColorSetting;",
-         "activeConfig",
-         "Lcom/cb/setting/ConfigListSetting;",
-         "getActiveConfig",
-         "()Lcom/cb/setting/ConfigListSetting;",
-         "showReplacedBlocks",
-         "getShowReplacedBlocks",
-         "overlayColor",
-         "getOverlayColor",
-         "overlayRange",
-         "getOverlayRange",
-         "cb_client"
-   }
-)
 public final class CosmeticBlocksTab extends SettingsTab {
    @NotNull
    public static final CosmeticBlocksTab INSTANCE = new CosmeticBlocksTab();

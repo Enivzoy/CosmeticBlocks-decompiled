@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import kotlin.Metadata;
 import kotlin.Result;
 import kotlin.ResultKt;
 import kotlin.Unit;
@@ -44,7 +43,6 @@ import kotlin.io.CloseableKt;
 import kotlin.io.path.PathsKt;
 import kotlin.jvm.functions.Function1;
 import kotlin.jvm.internal.Intrinsics;
-import kotlin.jvm.internal.SourceDebugExtension;
 import kotlin.random.Random;
 import kotlin.ranges.IntRange;
 import kotlin.ranges.RangesKt;
@@ -64,109 +62,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-@Metadata(
-   mv = {2, 3, 0},
-   k = 1,
-   xi = 48,
-   d1 = "\u0000v\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0003\n\u0002\u0010\b\n\u0000\n\u0002\u0018\u0002\n\u0002\b\b\n\u0002\u0010!\n\u0002\u0010\u000e\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0005\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0010\u000b\n\u0000\n\u0002\u0010\u0002\n\u0002\b\u0003\n\u0002\u0010 \n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0010\t\n\u0002\b\u0011\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0005\n\u0002\u0010\u0006\n\u0002\b\u000e\n\u0002\u0018\u0002\n\u0002\b\t\bÆ\u0002\u0018\u00002\u00020\u0001:\u0003XYZB\t\b\u0002¢\u0006\u0004\b\u0002\u0010\u0003J\b\u0010\u001e\u001a\u00020\u001fH\u0002J\u000e\u0010 \u001a\u00020\u00112\u0006\u0010!\u001a\u00020\u0011J\f\u0010\"\u001a\b\u0012\u0004\u0012\u00020\u00110#J\u0014\u0010$\u001a\b\u0012\u0004\u0012\u00020%0#2\u0006\u0010!\u001a\u00020\u0011J\u0006\u0010&\u001a\u00020\u001fJ\u0016\u0010'\u001a\u00020\u00052\u0006\u0010(\u001a\u00020)2\u0006\u0010*\u001a\u00020\u0011J\u000e\u0010+\u001a\u00020\u001d2\u0006\u0010,\u001a\u00020\u0005J\u0016\u00100\u001a\b\u0012\u0004\u0012\u00020%0#2\u0006\u00101\u001a\u00020\u0011H\u0002J\u0016\u00102\u001a\b\u0012\u0004\u0012\u00020%0#2\u0006\u00103\u001a\u00020\u0011H\u0002J&\u00104\u001a\b\u0012\u0004\u0012\u00020%0#2\u0006\u00105\u001a\u00020\u00112\u0006\u00106\u001a\u00020\u00112\u0006\u00107\u001a\u00020\u0011H\u0002J\u001e\u00108\u001a\b\u0012\u0004\u0012\u00020%0#2\u0006\u00109\u001a\u00020\u00112\u0006\u00106\u001a\u00020\u0011H\u0002J\u000e\u0010:\u001a\b\u0012\u0004\u0012\u00020;0#H\u0002J\u000e\u0010<\u001a\b\u0012\u0004\u0012\u00020=0#H\u0002J\u0017\u0010>\u001a\u0004\u0018\u00010)2\u0006\u0010!\u001a\u00020\u0011H\u0002¢\u0006\u0002\u0010?J\u0010\u0010@\u001a\u00020\u00112\u0006\u0010A\u001a\u00020)H\u0002J\u0017\u0010B\u001a\u0004\u0018\u00010C2\u0006\u0010D\u001a\u00020\u0011H\u0002¢\u0006\u0002\u0010EJ\u0010\u0010F\u001a\u00020\u00112\u0006\u0010!\u001a\u00020\u0011H\u0002J\u0010\u0010G\u001a\u00020\u00112\u0006\u0010H\u001a\u00020\u0011H\u0002J\b\u0010I\u001a\u00020\u001dH\u0002J\b\u0010J\u001a\u00020\u001dH\u0002J\u0010\u0010K\u001a\u00020\u001d2\u0006\u0010L\u001a\u00020\u0011H\u0002J\u0010\u0010M\u001a\u00020\u001d2\u0006\u0010L\u001a\u00020\u0011H\u0002J\u000e\u0010N\u001a\b\u0012\u0004\u0012\u00020\u00110#H\u0002J\u0010\u0010O\u001a\u00020\u001d2\u0006\u0010L\u001a\u00020\u0011H\u0002J\u0014\u0010P\u001a\u00020\u00112\n\u0010Q\u001a\u0006\u0012\u0002\b\u00030RH\u0002J\u001c\u0010S\u001a\u00020\u001d2\n\u0010Q\u001a\u0006\u0012\u0002\b\u00030R2\u0006\u00101\u001a\u00020\u0011H\u0002J\u0006\u0010T\u001a\u00020\u001fJ\b\u0010U\u001a\u00020\u001fH\u0002J\b\u0010V\u001a\u00020\u001fH\u0002J\b\u0010W\u001a\u00020\u001fH\u0002R\u000e\u0010\u0004\u001a\u00020\u0005X\u0082T¢\u0006\u0002\n\u0000R\u000e\u0010\u0006\u001a\u00020\u0007X\u0082\u0004¢\u0006\u0002\n\u0000R\u0014\u0010\b\u001a\u00020\u00078BX\u0082\u0004¢\u0006\u0006\u001a\u0004\b\t\u0010\nR\u0014\u0010\u000b\u001a\u00020\u00078BX\u0082\u0004¢\u0006\u0006\u001a\u0004\b\f\u0010\nR\u0014\u0010\r\u001a\u00020\u00078BX\u0082\u0004¢\u0006\u0006\u001a\u0004\b\u000e\u0010\nR\u0014\u0010\u000f\u001a\b\u0012\u0004\u0012\u00020\u00110\u0010X\u0082\u0004¢\u0006\u0002\n\u0000R\u0017\u0010\u0012\u001a\b\u0012\u0004\u0012\u00020\u00130\u0010¢\u0006\b\n\u0000\u001a\u0004\b\u0014\u0010\u0015R\u0017\u0010\u0016\u001a\b\u0012\u0004\u0012\u00020\u00110\u0010¢\u0006\b\n\u0000\u001a\u0004\b\u0017\u0010\u0015R\u0017\u0010\u0018\u001a\b\u0012\u0004\u0012\u00020\u00190\u0010¢\u0006\b\n\u0000\u001a\u0004\b\u001a\u0010\u0015R\u000e\u0010\u001b\u001a\u00020\u0005X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u001c\u001a\u00020\u001dX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010-\u001a\u00020\u0005X\u0082T¢\u0006\u0002\n\u0000R\u0014\u0010.\u001a\b\u0012\u0004\u0012\u00020\u00110#X\u0082\u0004¢\u0006\u0002\n\u0000R\u0014\u0010/\u001a\b\u0012\u0004\u0012\u00020\u00110#X\u0082\u0004¢\u0006\u0002\n\u0000¨\u0006[",
-   d2 = {
-         "Lcom/cb/gui/screens/CliEngine;",
-         "",
-         "<init>",
-         "()V",
-         "MAX_HISTORY",
-         "",
-         "configDir",
-         "Ljava/nio/file/Path;",
-         "savedColorsFile",
-         "getSavedColorsFile",
-         "()Ljava/nio/file/Path;",
-         "notesFile",
-         "getNotesFile",
-         "profilesDir",
-         "getProfilesDir",
-         "commandHistory",
-         "",
-         "",
-         "savedColors",
-         "Ljava/awt/Color;",
-         "getSavedColors",
-         "()Ljava/util/List;",
-         "notes",
-         "getNotes",
-         "reminders",
-         "Lcom/cb/gui/screens/CliEngine$Reminder;",
-         "getReminders",
-         "nextReminderId",
-         "loaded",
-         "",
-         "ensureLoaded",
-         "",
-         "execute",
-         "input",
-         "history",
-         "",
-         "suggestions",
-         "Lcom/cb/gui/screens/CliEngine$Suggestion;",
-         "checkReminders",
-         "addReminder",
-         "delayMs",
-         "",
-         "message",
-         "cancelReminder",
-         "id",
-         "MAX_SUGGESTIONS",
-         "TOP_COMMANDS",
-         "CB_SUBCOMMANDS",
-         "computeSuggestions",
-         "raw",
-         "cbSuggestions",
-         "rest",
-         "blockSuggestions",
-         "token",
-         "prefix",
-         "hint",
-         "favSuggestions",
-         "args",
-         "booleanSettings",
-         "Lcom/cb/setting/BooleanSetting;",
-         "keybindSettings",
-         "Lcom/cb/setting/KeybindSetting;",
-         "parseTimeString",
-         "(Ljava/lang/String;)Ljava/lang/Long;",
-         "formatDuration",
-         "ms",
-         "evaluateCalcExpression",
-         "",
-         "expr",
-         "(Ljava/lang/String;)Ljava/lang/Double;",
-         "executeCliCommand",
-         "executeCbCommand",
-         "arg",
-         "exportToClipboard",
-         "importFromClipboard",
-         "saveProfile",
-         "name",
-         "loadProfile",
-         "listProfiles",
-         "deleteProfile",
-         "valueToString",
-         "setting",
-         "Lcom/cb/setting/Setting;",
-         "stringToValue",
-         "saveSavedColors",
-         "loadSavedColors",
-         "saveNotes",
-         "loadNotes",
-         "Reminder",
-         "Suggestion",
-         "CalcParser",
-         "cb_client"
-   }
-)
-@SourceDebugExtension(
-   "SMAP\nCliEngine.kt\nKotlin\n*S Kotlin\n*F\n+ 1 CliEngine.kt\ncom/cb/gui/screens/CliEngine\n+ 2 _Collections.kt\nkotlin/collections/CollectionsKt___CollectionsKt\n+ 3 fake.kt\nkotlin/jvm/internal/FakeKt\n+ 4 _Arrays.kt\nkotlin/collections/ArraysKt___ArraysKt\n*L\n1#1,1108:1\n777#2:1109\n873#2,2:1110\n1915#2,2:1112\n1021#2,2:1114\n777#2:1116\n873#2,2:1117\n1586#2:1119\n1661#2,3:1120\n1586#2:1123\n1661#2,3:1124\n777#2:1127\n873#2,2:1128\n1586#2:1130\n1661#2,3:1131\n777#2:1134\n873#2,2:1135\n1586#2:1137\n1661#2,3:1138\n777#2:1141\n873#2,2:1142\n1586#2:1144\n1661#2,3:1145\n1834#2,4:1148\n777#2:1153\n873#2,2:1154\n1586#2:1156\n1661#2,3:1157\n777#2:1160\n873#2,2:1161\n1586#2:1163\n1661#2,3:1164\n777#2:1167\n873#2,2:1168\n1586#2:1170\n1661#2,3:1171\n777#2:1174\n873#2,2:1175\n1586#2:1177\n1661#2,3:1178\n1586#2:1181\n1661#2,3:1182\n777#2:1185\n873#2,2:1186\n1586#2:1188\n1661#2,3:1189\n1391#2:1192\n1480#2,5:1193\n812#2,12:1198\n1391#2:1210\n1480#2,5:1211\n812#2,12:1216\n1586#2:1228\n1661#2,3:1229\n777#2:1232\n873#2,2:1233\n1586#2:1235\n1661#2,3:1236\n1915#2:1239\n1915#2,2:1240\n1916#2:1242\n1915#2,2:1243\n1915#2:1245\n1915#2,2:1246\n1916#2:1248\n1915#2,2:1249\n1915#2:1251\n1915#2,2:1252\n1916#2:1254\n1586#2:1255\n1661#2,3:1256\n1915#2,2:1261\n1915#2,2:1263\n1#3:1152\n1401#4,2:1259\n*S KotlinDebug\n*F\n+ 1 CliEngine.kt\ncom/cb/gui/screens/CliEngine\n*L\n95#1:1109\n95#1:1110,2\n96#1:1112,2\n105#1:1114,2\n155#1:1116\n155#1:1117,2\n156#1:1119\n156#1:1120,3\n168#1:1123\n168#1:1124,3\n169#1:1127\n169#1:1128,2\n172#1:1130\n172#1:1131,3\n178#1:1134\n178#1:1135,2\n179#1:1137\n179#1:1138,3\n192#1:1141\n192#1:1142,2\n193#1:1144\n193#1:1145,3\n207#1:1148,4\n214#1:1153\n214#1:1154,2\n215#1:1156\n215#1:1157,3\n220#1:1160\n220#1:1161,2\n221#1:1163\n221#1:1164,3\n225#1:1167\n225#1:1168,2\n226#1:1170\n226#1:1171,3\n248#1:1174\n248#1:1175,2\n249#1:1177\n249#1:1178,3\n256#1:1181\n256#1:1182,3\n257#1:1185\n257#1:1186,2\n258#1:1188\n258#1:1189,3\n270#1:1192\n270#1:1193,5\n270#1:1198,12\n273#1:1210\n273#1:1211,5\n273#1:1216,12\n583#1:1228\n583#1:1229,3\n664#1:1232\n664#1:1233,2\n668#1:1235\n668#1:1236,3\n924#1:1239\n925#1:1240,2\n924#1:1242\n941#1:1243,2\n967#1:1245\n968#1:1246,2\n967#1:1248\n986#1:1249,2\n991#1:1251\n992#1:1252,2\n991#1:1254\n1009#1:1255\n1009#1:1256,3\n1072#1:1261,2\n1093#1:1263,2\n1051#1:1259,2\n*E\n"
-)
 public final class CliEngine {
    @NotNull
    public static final CliEngine INSTANCE = new CliEngine();
@@ -2918,39 +2813,6 @@ public final class CliEngine {
       CB_SUBCOMMANDS = CollectionsKt.listOf(commands);
    }
 
-   @Metadata(
-      mv = {2, 3, 0},
-      k = 1,
-      xi = 48,
-      d1 = "\u00006\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0010\u000e\n\u0002\b\u0003\n\u0002\u0010\b\n\u0002\b\u0002\n\u0002\u0010\u0006\n\u0002\b\u0007\n\u0002\u0010\u000b\n\u0000\n\u0002\u0010\f\n\u0000\n\u0002\u0010\u0002\n\u0002\b\u0002\b\u0002\u0018\u00002\u00020\u0001B\u000f\u0012\u0006\u0010\u0002\u001a\u00020\u0003¢\u0006\u0004\b\u0004\u0010\u0005J\u0006\u0010\t\u001a\u00020\nJ\b\u0010\u000b\u001a\u00020\nH\u0002J\b\u0010\f\u001a\u00020\nH\u0002J\b\u0010\r\u001a\u00020\nH\u0002J\b\u0010\u000e\u001a\u00020\nH\u0002J\b\u0010\u000f\u001a\u00020\nH\u0002J\b\u0010\u0010\u001a\u00020\nH\u0002J\u0010\u0010\u0011\u001a\u00020\u00122\u0006\u0010\u0013\u001a\u00020\u0014H\u0002J\u0010\u0010\u0015\u001a\u00020\u00162\u0006\u0010\u0013\u001a\u00020\u0014H\u0002J\b\u0010\u0017\u001a\u00020\u0016H\u0002R\u000e\u0010\u0002\u001a\u00020\u0003X\u0082\u0004¢\u0006\u0002\n\u0000R\u000e\u0010\u0006\u001a\u00020\u0007X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\b\u001a\u00020\u0007X\u0082\u0004¢\u0006\u0002\n\u0000¨\u0006\u0018",
-      d2 = {
-            "Lcom/cb/gui/screens/CliEngine$CalcParser;",
-            "",
-            "expr",
-            "",
-            "<init>",
-            "(Ljava/lang/String;)V",
-            "pos",
-            "",
-            "length",
-            "parse",
-            "",
-            "parseExpression",
-            "parseTerm",
-            "parseFactor",
-            "parseUnary",
-            "parsePrimary",
-            "parseNumber",
-            "match",
-            "",
-            "c",
-            "",
-            "expect",
-            "",
-            "skipWhitespace",
-            "cb_client"
-      }
-   )
    private static final class CalcParser {
       @NotNull
       private final String expr;
@@ -3226,40 +3088,6 @@ public final class CliEngine {
       }
    }
 
-   @Metadata(
-      mv = {2, 3, 0},
-      k = 1,
-      xi = 48,
-      d1 = "\u0000&\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0010\t\n\u0000\n\u0002\u0010\u000e\n\u0000\n\u0002\u0010\b\n\u0002\b\r\n\u0002\u0010\u000b\n\u0002\b\u0004\b\u0086\b\u0018\u00002\u00020\u0001B\u001f\u0012\u0006\u0010\u0002\u001a\u00020\u0003\u0012\u0006\u0010\u0004\u001a\u00020\u0005\u0012\u0006\u0010\u0006\u001a\u00020\u0007¢\u0006\u0004\b\b\u0010\tJ\t\u0010\u0010\u001a\u00020\u0003HÆ\u0003J\t\u0010\u0011\u001a\u00020\u0005HÆ\u0003J\t\u0010\u0012\u001a\u00020\u0007HÆ\u0003J'\u0010\u0013\u001a\u00020\u00002\b\b\u0002\u0010\u0002\u001a\u00020\u00032\b\b\u0002\u0010\u0004\u001a\u00020\u00052\b\b\u0002\u0010\u0006\u001a\u00020\u0007HÆ\u0001J\u0014\u0010\u0014\u001a\u00020\u00152\b\u0010\u0016\u001a\u0004\u0018\u00010\u0001HÖ\u0083\u0004J\n\u0010\u0017\u001a\u00020\u0007HÖ\u0081\u0004J\n\u0010\u0018\u001a\u00020\u0005HÖ\u0081\u0004R\u0011\u0010\u0002\u001a\u00020\u0003¢\u0006\b\n\u0000\u001a\u0004\b\n\u0010\u000bR\u0011\u0010\u0004\u001a\u00020\u0005¢\u0006\b\n\u0000\u001a\u0004\b\f\u0010\rR\u0011\u0010\u0006\u001a\u00020\u0007¢\u0006\b\n\u0000\u001a\u0004\b\u000e\u0010\u000f¨\u0006\u0019",
-      d2 = {
-            "Lcom/cb/gui/screens/CliEngine$Reminder;",
-            "",
-            "triggerTime",
-            "",
-            "message",
-            "",
-            "id",
-            "",
-            "<init>",
-            "(JLjava/lang/String;I)V",
-            "getTriggerTime",
-            "()J",
-            "getMessage",
-            "()Ljava/lang/String;",
-            "getId",
-            "()I",
-            "component1",
-            "component2",
-            "component3",
-            "copy",
-            "equals",
-            "",
-            "other",
-            "hashCode",
-            "toString",
-            "cb_client"
-      }
-   )
    public static final class Reminder {
       private final long triggerTime;
       @NotNull
@@ -3333,37 +3161,6 @@ public final class CliEngine {
       }
    }
 
-   @Metadata(
-      mv = {2, 3, 0},
-      k = 1,
-      xi = 48,
-      d1 = "\u0000\"\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0010\u000e\n\u0002\b\r\n\u0002\u0010\u000b\n\u0002\b\u0002\n\u0002\u0010\b\n\u0002\b\u0002\b\u0086\b\u0018\u00002\u00020\u0001B#\u0012\u0006\u0010\u0002\u001a\u00020\u0003\u0012\b\b\u0002\u0010\u0004\u001a\u00020\u0003\u0012\b\b\u0002\u0010\u0005\u001a\u00020\u0003¢\u0006\u0004\b\u0006\u0010\u0007J\t\u0010\f\u001a\u00020\u0003HÆ\u0003J\t\u0010\r\u001a\u00020\u0003HÆ\u0003J\t\u0010\u000e\u001a\u00020\u0003HÆ\u0003J'\u0010\u000f\u001a\u00020\u00002\b\b\u0002\u0010\u0002\u001a\u00020\u00032\b\b\u0002\u0010\u0004\u001a\u00020\u00032\b\b\u0002\u0010\u0005\u001a\u00020\u0003HÆ\u0001J\u0014\u0010\u0010\u001a\u00020\u00112\b\u0010\u0012\u001a\u0004\u0018\u00010\u0001HÖ\u0083\u0004J\n\u0010\u0013\u001a\u00020\u0014HÖ\u0081\u0004J\n\u0010\u0015\u001a\u00020\u0003HÖ\u0081\u0004R\u0011\u0010\u0002\u001a\u00020\u0003¢\u0006\b\n\u0000\u001a\u0004\b\b\u0010\tR\u0011\u0010\u0004\u001a\u00020\u0003¢\u0006\b\n\u0000\u001a\u0004\b\n\u0010\tR\u0011\u0010\u0005\u001a\u00020\u0003¢\u0006\b\n\u0000\u001a\u0004\b\u000b\u0010\t¨\u0006\u0016",
-      d2 = {
-            "Lcom/cb/gui/screens/CliEngine$Suggestion;",
-            "",
-            "insert",
-            "",
-            "display",
-            "hint",
-            "<init>",
-            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
-            "getInsert",
-            "()Ljava/lang/String;",
-            "getDisplay",
-            "getHint",
-            "component1",
-            "component2",
-            "component3",
-            "copy",
-            "equals",
-            "",
-            "other",
-            "hashCode",
-            "",
-            "toString",
-            "cb_client"
-      }
-   )
    public static final class Suggestion {
       @NotNull
       private final String insert;

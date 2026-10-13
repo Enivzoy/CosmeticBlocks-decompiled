@@ -1,6 +1,4 @@
 package com.cb.events;
-
-import kotlin.Metadata;
 import kotlin.jvm.internal.Intrinsics;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -10,13 +8,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import org.jetbrains.annotations.NotNull;
 
-@Metadata(
-   mv = {2, 3, 0},
-   k = 1,
-   xi = 48,
-   d1 = "\u0000\u0012\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0003\n\u0002\u0010\u0002\n\u0000\bÆ\u0002\u0018\u00002\u00020\u0001B\t\b\u0002¢\u0006\u0004\b\u0002\u0010\u0003J\u0006\u0010\u0004\u001a\u00020\u0005¨\u0006\u0006",
-   d2 = {"Lcom/cb/events/EventDispatcher;", "", "<init>", "()V", "init", "", "cb_client"}
-)
 public final class EventDispatcher {
    @NotNull
    public static final EventDispatcher INSTANCE = new EventDispatcher();

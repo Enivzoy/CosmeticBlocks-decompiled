@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import kotlin.Metadata;
 import kotlin.NoWhenBranchMatchedException;
 import kotlin.Unit;
 import kotlin.collections.CollectionsKt;
@@ -18,7 +17,6 @@ import kotlin.enums.EnumEntries;
 import kotlin.jvm.functions.Function0;
 import kotlin.jvm.functions.Function1;
 import kotlin.jvm.internal.Intrinsics;
-import kotlin.jvm.internal.SourceDebugExtension;
 import kotlin.ranges.RangesKt;
 import kotlin.text.StringsKt;
 import net.minecraft.client.Minecraft;
@@ -33,113 +31,6 @@ import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Metadata(
-   mv = {2, 3, 0},
-   k = 1,
-   xi = 48,
-   d1 = "\u0000\u0084\u0001\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u000e\n\u0000\n\u0002\u0010\u0007\n\u0002\b\u0010\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010 \n\u0002\b\u0004\n\u0002\u0010\b\n\u0002\b\u0005\n\u0002\u0010\u0002\n\u0002\b\u000b\n\u0002\u0010\u000b\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u000f\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\u0006\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\b\t\u0018\u00002\u00020\u00012\u00020\u0002:\u0003\\]^B\u0007¢\u0006\u0004\b\u0003\u0010\u0004J\u0010\u0010+\u001a\u00020,2\u0006\u0010-\u001a\u00020\fH\u0016J\b\u0010.\u001a\u00020,H\u0002J\u0018\u0010/\u001a\u00020\f2\u0006\u00100\u001a\u00020\n2\u0006\u00101\u001a\u00020\fH\u0002J\b\u00102\u001a\u00020,H\u0002J8\u00103\u001a\u00020\f2\u0006\u00104\u001a\u00020\n2\u0006\u00105\u001a\u00020\f2\u0006\u00106\u001a\u00020\f2\b\b\u0002\u00107\u001a\u0002082\f\u00109\u001a\b\u0012\u0004\u0012\u00020,0:H\u0002J.\u0010;\u001a\u00020\f2\u0006\u0010<\u001a\u00020\n2\u0006\u00105\u001a\u00020\f2\u0006\u00106\u001a\u00020\f2\f\u00109\u001a\b\u0012\u0004\u0012\u00020,0:H\u0002J6\u0010=\u001a\u00020,2\u0006\u00104\u001a\u00020\n2\u0006\u00105\u001a\u00020\f2\u0006\u00106\u001a\u00020\f2\u0006\u0010>\u001a\u00020\f2\f\u00109\u001a\b\u0012\u0004\u0012\u00020,0:H\u0002J\u0010\u0010?\u001a\u0002082\u0006\u00106\u001a\u00020\fH\u0002J\b\u0010@\u001a\u00020,H\u0002J\u0012\u0010A\u001a\u00020,2\b\b\u0002\u0010B\u001a\u000208H\u0002J\u001a\u0010C\u001a\u00020,2\u0006\u0010D\u001a\u00020\b2\b\u0010E\u001a\u0004\u0018\u00010\nH\u0002J\u0010\u0010F\u001a\u00020,2\u0006\u0010G\u001a\u00020\nH\u0002J\u0018\u0010H\u001a\u0002082\u0006\u0010I\u001a\u00020J2\u0006\u0010K\u001a\u000208H\u0016J(\u0010L\u001a\u0002082\u0006\u0010\u000f\u001a\u00020M2\u0006\u0010\u0010\u001a\u00020M2\u0006\u0010N\u001a\u00020M2\u0006\u0010O\u001a\u00020MH\u0016J\u0010\u0010P\u001a\u0002082\u0006\u0010I\u001a\u00020QH\u0016J\u0010\u0010R\u001a\u0002082\u0006\u0010I\u001a\u00020SH\u0016J(\u0010T\u001a\u00020,2\u0006\u0010U\u001a\u00020V2\u0006\u0010\u000f\u001a\u00020&2\u0006\u0010\u0010\u001a\u00020&2\u0006\u0010W\u001a\u00020\fH\u0016J\b\u0010X\u001a\u000208H\u0016J\u0010\u0010Y\u001a\u00020\f2\u0006\u0010Z\u001a\u00020MH\u0002J\u0010\u0010[\u001a\u00020\n2\u0006\u0010G\u001a\u00020\nH\u0002R\u000e\u0010\u0005\u001a\u00020\u0006X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u0007\u001a\u00020\bX\u0082\u000e¢\u0006\u0002\n\u0000R\u0010\u0010\t\u001a\u0004\u0018\u00010\nX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u000b\u001a\u00020\fX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\r\u001a\u00020\fX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u000e\u001a\u00020\fX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u000f\u001a\u00020\fX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u0010\u001a\u00020\fX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u0011\u001a\u00020\fX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u0012\u001a\u00020\fX\u0082\u000e¢\u0006\u0002\n\u0000R\u0014\u0010\u0013\u001a\u00020\f8BX\u0082\u0004¢\u0006\u0006\u001a\u0004\b\u0014\u0010\u0015R\u0014\u0010\u0016\u001a\u00020\f8BX\u0082\u0004¢\u0006\u0006\u001a\u0004\b\u0017\u0010\u0015R\u000e\u0010\u0018\u001a\u00020\fX\u0082D¢\u0006\u0002\n\u0000R\u000e\u0010\u0019\u001a\u00020\fX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u001a\u001a\u00020\fX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u001b\u001a\u00020\fX\u0082\u000e¢\u0006\u0002\n\u0000R\u001e\u0010\u001c\u001a\u0012\u0012\u0004\u0012\u00020\u001e0\u001dj\b\u0012\u0004\u0012\u00020\u001e`\u001fX\u0082\u0004¢\u0006\u0002\n\u0000R\u0014\u0010 \u001a\b\u0012\u0004\u0012\u00020\n0!X\u0082\u000e¢\u0006\u0002\n\u0000R\u0014\u0010\"\u001a\b\u0012\u0004\u0012\u00020\n0!X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010#\u001a\u00020\nX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010$\u001a\u00020\nX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010%\u001a\u00020&X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010'\u001a\u00020\fX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010(\u001a\u00020\fX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010)\u001a\u00020\fX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010*\u001a\u00020\fX\u0082\u000e¢\u0006\u0002\n\u0000¨\u0006_",
-   d2 = {
-         "Lcom/cb/gui/screens/GlobalRemapEditorScreen;",
-         "Lnet/minecraft/client/gui/screens/Screen;",
-         "Lcom/cb/gui/NvgScreen;",
-         "<init>",
-         "()V",
-         "view",
-         "Lcom/cb/gui/screens/GlobalRemapEditorScreen$View;",
-         "pickPhase",
-         "Lcom/cb/gui/screens/GlobalRemapEditorScreen$PickPhase;",
-         "pendingSource",
-         "",
-         "uiScale",
-         "",
-         "uiWidth",
-         "uiHeight",
-         "mouseX",
-         "mouseY",
-         "px",
-         "py",
-         "panelW",
-         "getPanelW",
-         "()F",
-         "panelH",
-         "getPanelH",
-         "rowH",
-         "listScroll",
-         "listTop",
-         "listBottom",
-         "hits",
-         "Ljava/util/ArrayList;",
-         "Lcom/cb/gui/screens/GlobalRemapEditorScreen$Hit;",
-         "Lkotlin/collections/ArrayList;",
-         "allBlocks",
-         "",
-         "filtered",
-         "search",
-         "lastFilterKey",
-         "highlightIdx",
-         "",
-         "pickScroll",
-         "pickListTop",
-         "pickListBottom",
-         "blink",
-         "renderOverlay",
-         "",
-         "delta",
-         "renderListView",
-         "renderSourceBlock",
-         "src",
-         "startY",
-         "renderPickView",
-         "pillButton",
-         "label",
-         "x",
-         "y",
-         "accent",
-         "",
-         "act",
-         "Lkotlin/Function0;",
-         "iconButton",
-         "glyph",
-         "iconButtonLabeled",
-         "wdt",
-         "withinList",
-         "ensureBlocks",
-         "applyFilter",
-         "force",
-         "enterPick",
-         "phase",
-         "source",
-         "commitPick",
-         "id",
-         "mouseClicked",
-         "event",
-         "Lnet/minecraft/client/input/MouseButtonEvent;",
-         "doubled",
-         "mouseScrolled",
-         "",
-         "scrollX",
-         "scrollY",
-         "keyPressed",
-         "Lnet/minecraft/client/input/KeyEvent;",
-         "charTyped",
-         "Lnet/minecraft/client/input/CharacterEvent;",
-         "extractBackground",
-         "extractor",
-         "Lnet/minecraft/client/gui/GuiGraphicsExtractor;",
-         "partialTick",
-         "isPauseScreen",
-         "toUi",
-         "scaled",
-         "prettify",
-         "View",
-         "PickPhase",
-         "Hit",
-         "cb_client"
-   }
-)
-@SourceDebugExtension(
-   "SMAP\nGlobalRemapEditorScreen.kt\nKotlin\n*S Kotlin\n*F\n+ 1 GlobalRemapEditorScreen.kt\ncom/cb/gui/screens/GlobalRemapEditorScreen\n+ 2 NVGRenderer.kt\ncom/cb/render/NVGRenderer\n+ 3 fake.kt\nkotlin/jvm/internal/FakeKt\n+ 4 _Collections.kt\nkotlin/collections/CollectionsKt___CollectionsKt\n+ 5 _Strings.kt\nkotlin/text/StringsKt___StringsKt\n*L\n1#1,401:1\n445#2,8:402\n445#2,8:411\n1#3:410\n1586#4:419\n1661#4,3:420\n777#4:423\n873#4,2:424\n1088#5,2:426\n*S KotlinDebug\n*F\n+ 1 GlobalRemapEditorScreen.kt\ncom/cb/gui/screens/GlobalRemapEditorScreen\n*L\n139#1:402,8\n235#1:411,8\n289#1:419\n289#1:420,3\n298#1:423\n298#1:424,2\n381#1:426,2\n*E\n"
-)
 public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
    @NotNull
    private GlobalRemapEditorScreen.View view = GlobalRemapEditorScreen.View.LIST;
@@ -785,34 +676,6 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
       return Unit.INSTANCE;
    }
 
-   @Metadata(
-      mv = {2, 3, 0},
-      k = 1,
-      xi = 48,
-      d1 = "\u0000\u001e\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0010\u0007\n\u0002\b\u0004\n\u0002\u0018\u0002\n\u0002\u0010\u0002\n\u0002\b\n\b\u0002\u0018\u00002\u00020\u0001B5\u0012\u0006\u0010\u0002\u001a\u00020\u0003\u0012\u0006\u0010\u0004\u001a\u00020\u0003\u0012\u0006\u0010\u0005\u001a\u00020\u0003\u0012\u0006\u0010\u0006\u001a\u00020\u0003\u0012\f\u0010\u0007\u001a\b\u0012\u0004\u0012\u00020\t0\b¢\u0006\u0004\b\n\u0010\u000bR\u0011\u0010\u0002\u001a\u00020\u0003¢\u0006\b\n\u0000\u001a\u0004\b\f\u0010\rR\u0011\u0010\u0004\u001a\u00020\u0003¢\u0006\b\n\u0000\u001a\u0004\b\u000e\u0010\rR\u0011\u0010\u0005\u001a\u00020\u0003¢\u0006\b\n\u0000\u001a\u0004\b\u000f\u0010\rR\u0011\u0010\u0006\u001a\u00020\u0003¢\u0006\b\n\u0000\u001a\u0004\b\u0010\u0010\rR\u0017\u0010\u0007\u001a\b\u0012\u0004\u0012\u00020\t0\b¢\u0006\b\n\u0000\u001a\u0004\b\u0011\u0010\u0012¨\u0006\u0013",
-      d2 = {
-            "Lcom/cb/gui/screens/GlobalRemapEditorScreen$Hit;",
-            "",
-            "x",
-            "",
-            "y",
-            "w",
-            "h",
-            "act",
-            "Lkotlin/Function0;",
-            "",
-            "<init>",
-            "(FFFFLkotlin/jvm/functions/Function0;)V",
-            "getX",
-            "()F",
-            "getY",
-            "getW",
-            "getH",
-            "getAct",
-            "()Lkotlin/jvm/functions/Function0;",
-            "cb_client"
-      }
-   )
    private static final class Hit {
       private final float x;
       private final float y;
@@ -853,13 +716,6 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
       }
    }
 
-   @Metadata(
-      mv = {2, 3, 0},
-      k = 1,
-      xi = 48,
-      d1 = "\u0000\f\n\u0002\u0018\u0002\n\u0002\u0010\u0010\n\u0002\b\u0005\b\u0082\u0081\u0002\u0018\u00002\b\u0012\u0004\u0012\u00020\u00000\u0001B\t\b\u0002¢\u0006\u0004\b\u0002\u0010\u0003j\u0002\b\u0004j\u0002\b\u0005¨\u0006\u0006",
-      d2 = {"Lcom/cb/gui/screens/GlobalRemapEditorScreen$PickPhase;", "", "<init>", "(Ljava/lang/String;I)V", "SOURCE", "TARGET", "cb_client"}
-   )
    private enum PickPhase {
       SOURCE,
       TARGET;
@@ -870,13 +726,6 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
       }
    }
 
-   @Metadata(
-      mv = {2, 3, 0},
-      k = 1,
-      xi = 48,
-      d1 = "\u0000\f\n\u0002\u0018\u0002\n\u0002\u0010\u0010\n\u0002\b\u0005\b\u0082\u0081\u0002\u0018\u00002\b\u0012\u0004\u0012\u00020\u00000\u0001B\t\b\u0002¢\u0006\u0004\b\u0002\u0010\u0003j\u0002\b\u0004j\u0002\b\u0005¨\u0006\u0006",
-      d2 = {"Lcom/cb/gui/screens/GlobalRemapEditorScreen$View;", "", "<init>", "(Ljava/lang/String;I)V", "LIST", "PICK", "cb_client"}
-   )
    private enum View {
       LIST,
       PICK;

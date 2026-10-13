@@ -10,37 +10,11 @@ import com.mojang.blaze3d.platform.CompareOp;
 import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.PrimitiveTopology;
-import kotlin.Metadata;
 import kotlin.jvm.internal.Intrinsics;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
-@Metadata(
-   mv = {2, 3, 0},
-   k = 1,
-   xi = 48,
-   d1 = "\u0000 \n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0007\bÆ\u0002\u0018\u00002\u00020\u0001B\t\b\u0002¢\u0006\u0004\b\u0002\u0010\u0003R\u000e\u0010\u0004\u001a\u00020\u0005X\u0082\u0004¢\u0006\u0002\n\u0000R\u000e\u0010\u0006\u001a\u00020\u0007X\u0082\u0004¢\u0006\u0002\n\u0000R\u0011\u0010\b\u001a\u00020\t¢\u0006\b\n\u0000\u001a\u0004\b\n\u0010\u000bR\u0011\u0010\f\u001a\u00020\t¢\u0006\b\n\u0000\u001a\u0004\b\r\u0010\u000bR\u0011\u0010\u000e\u001a\u00020\t¢\u0006\b\n\u0000\u001a\u0004\b\u000f\u0010\u000b¨\u0006\u0010",
-   d2 = {
-         "Lcom/cb/utils/SkyblockerRenderPipelines;",
-         "",
-         "<init>",
-         "()V",
-         "NO_DEPTH",
-         "Lcom/mojang/blaze3d/pipeline/DepthStencilState;",
-         "TRANSLUCENT",
-         "Lcom/mojang/blaze3d/pipeline/ColorTargetState;",
-         "FILLED_THROUGH_WALLS",
-         "Lcom/mojang/blaze3d/pipeline/RenderPipeline;",
-         "getFILLED_THROUGH_WALLS",
-         "()Lcom/mojang/blaze3d/pipeline/RenderPipeline;",
-         "LINES_THROUGH_WALLS",
-         "getLINES_THROUGH_WALLS",
-         "ROUND_RECT",
-         "getROUND_RECT",
-         "cb_client"
-   }
-)
 public final class SkyblockerRenderPipelines {
    @NotNull
    public static final SkyblockerRenderPipelines INSTANCE = new SkyblockerRenderPipelines();

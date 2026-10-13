@@ -4,13 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import kotlin.Metadata;
 import kotlin.Unit;
 import kotlin.enums.EnumEntries;
 import kotlin.io.ByteStreamsKt;
 import kotlin.jvm.functions.Function0;
 import kotlin.jvm.internal.Intrinsics;
-import kotlin.jvm.internal.SourceDebugExtension;
 import kotlin.ranges.RangesKt;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.nanovg.NVGColor;
@@ -29,140 +27,6 @@ import org.lwjgl.system.MemoryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Metadata(
-   mv = {2, 3, 0},
-   k = 1,
-   xi = 48,
-   d1 = "\u0000|\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\t\n\u0000\n\u0002\u0010\u000b\n\u0000\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0006\n\u0002\u0010\u000e\n\u0000\n\u0002\u0010\b\n\u0002\b\u001c\n\u0002\u0010\u0012\n\u0000\n\u0002\u0010\u0015\n\u0002\b\u0002\n\u0002\u0010\u0002\n\u0002\b\u0005\n\u0002\u0010\u0007\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\b\u001e\n\u0002\u0010\u0014\n\u0002\b\b\n\u0002\u0018\u0002\n\u0002\b\u0005\n\u0002\u0018\u0002\n\u0002\b\n\bÆ\u0002\u0018\u00002\u00020\u0001:\u0001yB\t\b\u0002¢\u0006\u0004\b\u0002\u0010\u0003J\b\u0010\u0012\u001a\u00020\nH\u0002J\u0010\u0010\u0013\u001a\u00020\r2\u0006\u0010\u0014\u001a\u00020\u0015H\u0002J\b\u00108\u001a\u000209H\u0002J\b\u0010:\u001a\u000209H\u0002J\u001e\u0010;\u001a\u00020\n2\u0006\u0010<\u001a\u00020\u00172\u0006\u0010=\u001a\u00020\u00172\u0006\u0010>\u001a\u00020?J\u0006\u0010@\u001a\u000209J\u0018\u0010A\u001a\u00020B2\u0006\u0010C\u001a\u00020\u00172\u0006\u0010D\u001a\u00020BH\u0002J8\u0010E\u001a\u0002092\u0006\u0010F\u001a\u00020?2\u0006\u0010G\u001a\u00020?2\u0006\u0010H\u001a\u00020?2\u0006\u0010I\u001a\u00020?2\u0006\u0010C\u001a\u00020\u00172\b\b\u0002\u0010J\u001a\u00020?JN\u0010K\u001a\u0002092\u0006\u0010F\u001a\u00020?2\u0006\u0010G\u001a\u00020?2\u0006\u0010H\u001a\u00020?2\u0006\u0010I\u001a\u00020?2\u0006\u0010L\u001a\u00020?2\u0006\u0010M\u001a\u00020?2\u0006\u0010N\u001a\u00020?2\u0006\u0010O\u001a\u00020?2\u0006\u0010C\u001a\u00020\u0017JB\u0010P\u001a\u0002092\u0006\u0010F\u001a\u00020?2\u0006\u0010G\u001a\u00020?2\u0006\u0010H\u001a\u00020?2\u0006\u0010I\u001a\u00020?2\u0006\u0010C\u001a\u00020\u00172\b\b\u0002\u0010J\u001a\u00020?2\b\b\u0002\u0010Q\u001a\u00020?J&\u0010R\u001a\u0002092\u0006\u0010S\u001a\u00020?2\u0006\u0010T\u001a\u00020?2\u0006\u0010J\u001a\u00020?2\u0006\u0010C\u001a\u00020\u0017J8\u0010U\u001a\u0002092\u0006\u0010V\u001a\u00020?2\u0006\u0010W\u001a\u00020?2\u0006\u0010X\u001a\u00020?2\u0006\u0010Y\u001a\u00020?2\u0006\u0010C\u001a\u00020\u00172\b\b\u0002\u0010Q\u001a\u00020?JF\u0010Z\u001a\u0002092\u0006\u0010F\u001a\u00020?2\u0006\u0010G\u001a\u00020?2\u0006\u0010H\u001a\u00020?2\u0006\u0010I\u001a\u00020?2\u0006\u0010J\u001a\u00020?2\u0006\u0010[\u001a\u00020\u00172\u0006\u0010\\\u001a\u00020\u00172\u0006\u0010]\u001a\u00020\nJ>\u0010^\u001a\u0002092\u0006\u0010F\u001a\u00020?2\u0006\u0010G\u001a\u00020?2\u0006\u0010H\u001a\u00020?2\u0006\u0010I\u001a\u00020?2\u0006\u0010J\u001a\u00020?2\u0006\u0010_\u001a\u00020?2\u0006\u0010C\u001a\u00020\u0017J\u0010\u0010d\u001a\u00020?2\u0006\u0010e\u001a\u00020?H\u0002J8\u0010f\u001a\u00020?2\u0006\u0010g\u001a\u00020\u00152\u0006\u0010F\u001a\u00020?2\u0006\u0010G\u001a\u00020?2\u0006\u0010h\u001a\u00020?2\u0006\u0010C\u001a\u00020\u00172\b\b\u0002\u0010i\u001a\u00020jJ8\u0010k\u001a\u0002092\u0006\u0010g\u001a\u00020\u00152\u0006\u0010F\u001a\u00020?2\u0006\u0010G\u001a\u00020?2\u0006\u0010h\u001a\u00020?2\u0006\u0010C\u001a\u00020\u00172\b\b\u0002\u0010i\u001a\u00020jJ8\u0010l\u001a\u0002092\u0006\u0010g\u001a\u00020\u00152\u0006\u0010F\u001a\u00020?2\u0006\u0010G\u001a\u00020?2\u0006\u0010h\u001a\u00020?2\u0006\u0010C\u001a\u00020\u00172\b\b\u0002\u0010i\u001a\u00020jJ \u0010m\u001a\u00020?2\u0006\u0010g\u001a\u00020\u00152\u0006\u0010h\u001a\u00020?2\b\b\u0002\u0010i\u001a\u00020jJ:\u0010n\u001a\u0002092\u0006\u0010F\u001a\u00020?2\u0006\u0010G\u001a\u00020?2\u0006\u0010H\u001a\u00020?2\u0006\u0010I\u001a\u00020?2\f\u0010o\u001a\b\u0012\u0004\u0012\u0002090pH\u0086\bø\u0001\u0000J\u0006\u0010q\u001a\u000209J\u0006\u0010r\u001a\u000209J\u0016\u0010s\u001a\u0002092\u0006\u0010F\u001a\u00020?2\u0006\u0010G\u001a\u00020?J\u000e\u0010t\u001a\u0002092\u0006\u0010u\u001a\u00020?J&\u0010v\u001a\u0002092\u0006\u0010F\u001a\u00020?2\u0006\u0010G\u001a\u00020?2\u0006\u0010H\u001a\u00020?2\u0006\u0010I\u001a\u00020?J\u000e\u0010w\u001a\u0002092\u0006\u0010x\u001a\u00020?R\u0016\u0010\u0004\u001a\n \u0006*\u0004\u0018\u00010\u00050\u0005X\u0082\u0004¢\u0006\u0002\n\u0000R\u000e\u0010\u0007\u001a\u00020\bX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\t\u001a\u00020\nX\u0082\u000e¢\u0006\u0002\n\u0000R\u001e\u0010\u000b\u001a\u0012\u0012\u0004\u0012\u00020\r0\fj\b\u0012\u0004\u0012\u00020\r`\u000eX\u0082\u0004¢\u0006\u0002\n\u0000R\u0011\u0010\u000f\u001a\u00020\n8F¢\u0006\u0006\u001a\u0004\b\u0010\u0010\u0011R\u000e\u0010\u0016\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u0018\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u0019\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u001a\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u001b\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u001c\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u001d\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u001e\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u001f\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010 \u001a\u00020\nX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010!\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\"\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010#\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010$\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010%\u001a\u00020\nX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010&\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010'\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010(\u001a\u00020\nX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010)\u001a\u00020\nX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010*\u001a\u00020\nX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010+\u001a\u00020\nX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010,\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010-\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010.\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010/\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u00100\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u00101\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u00102\u001a\u00020\u0017X\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u00103\u001a\u000204X\u0082\u0004¢\u0006\u0002\n\u0000R\u000e\u00105\u001a\u000206X\u0082\u0004¢\u0006\u0002\n\u0000R\u000e\u00107\u001a\u000206X\u0082\u0004¢\u0006\u0002\n\u0000R\u000e\u0010`\u001a\u00020aX\u0082\u0004¢\u0006\u0002\n\u0000R\u000e\u0010b\u001a\u00020aX\u0082\u0004¢\u0006\u0002\n\u0000R\u000e\u0010c\u001a\u00020aX\u0082\u0004¢\u0006\u0002\n\u0000\u0082\u0002\u0007\n\u0005\b\u009920\u0001¨\u0006z",
-   d2 = {
-         "Lcom/cb/render/NVGRenderer;",
-         "",
-         "<init>",
-         "()V",
-         "logger",
-         "Lorg/slf4j/Logger;",
-         "kotlin.jvm.PlatformType",
-         "ctx",
-         "",
-         "broken",
-         "",
-         "fontBuffers",
-         "Ljava/util/ArrayList;",
-         "Ljava/nio/ByteBuffer;",
-         "Lkotlin/collections/ArrayList;",
-         "available",
-         "getAvailable",
-         "()Z",
-         "ensureInitialized",
-         "loadResource",
-         "path",
-         "",
-         "sProgram",
-         "",
-         "sVao",
-         "sArrayBuffer",
-         "sUniformBuffer",
-         "sActiveTexture",
-         "sTexture2D",
-         "sSampler0",
-         "sDrawFbo",
-         "sReadFbo",
-         "sBlend",
-         "sBlendSrcRgb",
-         "sBlendDstRgb",
-         "sBlendSrcAlpha",
-         "sBlendDstAlpha",
-         "sCull",
-         "sCullMode",
-         "sFrontFace",
-         "sDepth",
-         "sDepthMask",
-         "sScissor",
-         "sStencil",
-         "sStencilWriteMask",
-         "sStencilFunc",
-         "sStencilRef",
-         "sStencilValueMask",
-         "sStencilFail",
-         "sStencilZFail",
-         "sStencilZPass",
-         "sColorMask",
-         "",
-         "sViewport",
-         "",
-         "sScissorBox",
-         "saveGlState",
-         "",
-         "restoreGlState",
-         "beginFrame",
-         "framebufferWidth",
-         "framebufferHeight",
-         "uiScale",
-         "",
-         "endFrame",
-         "color",
-         "Lorg/lwjgl/nanovg/NVGColor;",
-         "argb",
-         "out",
-         "rect",
-         "x",
-         "y",
-         "w",
-         "h",
-         "radius",
-         "rectVarying",
-         "radTl",
-         "radTr",
-         "radBr",
-         "radBl",
-         "rectOutline",
-         "strokeWidth",
-         "circle",
-         "cx",
-         "cy",
-         "line",
-         "x1",
-         "y1",
-         "x2",
-         "y2",
-         "gradientRect",
-         "startArgb",
-         "endArgb",
-         "horizontal",
-         "shadow",
-         "blur",
-         "fAscender",
-         "",
-         "fDescender",
-         "fLineH",
-         "opticalBaseline",
-         "yCenter",
-         "text",
-         "string",
-         "size",
-         "font",
-         "Lcom/cb/render/NVGRenderer$Font;",
-         "textCentered",
-         "textRight",
-         "textWidth",
-         "scissor",
-         "block",
-         "Lkotlin/Function0;",
-         "save",
-         "restore",
-         "translate",
-         "rotate",
-         "angle",
-         "intersectScissor",
-         "globalAlpha",
-         "alpha",
-         "Font",
-         "cb_client"
-   }
-)
-@SourceDebugExtension(
-   "SMAP\nNVGRenderer.kt\nKotlin\n*S Kotlin\n*F\n+ 1 NVGRenderer.kt\ncom/cb/render/NVGRenderer\n+ 2 fake.kt\nkotlin/jvm/internal/FakeKt\n*L\n1#1,473:1\n1#2:474\n*E\n"
-)
 public final class NVGRenderer {
    @NotNull
    public static final NVGRenderer INSTANCE = new NVGRenderer();
@@ -591,28 +455,6 @@ public final class NVGRenderer {
       NanoVG.nvgGlobalAlpha(ctx, RangesKt.coerceIn(alpha, 0.0F, 1.0F));
    }
 
-   @Metadata(
-      mv = {2, 3, 0},
-      k = 1,
-      xi = 48,
-      d1 = "\u0000\u0012\n\u0002\u0018\u0002\n\u0002\u0010\u0010\n\u0000\n\u0002\u0010\u000e\n\u0002\b\n\b\u0086\u0081\u0002\u0018\u00002\b\u0012\u0004\u0012\u00020\u00000\u0001B\u0019\b\u0002\u0012\u0006\u0010\u0002\u001a\u00020\u0003\u0012\u0006\u0010\u0004\u001a\u00020\u0003¢\u0006\u0004\b\u0005\u0010\u0006R\u0011\u0010\u0002\u001a\u00020\u0003¢\u0006\b\n\u0000\u001a\u0004\b\u0007\u0010\bR\u0011\u0010\u0004\u001a\u00020\u0003¢\u0006\b\n\u0000\u001a\u0004\b\t\u0010\bj\u0002\b\nj\u0002\b\u000bj\u0002\b\f¨\u0006\r",
-      d2 = {
-            "Lcom/cb/render/NVGRenderer$Font;",
-            "",
-            "id",
-            "",
-            "resource",
-            "<init>",
-            "(Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;)V",
-            "getId",
-            "()Ljava/lang/String;",
-            "getResource",
-            "REGULAR",
-            "MEDIUM",
-            "BOLD",
-            "cb_client"
-      }
-   )
    public enum Font {
       REGULAR("jbm-regular", "/assets/cb/fonts/JetBrainsMono-Regular.ttf"),
       MEDIUM("jbm-medium", "/assets/cb/fonts/JetBrainsMono-Medium.ttf"),

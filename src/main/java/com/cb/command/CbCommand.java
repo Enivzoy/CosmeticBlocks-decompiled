@@ -19,12 +19,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import kotlin.Metadata;
 import kotlin.collections.CollectionsKt;
 import kotlin.collections.SetsKt;
 import kotlin.jvm.functions.Function0;
 import kotlin.jvm.internal.Intrinsics;
-import kotlin.jvm.internal.SourceDebugExtension;
 import kotlin.text.Regex;
 import kotlin.text.StringsKt;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -42,33 +40,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.HitResult.Type;
 import org.jetbrains.annotations.NotNull;
 
-@Metadata(
-   mv = {2, 3, 0},
-   k = 1,
-   xi = 48,
-   d1 = "\u0000&\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0003\n\u0002\u0010\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\b\u0003\bÆ\u0002\u0018\u00002\u00020\u0001B\t\b\u0002¢\u0006\u0004\b\u0002\u0010\u0003J\u0016\u0010\u0004\u001a\u00020\u00052\f\u0010\u0006\u001a\b\u0012\u0004\u0012\u00020\b0\u0007H\u0002J\b\u0010\t\u001a\u00020\u0005H\u0002J\u0006\u0010\n\u001a\u00020\u0005J\u0010\u0010\u000b\u001a\u00020\f2\u0006\u0010\r\u001a\u00020\fH\u0002J\u0010\u0010\u000e\u001a\u00020\f2\u0006\u0010\r\u001a\u00020\fH\u0002¨\u0006\u000f",
-   d2 = {
-         "Lcom/cb/command/CbCommand;",
-         "",
-         "<init>",
-         "()V",
-         "open",
-         "",
-         "screen",
-         "Lkotlin/Function0;",
-         "Lnet/minecraft/client/gui/screens/Screen;",
-         "openGui",
-         "register",
-         "suggestBlockIds",
-         "Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;",
-         "builder",
-         "suggestBlockIdsGreedy",
-         "cb_client"
-   }
-)
-@SourceDebugExtension(
-   "SMAP\nCbCommand.kt\nKotlin\n*S Kotlin\n*F\n+ 1 CbCommand.kt\ncom/cb/command/CbCommand\n+ 2 fake.kt\nkotlin/jvm/internal/FakeKt\n+ 3 _Collections.kt\nkotlin/collections/CollectionsKt___CollectionsKt\n*L\n1#1,415:1\n1#2:416\n777#3:417\n873#3,2:418\n1586#3:420\n1661#3,3:421\n1834#3,4:424\n1915#3,2:428\n*S KotlinDebug\n*F\n+ 1 CbCommand.kt\ncom/cb/command/CbCommand\n*L\n373#1:417\n373#1:418,2\n373#1:420\n373#1:421,3\n383#1:424,4\n113#1:428,2\n*E\n"
-)
 public final class CbCommand {
    @NotNull
    public static final CbCommand INSTANCE = new CbCommand();

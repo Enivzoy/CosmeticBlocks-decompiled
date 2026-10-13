@@ -3,57 +3,12 @@ package com.cb.gui.component;
 import com.cb.gui.ClickGuiScreen;
 import com.cb.render.NVGRenderer;
 import com.cb.setting.StringSetting;
-import kotlin.Metadata;
 import kotlin.jvm.internal.Intrinsics;
-import kotlin.jvm.internal.SourceDebugExtension;
 import kotlin.ranges.RangesKt;
 import kotlin.text.StringsKt;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 
-@Metadata(
-   mv = {2, 3, 0},
-   k = 1,
-   xi = 48,
-   d1 = "\u0000:\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0004\n\u0002\u0010\u000b\n\u0002\b\u0004\n\u0002\u0010\b\n\u0000\n\u0002\u0010\u0007\n\u0000\n\u0002\u0010\u0002\n\u0002\b\n\n\u0002\u0010\u000e\n\u0002\b\u0002\u0018\u00002\b\u0012\u0004\u0012\u00020\u00020\u0001B\u0017\u0012\u0006\u0010\u0003\u001a\u00020\u0004\u0012\u0006\u0010\u0005\u001a\u00020\u0002¢\u0006\u0004\b\u0006\u0010\u0007J \u0010\u0011\u001a\u00020\u00122\u0006\u0010\u0013\u001a\u00020\u00102\u0006\u0010\u0014\u001a\u00020\u00102\u0006\u0010\u0015\u001a\u00020\u0010H\u0016J \u0010\u0016\u001a\u00020\t2\u0006\u0010\u0013\u001a\u00020\u00102\u0006\u0010\u0014\u001a\u00020\u00102\u0006\u0010\u0017\u001a\u00020\u000eH\u0016J\u0018\u0010\u0018\u001a\u00020\t2\u0006\u0010\u0019\u001a\u00020\u000e2\u0006\u0010\u001a\u001a\u00020\u000eH\u0016J\u0010\u0010\u001b\u001a\u00020\t2\u0006\u0010\u001c\u001a\u00020\u001dH\u0016J\u0010\u0010\u001e\u001a\u00020\u00122\u0006\u0010\u001c\u001a\u00020\u001dH\u0002R\u001e\u0010\n\u001a\u00020\t2\u0006\u0010\b\u001a\u00020\t@BX\u0086\u000e¢\u0006\b\n\u0000\u001a\u0004\b\u000b\u0010\fR\u000e\u0010\r\u001a\u00020\u000eX\u0082\u000e¢\u0006\u0002\n\u0000R\u000e\u0010\u000f\u001a\u00020\u0010X\u0082\u000e¢\u0006\u0002\n\u0000¨\u0006\u001f",
-   d2 = {
-         "Lcom/cb/gui/component/StringComponent;",
-         "Lcom/cb/gui/component/SettingComponent;",
-         "Lcom/cb/setting/StringSetting;",
-         "gui",
-         "Lcom/cb/gui/ClickGuiScreen;",
-         "setting",
-         "<init>",
-         "(Lcom/cb/gui/ClickGuiScreen;Lcom/cb/setting/StringSetting;)V",
-         "value",
-         "",
-         "focused",
-         "getFocused",
-         "()Z",
-         "cursor",
-         "",
-         "blinkTimer",
-         "",
-         "render",
-         "",
-         "mouseX",
-         "mouseY",
-         "delta",
-         "mouseClicked",
-         "button",
-         "keyPressed",
-         "key",
-         "modifiers",
-         "charTyped",
-         "text",
-         "",
-         "insert",
-         "cb_client"
-   }
-)
-@SourceDebugExtension(
-   "SMAP\nStringComponent.kt\nKotlin\n*S Kotlin\n*F\n+ 1 StringComponent.kt\ncom/cb/gui/component/StringComponent\n+ 2 NVGRenderer.kt\ncom/cb/render/NVGRenderer\n+ 3 _Strings.kt\nkotlin/text/StringsKt___StringsKt\n*L\n1#1,116:1\n445#2,8:117\n437#3:125\n513#3,5:126\n*S KotlinDebug\n*F\n+ 1 StringComponent.kt\ncom/cb/gui/component/StringComponent\n*L\n48#1:117,8\n107#1:125\n107#1:126,5\n*E\n"
-)
 public final class StringComponent extends SettingComponent<StringSetting> {
    private boolean focused;
    private int cursor;

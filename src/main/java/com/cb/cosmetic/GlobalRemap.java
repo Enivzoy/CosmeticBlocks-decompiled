@@ -15,12 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import kotlin.Metadata;
 import kotlin.collections.CollectionsKt;
 import kotlin.collections.MapsKt;
 import kotlin.io.FilesKt;
 import kotlin.jvm.internal.Intrinsics;
-import kotlin.jvm.internal.SourceDebugExtension;
 import kotlin.ranges.RangesKt;
 import kotlin.text.StringsKt;
 import net.minecraft.client.Minecraft;
@@ -30,71 +28,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Metadata(
-   mv = {2, 3, 0},
-   k = 1,
-   xi = 48,
-   d1 = "\u0000f\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\u0010\u000e\n\u0002\u0010!\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010$\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0010\b\n\u0002\b\u0003\n\u0002\u0010\u000b\n\u0000\n\u0002\u0010\u0002\n\u0002\b\u0002\n\u0002\u0010 \n\u0002\b\u0013\bÆ\u0002\u0018\u00002\u00020\u0001:\u000234B\t\b\u0002¢\u0006\u0004\b\u0002\u0010\u0003J(\u0010\u0015\u001a\u0004\u0018\u00010\u00162\u0006\u0010\u0017\u001a\u00020\u00132\u0006\u0010\u0018\u001a\u00020\u00192\u0006\u0010\u001a\u001a\u00020\u00192\u0006\u0010\u001b\u001a\u00020\u0019J\u0006\u0010\u001c\u001a\u00020\u001dJ\r\u0010\u001e\u001a\u00020\u001fH\u0000¢\u0006\u0002\b J\f\u0010!\u001a\b\u0012\u0004\u0012\u00020\u00060\"J\u0014\u0010#\u001a\b\u0012\u0004\u0012\u00020\b0\"2\u0006\u0010$\u001a\u00020\u0006J\u000e\u0010%\u001a\u00020\u001d2\u0006\u0010$\u001a\u00020\u0006J \u0010&\u001a\u00020\u001f2\u0006\u0010$\u001a\u00020\u00062\u0006\u0010'\u001a\u00020\u00062\b\b\u0002\u0010(\u001a\u00020\u0019J\u001e\u0010)\u001a\u00020\u001f2\u0006\u0010$\u001a\u00020\u00062\u0006\u0010*\u001a\u00020\u00192\u0006\u0010(\u001a\u00020\u0019J\u0016\u0010+\u001a\u00020\u001f2\u0006\u0010$\u001a\u00020\u00062\u0006\u0010*\u001a\u00020\u0019J\u000e\u0010,\u001a\u00020\u001f2\u0006\u0010$\u001a\u00020\u0006J\u0006\u0010-\u001a\u00020\u001fJ\u0006\u0010.\u001a\u00020\u0006J\u000e\u0010/\u001a\u00020\u001d2\u0006\u00100\u001a\u00020\u0006J\u0006\u00101\u001a\u00020\u001fJ\u0006\u00102\u001a\u00020\u001fR<\u0010\u0004\u001a*\u0012\u0004\u0012\u00020\u0006\u0012\n\u0012\b\u0012\u0004\u0012\u00020\b0\u00070\u0005j\u0014\u0012\u0004\u0012\u00020\u0006\u0012\n\u0012\b\u0012\u0004\u0012\u00020\b0\u0007`\tX\u0080\u0004¢\u0006\b\n\u0000\u001a\u0004\b\n\u0010\u000bR\u000e\u0010\f\u001a\u00020\rX\u0082\u0004¢\u0006\u0002\n\u0000R\u0016\u0010\u000e\u001a\n \u0010*\u0004\u0018\u00010\u000f0\u000fX\u0082\u0004¢\u0006\u0002\n\u0000R\u001a\u0010\u0011\u001a\u000e\u0012\u0004\u0012\u00020\u0013\u0012\u0004\u0012\u00020\u00140\u0012X\u0082\u000e¢\u0006\u0002\n\u0000¨\u00065",
-   d2 = {
-         "Lcom/cb/cosmetic/GlobalRemap;",
-         "",
-         "<init>",
-         "()V",
-         "remaps",
-         "Ljava/util/LinkedHashMap;",
-         "",
-         "",
-         "Lcom/cb/cosmetic/GlobalRemap$RemapTarget;",
-         "Lkotlin/collections/LinkedHashMap;",
-         "getRemaps$cb_client",
-         "()Ljava/util/LinkedHashMap;",
-         "file",
-         "Ljava/io/File;",
-         "gson",
-         "Lcom/google/gson/Gson;",
-         "kotlin.jvm.PlatformType",
-         "resolved",
-         "",
-         "Lnet/minecraft/world/level/block/Block;",
-         "Lcom/cb/cosmetic/GlobalRemap$Resolved;",
-         "remapFor",
-         "Lnet/minecraft/world/level/block/state/BlockState;",
-         "block",
-         "x",
-         "",
-         "y",
-         "z",
-         "hasRemaps",
-         "",
-         "rebuild",
-         "",
-         "rebuild$cb_client",
-         "sources",
-         "",
-         "targetsOf",
-         "source",
-         "hasSource",
-         "addTarget",
-         "targetId",
-         "weight",
-         "setWeight",
-         "index",
-         "removeTarget",
-         "removeSource",
-         "clear",
-         "exportJson",
-         "importJson",
-         "json",
-         "load",
-         "save",
-         "RemapTarget",
-         "Resolved",
-         "cb_client"
-   }
-)
-@SourceDebugExtension(
-   "SMAP\nGlobalRemap.kt\nKotlin\n*S Kotlin\n*F\n+ 1 GlobalRemap.kt\ncom/cb/cosmetic/GlobalRemap\n+ 2 ArraysJVM.kt\nkotlin/collections/ArraysKt__ArraysJVMKt\n+ 3 Maps.kt\nkotlin/collections/MapsKt__MapsKt\n+ 4 _Collections.kt\nkotlin/collections/CollectionsKt___CollectionsKt\n*L\n1#1,189:1\n37#2,2:190\n410#3,7:192\n296#4,2:199\n777#4:201\n873#4,2:202\n*S KotlinDebug\n*F\n+ 1 GlobalRemap.kt\ncom/cb/cosmetic/GlobalRemap\n*L\n80#1:190,2\n98#1:192,7\n99#1:199,2\n148#1:201\n148#1:202,2\n*E\n"
-)
 public final class GlobalRemap {
    @NotNull
    public static final GlobalRemap INSTANCE = new GlobalRemap();
@@ -401,39 +334,6 @@ public final class GlobalRemap {
       }
    }
 
-   @Metadata(
-      mv = {2, 3, 0},
-      k = 1,
-      xi = 48,
-      d1 = "\u0000 \n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0010\u000e\n\u0000\n\u0002\u0010\b\n\u0002\b\u000e\n\u0002\u0010\u000b\n\u0002\b\u0004\b\u0086\b\u0018\u00002\u00020\u0001B\u0019\u0012\u0006\u0010\u0002\u001a\u00020\u0003\u0012\b\b\u0002\u0010\u0004\u001a\u00020\u0005¢\u0006\u0004\b\u0006\u0010\u0007J\t\u0010\u0010\u001a\u00020\u0003HÆ\u0003J\t\u0010\u0011\u001a\u00020\u0005HÆ\u0003J\u001d\u0010\u0012\u001a\u00020\u00002\b\b\u0002\u0010\u0002\u001a\u00020\u00032\b\b\u0002\u0010\u0004\u001a\u00020\u0005HÆ\u0001J\u0014\u0010\u0013\u001a\u00020\u00142\b\u0010\u0015\u001a\u0004\u0018\u00010\u0001HÖ\u0083\u0004J\n\u0010\u0016\u001a\u00020\u0005HÖ\u0081\u0004J\n\u0010\u0017\u001a\u00020\u0003HÖ\u0081\u0004R\u001a\u0010\u0002\u001a\u00020\u0003X\u0086\u000e¢\u0006\u000e\n\u0000\u001a\u0004\b\b\u0010\t\"\u0004\b\n\u0010\u000bR\u001a\u0010\u0004\u001a\u00020\u0005X\u0086\u000e¢\u0006\u000e\n\u0000\u001a\u0004\b\f\u0010\r\"\u0004\b\u000e\u0010\u000f¨\u0006\u0018",
-      d2 = {
-            "Lcom/cb/cosmetic/GlobalRemap$RemapTarget;",
-            "",
-            "id",
-            "",
-            "weight",
-            "",
-            "<init>",
-            "(Ljava/lang/String;I)V",
-            "getId",
-            "()Ljava/lang/String;",
-            "setId",
-            "(Ljava/lang/String;)V",
-            "getWeight",
-            "()I",
-            "setWeight",
-            "(I)V",
-            "component1",
-            "component2",
-            "copy",
-            "equals",
-            "",
-            "other",
-            "hashCode",
-            "toString",
-            "cb_client"
-      }
-   )
    public static final class RemapTarget {
       @NotNull
       private String id;
@@ -503,33 +403,6 @@ public final class GlobalRemap {
       }
    }
 
-   @Metadata(
-      mv = {2, 3, 0},
-      k = 1,
-      xi = 48,
-      d1 = "\u0000\"\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0010\u0011\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u0015\n\u0000\n\u0002\u0010\b\n\u0002\b\n\b\u0002\u0018\u00002\u00020\u0001B%\u0012\f\u0010\u0002\u001a\b\u0012\u0004\u0012\u00020\u00040\u0003\u0012\u0006\u0010\u0005\u001a\u00020\u0006\u0012\u0006\u0010\u0007\u001a\u00020\b¢\u0006\u0004\b\t\u0010\nR\u0019\u0010\u0002\u001a\b\u0012\u0004\u0012\u00020\u00040\u0003¢\u0006\n\n\u0002\u0010\r\u001a\u0004\b\u000b\u0010\fR\u0011\u0010\u0005\u001a\u00020\u0006¢\u0006\b\n\u0000\u001a\u0004\b\u000e\u0010\u000fR\u0011\u0010\u0007\u001a\u00020\b¢\u0006\b\n\u0000\u001a\u0004\b\u0010\u0010\u0011¨\u0006\u0012",
-      d2 = {
-            "Lcom/cb/cosmetic/GlobalRemap$Resolved;",
-            "",
-            "states",
-            "",
-            "Lnet/minecraft/world/level/block/state/BlockState;",
-            "cumWeights",
-            "",
-            "total",
-            "",
-            "<init>",
-            "([Lnet/minecraft/world/level/block/state/BlockState;[II)V",
-            "getStates",
-            "()[Lnet/minecraft/world/level/block/state/BlockState;",
-            "[Lnet/minecraft/world/level/block/state/BlockState;",
-            "getCumWeights",
-            "()[I",
-            "getTotal",
-            "()I",
-            "cb_client"
-      }
-   )
    private static final class Resolved {
       @NotNull
       private final BlockState[] states;

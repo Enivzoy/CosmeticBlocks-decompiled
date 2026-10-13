@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentHashMap.KeySetView;
-import kotlin.Metadata;
 import kotlin.collections.CollectionsKt;
 import kotlin.jvm.JvmOverloads;
 import kotlin.jvm.internal.Intrinsics;
@@ -17,58 +16,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Metadata(
-   mv = {2, 3, 0},
-   k = 1,
-   xi = 48,
-   d1 = "\u0000J\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\u0010\t\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0010#\n\u0002\b\n\n\u0002\u0010\b\n\u0002\b\u0003\n\u0002\u0010\u000b\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0010\u0002\n\u0000\n\u0002\u0010\u000e\n\u0002\b\b\bÆ\u0002\u0018\u00002\u00020\u0001B\t\b\u0002¢\u0006\u0004\b\u0002\u0010\u0003J,\u0010\u0014\u001a\u0004\u0018\u00010\u00072\u0006\u0010\u0015\u001a\u00020\u00162\u0006\u0010\u0017\u001a\u00020\u00162\u0006\u0010\u0018\u001a\u00020\u00162\b\b\u0002\u0010\u0019\u001a\u00020\u001aH\u0007J\u0010\u0010\u001b\u001a\u0004\u0018\u00010\u00072\u0006\u0010\u001c\u001a\u00020\u001dJ \u0010\u001e\u001a\u0004\u0018\u00010\u00072\u0006\u0010\u0015\u001a\u00020\u00162\u0006\u0010\u0017\u001a\u00020\u00162\u0006\u0010\u0018\u001a\u00020\u0016J \u0010\u001f\u001a\u0004\u0018\u00010\u00072\u0006\u0010\u0015\u001a\u00020\u00162\u0006\u0010\u0017\u001a\u00020\u00162\u0006\u0010\u0018\u001a\u00020\u0016J-\u0010 \u001a\u00020!2\u0006\u0010\u0015\u001a\u00020\u00162\u0006\u0010\u0017\u001a\u00020\u00162\u0006\u0010\u0018\u001a\u00020\u00162\u0006\u0010\"\u001a\u00020#H\u0000¢\u0006\u0002\b$J%\u0010%\u001a\u00020!2\u0006\u0010\u0015\u001a\u00020\u00162\u0006\u0010\u0017\u001a\u00020\u00162\u0006\u0010\u0018\u001a\u00020\u0016H\u0000¢\u0006\u0002\b&J\r\u0010'\u001a\u00020!H\u0000¢\u0006\u0002\b(J\u0006\u0010)\u001a\u00020\u001aJ\u001e\u0010*\u001a\u00020\u001a2\u0006\u0010\u0015\u001a\u00020\u00162\u0006\u0010\u0017\u001a\u00020\u00162\u0006\u0010\u0018\u001a\u00020\u0016R \u0010\u0004\u001a\u000e\u0012\u0004\u0012\u00020\u0006\u0012\u0004\u0012\u00020\u00070\u0005X\u0080\u0004¢\u0006\b\n\u0000\u001a\u0004\b\b\u0010\tR\u001a\u0010\n\u001a\b\u0012\u0004\u0012\u00020\u00060\u000bX\u0080\u0004¢\u0006\b\n\u0000\u001a\u0004\b\f\u0010\rR \u0010\u000e\u001a\u000e\u0012\u0004\u0012\u00020\u0006\u0012\u0004\u0012\u00020\u00070\u0005X\u0080\u0004¢\u0006\b\n\u0000\u001a\u0004\b\u000f\u0010\tR \u0010\u0010\u001a\u000e\u0012\u0004\u0012\u00020\u0006\u0012\u0004\u0012\u00020\u00070\u0005X\u0080\u0004¢\u0006\b\n\u0000\u001a\u0004\b\u0011\u0010\tR\u001a\u0010\u0012\u001a\b\u0012\u0004\u0012\u00020\u00060\u000bX\u0080\u0004¢\u0006\b\n\u0000\u001a\u0004\b\u0013\u0010\r¨\u0006+",
-   d2 = {
-         "Lcom/cb/cosmetic/ReplacementCache;",
-         "",
-         "<init>",
-         "()V",
-         "activeCache",
-         "Ljava/util/concurrent/ConcurrentHashMap;",
-         "",
-         "Lnet/minecraft/world/level/block/state/BlockState;",
-         "getActiveCache$cb_client",
-         "()Ljava/util/concurrent/ConcurrentHashMap;",
-         "phantomPositions",
-         "",
-         "getPhantomPositions$cb_client",
-         "()Ljava/util/Set;",
-         "retextureCache",
-         "getRetextureCache$cb_client",
-         "originalShapeCache",
-         "getOriginalShapeCache$cb_client",
-         "shapedPositions",
-         "getShapedPositions$cb_client",
-         "getReplacementAt",
-         "x",
-         "",
-         "y",
-         "z",
-         "originalAir",
-         "",
-         "getReplacement",
-         "pos",
-         "Lnet/minecraft/core/BlockPos;",
-         "getRetextureAt",
-         "getOriginalShapeAt",
-         "applyCacheForEntry",
-         "",
-         "raw",
-         "",
-         "applyCacheForEntry$cb_client",
-         "clearCacheForPos",
-         "clearCacheForPos$cb_client",
-         "rebuildActiveCache",
-         "rebuildActiveCache$cb_client",
-         "hasActiveReplacements",
-         "hasAdjacentReplacement",
-         "cb_client"
-   }
-)
 public final class ReplacementCache {
    @NotNull
    public static final ReplacementCache INSTANCE = new ReplacementCache();

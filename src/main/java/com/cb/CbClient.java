@@ -32,10 +32,8 @@ import com.cb.utils.Scheduler;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import kotlin.Metadata;
 import kotlin.jvm.functions.Function0;
 import kotlin.jvm.internal.Intrinsics;
-import kotlin.jvm.internal.SourceDebugExtension;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -44,8 +42,6 @@ import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
-@Metadata(mv={2, 3, 0}, k=1, xi=48, d1={"\u0000D\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0010\u000e\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\u0010\b\n\u0002\u0010\u000b\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u0002\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0000\b\u00c6\u0002\u0018\u00002\u00020\u0001B\t\b\u0002\u00a2\u0006\u0004\b\u0002\u0010\u0003J\b\u0010\r\u001a\u00020\u000eH\u0016J'\u0010\u000f\u001a\u00020\u000e2\u0006\u0010\u0010\u001a\u00020\u00112\u0006\u0010\u0012\u001a\u00020\n2\f\u0010\u0013\u001a\b\u0012\u0004\u0012\u00020\u00150\u0014H\u0082\bR\u000e\u0010\u0004\u001a\u00020\u0005X\u0086T\u00a2\u0006\u0002\n\u0000R\u000e\u0010\u0006\u001a\u00020\u0007X\u0082\u0004\u00a2\u0006\u0002\n\u0000R*\u0010\b\u001a\u001e\u0012\u0004\u0012\u00020\n\u0012\u0004\u0012\u00020\u000b0\tj\u000e\u0012\u0004\u0012\u00020\n\u0012\u0004\u0012\u00020\u000b`\fX\u0082\u0004\u00a2\u0006\u0002\n\u0000\u00a8\u0006\u0016"}, d2={"Lcom/cb/CbClient;", "Lnet/fabricmc/api/ClientModInitializer;", "<init>", "()V", "NAMESPACE", "", "configDir", "Ljava/io/File;", "keyWasDown", "Ljava/util/HashMap;", "", "", "Lkotlin/collections/HashMap;", "onInitializeClient", "", "pollOpenBind", "client", "Lnet/minecraft/client/Minecraft;", "key", "screen", "Lkotlin/Function0;", "Lnet/minecraft/client/gui/screens/Screen;", "cb_client"})
-@SourceDebugExtension(value={"SMAP\nCbClient.kt\nKotlin\n*S Kotlin\n*F\n+ 1 CbClient.kt\ncom/cb/CbClient\n*L\n1#1,67:1\n60#1,6:68\n60#1,6:74\n60#1,6:80\n60#1,6:86\n*S KotlinDebug\n*F\n+ 1 CbClient.kt\ncom/cb/CbClient\n*L\n45#1:68,6\n46#1:74,6\n47#1:80,6\n48#1:86,6\n*E\n"})
 public final class CbClient
 implements ClientModInitializer {
     @NotNull
