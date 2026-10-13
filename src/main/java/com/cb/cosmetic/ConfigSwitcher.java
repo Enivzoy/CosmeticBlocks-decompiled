@@ -4,7 +4,6 @@ import com.cb.config.Config;
 import com.cb.config.tabs.CosmeticBlocksTab;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import kotlin.Metadata;
 import kotlin.collections.CollectionsKt;
@@ -67,8 +66,8 @@ public final class ConfigSwitcher {
       return loadedConfigName;
    }
 
-   public final void setLoadedConfigName$cb_client(@Nullable String var1) {
-      loadedConfigName = var1/* $VF was: <set-?> */;
+   public final void setLoadedConfigName$cb_client(@Nullable String value) {
+      loadedConfigName = value;
    }
 
    public final void checkConfigSwitch$cb_client() {
@@ -84,12 +83,12 @@ public final class ConfigSwitcher {
          String current = CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue();
          if (!Intrinsics.areEqual(current, lastActiveConfig)) {
             SaveScheduler.INSTANCE.awaitPendingSaves$cb_client();
-            String var10002 = lastActiveConfig;
+            String previousConfigName = lastActiveConfig;
             if (lastActiveConfig == null) {
-               var10002 = "default";
+               previousConfigName = "default";
             }
 
-            ReplacementIO.INSTANCE.saveToFileSync$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client(var10002));
+            ReplacementIO.INSTANCE.saveToFileSync$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client(previousConfigName));
             DirtySections.INSTANCE.markAllCachedDirty$cb_client();
             ReplacementIO.INSTANCE.loadFrom$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client(current));
             DirtySections.INSTANCE.markAllCachedDirty$cb_client();
@@ -179,42 +178,20 @@ public final class ConfigSwitcher {
          return CollectionsKt.listOf("default");
       }
 
-      File[] var1 = ReplacementStore.INSTANCE.getConfigDir$cb_client().listFiles();
-      if (var1 != null) {
-         File[] $this$filter$iv = var1;
-         int $i$f$filter = 0;
-         File[] $i$f$map = $this$filter$iv;
-         var destination$iv$iv = new ArrayList();
-         int $i$f$filterTo = 0;
-         int $i$f$mapTo = 0;
+      File[] files = ReplacementStore.INSTANCE.getConfigDir$cb_client().listFiles();
+      if (files != null) {
+         List<String> configNames = new ArrayList<>();
 
-         for (int var8 = $i$f$map.length; $i$f$mapTo < var8; $i$f$mapTo++) {
-            Object element$iv$iv = $i$f$map[$i$f$mapTo];
-            File it = (File)element$iv$iv;
-            int var11/* $VF was: $i$a$-filter-ConfigSwitcher$listConfigs$1 */ = 0;
-            Intrinsics.checkNotNull(it);
-            if (Intrinsics.areEqual(FilesKt.getExtension(it), "json")) {
-               destination$iv$iv.add(element$iv$iv);
+         for (File file : files) {
+            Intrinsics.checkNotNull(file);
+            if (Intrinsics.areEqual(FilesKt.getExtension(file), "json")) {
+               configNames.add(FilesKt.getNameWithoutExtension(file));
             }
          }
 
-         var var13 = (Iterable & List)destination$iv$iv;
-         int $i$f$mapx = 0;
-         Iterable var16 = var13;
-         var destination$iv$ivx = new ArrayList(CollectionsKt.collectionSizeOrDefault(var13, 10));
-         $i$f$mapTo = 0;
-
-         for (Object item$iv$iv : var16) {
-            File var21 = (File)item$iv$iv;
-            Collection var12 = destination$iv$ivx;
-            int var22/* $VF was: $i$a$-map-ConfigSwitcher$listConfigs$2 */ = 0;
-            Intrinsics.checkNotNull(var21);
-            var12.add(FilesKt.getNameWithoutExtension(var21));
-         }
-
-         List var14 = CollectionsKt.sorted((Iterable & List)destination$iv$ivx);
-         if (var14 != null) {
-            return var14;
+         List<String> sorted = CollectionsKt.sorted(configNames);
+         if (sorted != null) {
+            return sorted;
          }
       }
 

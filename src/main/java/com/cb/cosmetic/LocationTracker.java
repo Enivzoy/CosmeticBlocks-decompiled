@@ -2,7 +2,6 @@ package com.cb.cosmetic;
 
 import com.cb.config.tabs.CosmeticBlocksTab;
 import com.cb.dungeon.RoomScanner;
-import java.util.Iterator;
 import kotlin.Metadata;
 import kotlin.jvm.JvmStatic;
 import kotlin.jvm.internal.Intrinsics;
@@ -70,9 +69,9 @@ public final class LocationTracker {
    }
 
    private final Minecraft getMc() {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      return var10000;
+      Minecraft instance = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(instance, "getInstance(...)");
+      return instance;
    }
 
    public final boolean isInSkyblock() {
@@ -92,15 +91,13 @@ public final class LocationTracker {
    public static final void onPlayerInfoUpdate(@NotNull ClientboundPlayerInfoUpdatePacket packet) {
       Intrinsics.checkNotNullParameter(packet, "packet");
       if (packet.actions().contains(Action.UPDATE_DISPLAY_NAME)) {
-         for (Object var10000 : packet.entries()) {
-            Intrinsics.checkNotNullExpressionValue(var10000, "next(...)");
-            Entry entry = (Entry)var10000;
-            Component var7 = entry.displayName();
-            if (var7 != null) {
-               Component display = var7;
-               String var8 = display.getString();
-               if (var8 != null) {
-                  String text = var8;
+         for (Object entryObject : packet.entries()) {
+            Intrinsics.checkNotNullExpressionValue(entryObject, "next(...)");
+            Entry entry = (Entry)entryObject;
+            Component display = entry.displayName();
+            if (display != null) {
+               String text = display.getString();
+               if (text != null) {
                   if (StringsKt.startsWith(text, "Area: ", false) || StringsKt.startsWith(text, "Dungeon: ", false)) {
                      String area = StringsKt.trim(StringsKt.removePrefix(StringsKt.removePrefix(text, "Area: "), "Dungeon: ")).toString();
                      currentArea = area;
@@ -127,10 +124,7 @@ public final class LocationTracker {
       isInSkyblock = false;
       this.updateDungeonState(false);
       RoomScanner.INSTANCE.unload();
-      Iterator var1 = RoomStore.INSTANCE.getRoomCacheKeys$cb_client().iterator();
-
-      while (var1.hasNext()) {
-         long key = ((Number)var1.next()).longValue();
+      for (long key : RoomStore.INSTANCE.getRoomCacheKeys$cb_client()) {
          ReplacementCache.INSTANCE.getActiveCache$cb_client().remove(key);
          ReplacementCache.INSTANCE.getPhantomPositions$cb_client().remove(key);
          ReplacementCache.INSTANCE.getShapedPositions$cb_client().remove(key);
@@ -166,12 +160,11 @@ public final class LocationTracker {
 
    @Nullable
    public final String getCurrentDimension() {
-      ClientLevel var10000 = this.getMc().level;
-      if (var10000 == null) {
+      ClientLevel level = this.getMc().level;
+      if (level == null) {
          return null;
       }
 
-      ClientLevel level = var10000;
       return level.dimension().identifier().toString();
    }
 }

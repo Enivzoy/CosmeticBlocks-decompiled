@@ -124,9 +124,9 @@ public final class BlockStateCodec {
    }
 
    private final Minecraft getMc() {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      return var10000;
+      Minecraft mc = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(mc, "getInstance(...)");
+      return mc;
    }
 
    @NotNull
@@ -151,9 +151,8 @@ public final class BlockStateCodec {
 
       String blockId = stateStr.substring(0, bracketIdx);
       String propsStr = stateStr.substring(bracketIdx + 1, stateStr.length() - 1);
-      String[] var8 = new String[]{","};
       String newProps = CollectionsKt.joinToString(
-         StringsKt.split(propsStr, var8, false, 0), ",", "", "", -1, "...", prop -> rotateStateProperties$lambda$0(toNorth, rotation, prop)
+         StringsKt.split(propsStr, new String[]{","}, false, 0), ",", "", "", -1, "...", prop -> rotateProperty(toNorth, rotation, prop)
       );
       return blockId + "[" + newProps + "]";
    }
@@ -167,23 +166,23 @@ public final class BlockStateCodec {
 
          for (Value entry : state.getValues().toList()) {
             Property prop = entry.property();
-            String var8 = prop.getName();
-            switch (var8.hashCode()) {
+            String propName = prop.getName();
+            switch (propName.hashCode()) {
                case -1282158630:
-                  if (var8.equals("facing")) {
+                  if (propName.equals("facing")) {
                      Comparable facing = (Comparable)state.getValue(prop);
                      if (facing instanceof Direction && ((Direction)facing).getAxis().isHorizontal()) {
-                        Direction var15 = RoomDataKt.rotateAroundNorth((Direction)facing, rotation);
-                        result = result.setValue(prop, var15);
+                        Direction rotated = RoomDataKt.rotateAroundNorth((Direction)facing, rotation);
+                        result = result.setValue(prop, rotated);
                      }
                   }
                   break;
                case 3008417:
-                  if (var8.equals("axis")) {
+                  if (propName.equals("axis")) {
                      Comparable axis = (Comparable)state.getValue(prop);
                      if (axis instanceof Axis && axis != Axis.Y) {
-                        Axis var10002 = RoomDataKt.rotateAroundNorth((Axis)axis, rotation);
-                        result = result.setValue(prop, var10002);
+                        Axis rotatedAxis = RoomDataKt.rotateAroundNorth((Axis)axis, rotation);
+                        result = result.setValue(prop, rotatedAxis);
                      }
                   }
             }
@@ -198,29 +197,28 @@ public final class BlockStateCodec {
    @NotNull
    public final String normalizeBlockId$cb_client(@NotNull String input) {
       Intrinsics.checkNotNullParameter(input, "input");
-      String var10000 = input.toLowerCase(Locale.ROOT);
-      Intrinsics.checkNotNullExpressionValue(var10000, "toLowerCase(...)");
-      String cleaned = StringsKt.trim(var10000).toString();
+      String lower = input.toLowerCase(Locale.ROOT);
+      Intrinsics.checkNotNullExpressionValue(lower, "toLowerCase(...)");
+      String cleaned = StringsKt.trim(lower).toString();
       return StringsKt.contains(cleaned, ":", false) ? cleaned : "minecraft:" + cleaned;
    }
 
    @Nullable
    public final BlockState resolveShapeState$cb_client(@NotNull String shape) {
       Intrinsics.checkNotNullParameter(shape, "shape");
-      String var2 = shape;
-      switch (var2.hashCode()) {
+      switch (shape.hashCode()) {
          case 3433320:
-            if (var2.equals("pane")) {
+            if (shape.equals("pane")) {
                return Blocks.GLASS_PANE.defaultBlockState();
             }
             break;
          case 3641802:
-            if (var2.equals("wall")) {
+            if (shape.equals("wall")) {
                return Blocks.COBBLESTONE_WALL.defaultBlockState();
             }
             break;
          case 97316913:
-            if (var2.equals("fence")) {
+            if (shape.equals("fence")) {
                return Blocks.OAK_FENCE.defaultBlockState();
             }
       }
@@ -244,39 +242,34 @@ public final class BlockStateCodec {
 
          int bracketIdx = StringsKt.indexOf(cleanedx, '[', 0, false);
          if (bracketIdx == -1) {
-            Identifier var30 = Identifier.parse(cleanedx);
-            Intrinsics.checkNotNullExpressionValue(var30, "parse(...)");
-            Identifier loc = var30;
-            Block var31 = BuiltInRegistries.BLOCK.getOptional(loc).orElse(null);
-            cleaned = var31 != null ? var31.defaultBlockState() : null;
+            Identifier loc = Identifier.parse(cleanedx);
+            Intrinsics.checkNotNullExpressionValue(loc, "parse(...)");
+            Block block = BuiltInRegistries.BLOCK.getOptional(loc).orElse(null);
+            cleaned = block != null ? block.defaultBlockState() : null;
          } else {
             String blockId = cleanedx.substring(0, bracketIdx);
             Intrinsics.checkNotNullExpressionValue(blockId, "substring(...)");
             String propsStr = cleanedx.substring(bracketIdx + 1, cleanedx.length() - 1);
             Intrinsics.checkNotNullExpressionValue(propsStr, "substring(...)");
-            Identifier var21 = Identifier.parse(blockId);
-            Intrinsics.checkNotNullExpressionValue(var21, "parse(...)");
-            Identifier loc = var21;
-            Block var22 = BuiltInRegistries.BLOCK.getOptional(loc).orElse(null);
-            if (var22 == null) {
+            Identifier loc = Identifier.parse(blockId);
+            Intrinsics.checkNotNullExpressionValue(loc, "parse(...)");
+            Block block = BuiltInRegistries.BLOCK.getOptional(loc).orElse(null);
+            if (block == null) {
                return null;
             }
 
-            Block block = var22;
             BlockState state = block.defaultBlockState();
             Intrinsics.checkNotNullExpressionValue(state, "defaultBlockState(...)");
-            String[] entry = new String[]{","};
 
-            for (String entryx : StringsKt.split(propsStr, entry, false, 0)) {
-               int eqIdx = StringsKt.indexOf(entryx, '=', 0, false);
+            for (String entry : StringsKt.split(propsStr, new String[]{","}, false, 0)) {
+               int eqIdx = StringsKt.indexOf(entry, '=', 0, false);
                if (eqIdx != -1) {
-                  String name = entryx.substring(0, eqIdx);
+                  String name = entry.substring(0, eqIdx);
                   Intrinsics.checkNotNullExpressionValue(name, "substring(...)");
-                  String value = entryx.substring(eqIdx + 1);
+                  String value = entry.substring(eqIdx + 1);
                   Intrinsics.checkNotNullExpressionValue(value, "substring(...)");
-                  Property var27 = block.getStateDefinition().getProperty(name);
-                  if (var27 != null) {
-                     Property property = var27;
+                  Property property = block.getStateDefinition().getProperty(name);
+                  if (property != null) {
                      BlockState applied = this.applyPropertyValue(state, property, value);
                      if (applied != null) {
                         state = applied;
@@ -287,7 +280,7 @@ public final class BlockStateCodec {
 
             cleaned = state;
          }
-      } catch (Exception var15/* $VF was: <unused var> */) {
+      } catch (Exception ignored) {
          cleaned = null;
       }
 
@@ -298,21 +291,18 @@ public final class BlockStateCodec {
    public final BlockState computePlacementState$cb_client(@NotNull String blockId, @NotNull BlockHitResult hitResult) {
       Intrinsics.checkNotNullParameter(blockId, "blockId");
       Intrinsics.checkNotNullParameter(hitResult, "hitResult");
-      LocalPlayer var10000 = this.getMc().player;
-      if (var10000 == null) {
+      LocalPlayer player = this.getMc().player;
+      if (player == null) {
          return null;
       }
 
-      LocalPlayer player = var10000;
-      Identifier var8 = Identifier.parse(this.normalizeBlockId$cb_client(blockId));
-      Intrinsics.checkNotNullExpressionValue(var8, "parse(...)");
-      Identifier loc = var8;
-      Block var9 = BuiltInRegistries.BLOCK.getOptional(loc).orElse(null);
-      if (var9 == null) {
+      Identifier loc = Identifier.parse(this.normalizeBlockId$cb_client(blockId));
+      Intrinsics.checkNotNullExpressionValue(loc, "parse(...)");
+      Block block = BuiltInRegistries.BLOCK.getOptional(loc).orElse(null);
+      if (block == null) {
          return null;
       }
 
-      Block block = var9;
       ItemStack itemStack = new ItemStack(block.asItem());
       BlockPlaceContext context = new BlockPlaceContext(player, InteractionHand.MAIN_HAND, itemStack, hitResult);
       return block.getStateForPlacement(context);
@@ -321,16 +311,15 @@ public final class BlockStateCodec {
    @NotNull
    public final String serializeBlockState$cb_client(@NotNull BlockState state) {
       Intrinsics.checkNotNullParameter(state, "state");
-      String var10000 = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
-      Intrinsics.checkNotNullExpressionValue(var10000, "toString(...)");
-      String blockId = var10000;
+      String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
+      Intrinsics.checkNotNullExpressionValue(blockId, "toString(...)");
       List properties = state.getValues().toList();
       if (properties.isEmpty()) {
          return blockId;
       }
 
       Intrinsics.checkNotNull(properties);
-      String propsStr = CollectionsKt.joinToString(properties, ",", "", "", -1, "...", entry -> serializeBlockState$lambda$0((Value)entry));
+      String propsStr = CollectionsKt.joinToString(properties, ",", "", "", -1, "...", entry -> formatProperty((Value)entry));
       return blockId + "[" + propsStr + "]";
    }
 
@@ -338,9 +327,9 @@ public final class BlockStateCodec {
    public final <T extends Comparable<T>> String getPropertyValueName$cb_client(@NotNull Property<T> property, @NotNull Comparable<?> value) {
       Intrinsics.checkNotNullParameter(property, "property");
       Intrinsics.checkNotNullParameter(value, "value");
-      String var10000 = property.getName((T)value);
-      Intrinsics.checkNotNullExpressionValue(var10000, "getName(...)");
-      return var10000;
+      String name = property.getName((T)value);
+      Intrinsics.checkNotNullExpressionValue(name, "getName(...)");
+      return name;
    }
 
    private final <T extends Comparable<T>> BlockState applyPropertyValue(BlockState state, Property<T> property, String valueName) {
@@ -349,18 +338,13 @@ public final class BlockStateCodec {
    }
 
    public final void buildVariantMaps$cb_client() {
-      for (Object var10000 : BuiltInRegistries.BLOCK.keySet()) {
-         Intrinsics.checkNotNullExpressionValue(var10000, "next(...)");
-         Identifier key = (Identifier)var10000;
-         Block var10 = BuiltInRegistries.BLOCK.getOptional(key).orElse(null);
-         if (var10 != null) {
-            Block block = var10;
-            String var11 = key.getPath();
-            Intrinsics.checkNotNullExpressionValue(var11, "getPath(...)");
-            String path = var11;
-            String var12 = key.getNamespace();
-            Intrinsics.checkNotNullExpressionValue(var12, "getNamespace(...)");
-            String ns = var12;
+      for (Identifier key : BuiltInRegistries.BLOCK.keySet()) {
+         Block block = BuiltInRegistries.BLOCK.getOptional(key).orElse(null);
+         if (block != null) {
+            String path = key.getPath();
+            Intrinsics.checkNotNullExpressionValue(path, "getPath(...)");
+            String ns = key.getNamespace();
+            Intrinsics.checkNotNullExpressionValue(ns, "getNamespace(...)");
             if (block instanceof StairBlock && StringsKt.endsWith(path, "_stairs", false)) {
                String baseName = StringsKt.removeSuffix(path, "_stairs");
                String baseId = this.resolveBaseBlock(ns, baseName);
@@ -381,9 +365,9 @@ public final class BlockStateCodec {
    }
 
    private final String resolveBaseBlock(String ns, String baseName) {
-      String[] var4 = new String[]{ns + ":" + baseName, ns + ":" + baseName + "s", ns + ":" + baseName + "_planks", ns + ":" + baseName + "_block"};
+      String[] candidates = new String[]{ns + ":" + baseName, ns + ":" + baseName + "s", ns + ":" + baseName + "_planks", ns + ":" + baseName + "_block"};
 
-      for (String candidate : CollectionsKt.listOf(var4)) {
+      for (String candidate : CollectionsKt.listOf(candidates)) {
          if (BuiltInRegistries.BLOCK.getOptional(Identifier.parse(candidate)).orElse(null) != null) {
             return candidate;
          }
@@ -409,15 +393,12 @@ public final class BlockStateCodec {
          return replacement;
       }
 
-      Block var10000 = original.getBlock();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getBlock(...)");
-      Block originalBlock = var10000;
-      var10000 = replacement.getBlock();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getBlock(...)");
-      Block replacementBlock = var10000;
-      String var16 = BuiltInRegistries.BLOCK.getKey(replacementBlock).toString();
-      Intrinsics.checkNotNullExpressionValue(var16, "toString(...)");
-      String replacementId = var16;
+      Block originalBlock = original.getBlock();
+      Intrinsics.checkNotNullExpressionValue(originalBlock, "getBlock(...)");
+      Block replacementBlock = replacement.getBlock();
+      Intrinsics.checkNotNullExpressionValue(replacementBlock, "getBlock(...)");
+      String replacementId = BuiltInRegistries.BLOCK.getKey(replacementBlock).toString();
+      Intrinsics.checkNotNullExpressionValue(replacementId, "toString(...)");
       if (originalBlock instanceof StairBlock) {
          if (replacementBlock instanceof StairBlock) {
             ReplacementCache.INSTANCE.getRetextureCache$cb_client().remove(packed);
@@ -516,7 +497,7 @@ public final class BlockStateCodec {
       return result;
    }
 
-   private static final CharSequence rotateStateProperties$lambda$0(boolean $toNorth, Rotation $rotation, String prop) {
+   private static final CharSequence rotateProperty(boolean toNorth, Rotation rotation, String prop) {
       Intrinsics.checkNotNullParameter(prop, "prop");
       int eqIdx = StringsKt.indexOf(prop, '=', 0, false);
       if (eqIdx == -1) {
@@ -527,30 +508,28 @@ public final class BlockStateCodec {
       Intrinsics.checkNotNullExpressionValue(name, "substring(...)");
       String value = prop.substring(eqIdx + 1);
       Intrinsics.checkNotNullExpressionValue(value, "substring(...)");
-      String var6 = name;
-      if (Intrinsics.areEqual(var6, "facing")) {
+      if (Intrinsics.areEqual(name, "facing")) {
          Direction dir = Direction.byName(value);
          if (dir != null && dir.getAxis().isHorizontal()) {
-            Direction rotated = $toNorth ? RoomDataKt.rotateToNorth(dir, $rotation) : RoomDataKt.rotateAroundNorth(dir, $rotation);
+            Direction rotated = toNorth ? RoomDataKt.rotateToNorth(dir, rotation) : RoomDataKt.rotateAroundNorth(dir, rotation);
             return name + "=" + rotated.getSerializedName();
          }
 
          return prop;
-      } else if (Intrinsics.areEqual(var6, "axis")) {
+      } else if (Intrinsics.areEqual(name, "axis")) {
          Axis axis = Intrinsics.areEqual(value, "x") ? Axis.X : (Intrinsics.areEqual(value, "z") ? Axis.Z : null);
-         return axis != null ? name + "=" + RoomDataKt.rotateToNorth(axis, $rotation).getSerializedName() : prop;
+         return axis != null ? name + "=" + RoomDataKt.rotateToNorth(axis, rotation).getSerializedName() : prop;
       } else {
          return prop;
       }
    }
 
-   private static final CharSequence serializeBlockState$lambda$0(Value entry) {
-      String var10000 = entry.property().getName();
-      BlockStateCodec var10001 = INSTANCE;
-      Property var10002 = entry.property();
-      Intrinsics.checkNotNullExpressionValue(var10002, "property(...)");
-      Comparable var10003 = (Comparable)entry.value();
-      Intrinsics.checkNotNullExpressionValue(var10003, "value(...)");
-      return var10000 + "=" + var10001.getPropertyValueName$cb_client(var10002, var10003);
+   private static final CharSequence formatProperty(Value entry) {
+      String propName = entry.property().getName();
+      Property property = entry.property();
+      Intrinsics.checkNotNullExpressionValue(property, "property(...)");
+      Comparable value = (Comparable)entry.value();
+      Intrinsics.checkNotNullExpressionValue(value, "value(...)");
+      return propName + "=" + INSTANCE.getPropertyValueName$cb_client(property, value);
    }
 }

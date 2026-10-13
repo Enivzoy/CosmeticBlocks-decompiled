@@ -74,7 +74,7 @@ import org.jetbrains.annotations.NotNull;
 public final class SaveScheduler {
    @NotNull
    public static final SaveScheduler INSTANCE = new SaveScheduler();
-   private static final ExecutorService saveExecutor = Executors.newSingleThreadExecutor(SaveScheduler::saveExecutor$lambda$0);
+   private static final ExecutorService saveExecutor = Executors.newSingleThreadExecutor(SaveScheduler::newSaveThread);
    private static boolean needsSave;
    private static long lastEditTime;
    private static long lastSaveTime;
@@ -99,64 +99,64 @@ public final class SaveScheduler {
       return needsSave;
    }
 
-   public final void setNeedsSave$cb_client(boolean var1) {
-      needsSave = var1/* $VF was: <set-?> */;
+   public final void setNeedsSave$cb_client(boolean value) {
+      needsSave = value;
    }
 
    public final long getLastEditTime$cb_client() {
       return lastEditTime;
    }
 
-   public final void setLastEditTime$cb_client(long var1) {
-      lastEditTime = var1/* $VF was: <set-?> */;
+   public final void setLastEditTime$cb_client(long value) {
+      lastEditTime = value;
    }
 
    public final long getLastSaveTime$cb_client() {
       return lastSaveTime;
    }
 
-   public final void setLastSaveTime$cb_client(long var1) {
-      lastSaveTime = var1/* $VF was: <set-?> */;
+   public final void setLastSaveTime$cb_client(long value) {
+      lastSaveTime = value;
    }
 
    public final boolean getSaveInFlight$cb_client() {
       return saveInFlight;
    }
 
-   public final void setSaveInFlight$cb_client(boolean var1) {
-      saveInFlight = var1/* $VF was: <set-?> */;
+   public final void setSaveInFlight$cb_client(boolean value) {
+      saveInFlight = value;
    }
 
    public final boolean getSaveAgain$cb_client() {
       return saveAgain;
    }
 
-   public final void setSaveAgain$cb_client(boolean var1) {
-      saveAgain = var1/* $VF was: <set-?> */;
+   public final void setSaveAgain$cb_client(boolean value) {
+      saveAgain = value;
    }
 
    public final boolean getNeedsRoomSave$cb_client() {
       return needsRoomSave;
    }
 
-   public final void setNeedsRoomSave$cb_client(boolean var1) {
-      needsRoomSave = var1/* $VF was: <set-?> */;
+   public final void setNeedsRoomSave$cb_client(boolean value) {
+      needsRoomSave = value;
    }
 
    public final long getLastRoomEditTime$cb_client() {
       return lastRoomEditTime;
    }
 
-   public final void setLastRoomEditTime$cb_client(long var1) {
-      lastRoomEditTime = var1/* $VF was: <set-?> */;
+   public final void setLastRoomEditTime$cb_client(long value) {
+      lastRoomEditTime = value;
    }
 
    public final long getLastRoomSaveTime$cb_client() {
       return lastRoomSaveTime;
    }
 
-   public final void setLastRoomSaveTime$cb_client(long var1) {
-      lastRoomSaveTime = var1/* $VF was: <set-?> */;
+   public final void setLastRoomSaveTime$cb_client(long value) {
+      lastRoomSaveTime = value;
    }
 
    public final void scheduleSave$cb_client() {
@@ -186,19 +186,17 @@ public final class SaveScheduler {
 
    public final void awaitPendingSaves$cb_client() {
       try {
-         saveExecutor.submit(SaveScheduler::awaitPendingSaves$lambda$0).get();
-      } catch (Exception var2) {
+         saveExecutor.submit(SaveScheduler::noOpTask).get();
+      } catch (Exception ignored) {
       }
    }
 
-   private static final Thread saveExecutor$lambda$0(Runnable r) {
-      Thread var1 = new Thread(r, "CFME-Save");
-      Thread $this$saveExecutor_u24lambda_u240_u240 = var1;
-      int var3/* $VF was: $i$a$-apply-SaveScheduler$saveExecutor$1$1 */ = 0;
-      $this$saveExecutor_u24lambda_u240_u240.setDaemon(true);
-      return var1;
+   private static final Thread newSaveThread(Runnable r) {
+      Thread thread = new Thread(r, "CFME-Save");
+      thread.setDaemon(true);
+      return thread;
    }
 
-   private static final void awaitPendingSaves$lambda$0() {
+   private static final void noOpTask() {
    }
 }

@@ -3,7 +3,6 @@ package com.cb.cosmetic;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap.KeySetView;
 import kotlin.Metadata;
 import kotlin.collections.ArrayDeque;
 import kotlin.jvm.internal.Intrinsics;
@@ -81,9 +80,9 @@ public final class DirtySections {
    }
 
    private final Minecraft getMc() {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      return var10000;
+      Minecraft mc = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(mc, "getInstance(...)");
+      return mc;
    }
 
    public final boolean hasPending$cb_client() {
@@ -93,12 +92,8 @@ public final class DirtySections {
    public final void markAllCachedDirty$cb_client() {
       if (this.getMc().level != null) {
          HashSet sections = new HashSet(ReplacementCache.INSTANCE.getActiveCache$cb_client().size() / 4);
-         Iterator var10000 = ((KeySetView)ReplacementCache.INSTANCE.getActiveCache$cb_client().keySet()).iterator();
-         Intrinsics.checkNotNullExpressionValue(var10000, "iterator(...)");
-         Iterator var2 = var10000;
 
-         while (var2.hasNext()) {
-            Long packed = (Long)var2.next();
+         for (Long packed : ReplacementCache.INSTANCE.getActiveCache$cb_client().keySet()) {
             Intrinsics.checkNotNull(packed);
             sections.add(this.sectionKey$cb_client(BlockPos.getX(packed), BlockPos.getY(packed), BlockPos.getZ(packed)));
          }
@@ -113,10 +108,8 @@ public final class DirtySections {
 
    public final void queueDirtySections$cb_client(@NotNull Set<Long> sections) {
       Intrinsics.checkNotNullParameter(sections, "sections");
-      Iterator var2 = sections.iterator();
 
-      while (var2.hasNext()) {
-         long sec = ((Number)var2.next()).longValue();
+      for (long sec : sections) {
          if (pendingDirtySet.add(sec)) {
             pendingDirtySections.addLast(sec);
          }
@@ -124,9 +117,8 @@ public final class DirtySections {
    }
 
    public final void drainDirtySections$cb_client() {
-      LevelRenderer var10000 = this.getMc().levelRenderer;
-      if (var10000 != null) {
-         LevelRenderer renderer = var10000;
+      LevelRenderer renderer = this.getMc().levelRenderer;
+      if (renderer != null) {
          if (this.getMc().level == null) {
             pendingDirtySections.clear();
             pendingDirtySet.clear();
@@ -137,7 +129,7 @@ public final class DirtySections {
                   pendingDirtySet.remove(sec);
                   this.getMc().level.setSectionDirtyWithNeighbors(BlockPos.getX(sec), BlockPos.getY(sec), BlockPos.getZ(sec));
                }
-            } catch (Exception var5/* $VF was: <unused var> */) {
+            } catch (Exception ignored) {
                pendingDirtySections.clear();
                pendingDirtySet.clear();
             }
@@ -211,9 +203,8 @@ public final class DirtySections {
 
    public final void markDirtyImmediate$cb_client(@NotNull BlockPos pos) {
       Intrinsics.checkNotNullParameter(pos, "pos");
-      LevelRenderer var10000 = this.getMc().levelRenderer;
-      if (var10000 != null) {
-         LevelRenderer renderer = var10000;
+      LevelRenderer renderer = this.getMc().levelRenderer;
+      if (renderer != null) {
          if (this.getMc().level != null) {
             HashSet sections = new HashSet(8);
 
@@ -226,17 +217,16 @@ public final class DirtySections {
             }
 
             try {
-               Iterator var10 = sections.iterator();
-               Intrinsics.checkNotNullExpressionValue(var10, "iterator(...)");
-               Iterator var8 = var10;
+               Iterator iterator = sections.iterator();
+               Intrinsics.checkNotNullExpressionValue(iterator, "iterator(...)");
 
-               while (var8.hasNext()) {
-                  Object var11 = var8.next();
-                  Intrinsics.checkNotNullExpressionValue(var11, "next(...)");
-                  long sec = ((Number)var11).longValue();
+               while (iterator.hasNext()) {
+                  Object value = iterator.next();
+                  Intrinsics.checkNotNullExpressionValue(value, "next(...)");
+                  long sec = ((Number)value).longValue();
                   this.getMc().level.setSectionDirtyWithNeighbors(BlockPos.getX(sec), BlockPos.getY(sec), BlockPos.getZ(sec));
                }
-            } catch (Exception var7) {
+            } catch (Exception ignored) {
             }
          }
       }

@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -149,8 +148,8 @@ public final class RoomStore {
       return lastScannedRoom;
    }
 
-   public final void setLastScannedRoom$cb_client(@Nullable String var1) {
-      lastScannedRoom = var1/* $VF was: <set-?> */;
+   public final void setLastScannedRoom$cb_client(@Nullable String value) {
+      lastScannedRoom = value;
    }
 
    public final void loadRoomBlocks() {
@@ -168,61 +167,61 @@ public final class RoomStore {
          return false;
       }
 
-      boolean text;
+      boolean loaded;
       try {
-         String textx = FilesKt.readText(file, kotlin.text.Charsets.UTF_8);
-         if (StringsKt.isBlank(textx)) {
+         String content = FilesKt.readText(file, kotlin.text.Charsets.UTF_8);
+         if (StringsKt.isBlank(content)) {
             return false;
          }
 
-         JsonObject root = JsonParser.parseString(textx).getAsJsonObject();
+         JsonObject root = JsonParser.parseString(content).getAsJsonObject();
 
-         for (Entry var5 : root.entrySet()) {
-            Intrinsics.checkNotNull(var5);
-            String roomName = (String)var5.getKey();
-            JsonElement element = (JsonElement)var5.getValue();
+         for (Entry entry : root.entrySet()) {
+            Intrinsics.checkNotNull(entry);
+            String roomName = (String)entry.getKey();
+            JsonElement element = (JsonElement)entry.getValue();
             JsonObject roomObj = element.getAsJsonObject();
             Map roomMap = new LinkedHashMap();
 
-            for (Entry var11 : roomObj.entrySet()) {
-               Intrinsics.checkNotNull(var11);
-               String pos = (String)var11.getKey();
-               JsonElement block = (JsonElement)var11.getValue();
+            for (Entry posEntry : roomObj.entrySet()) {
+               Intrinsics.checkNotNull(posEntry);
+               String pos = (String)posEntry.getKey();
+               JsonElement block = (JsonElement)posEntry.getValue();
                roomMap.put(pos, block.getAsString());
             }
 
             roomBlocks.put(roomName, roomMap);
          }
 
-         text = true;
+         loaded = true;
       } catch (Exception e) {
          System.err.println("[CB] Failed to parse room file " + file.getName() + ": " + e.getMessage());
-         text = false;
+         loaded = false;
       }
 
-      return text;
+      return loaded;
    }
 
    public final void saveRoomBlocksAsync$cb_client() {
       SaveScheduler.INSTANCE.setNeedsRoomSave$cb_client(false);
       SaveScheduler.INSTANCE.setLastRoomSaveTime$cb_client(System.currentTimeMillis());
       Map snapshot = this.snapshotRoomBlocks();
-      SaveScheduler.INSTANCE.getSaveExecutor$cb_client().execute(() -> saveRoomBlocksAsync$lambda$0(snapshot));
+      SaveScheduler.INSTANCE.getSaveExecutor$cb_client().execute(() -> saveRoomBlocksTask(snapshot));
    }
 
    public final void forceRoomSave() {
       SaveScheduler.INSTANCE.setNeedsRoomSave$cb_client(false);
       SaveScheduler.INSTANCE.setLastRoomSaveTime$cb_client(System.currentTimeMillis());
       Map snapshot = this.snapshotRoomBlocks();
-      SaveScheduler.INSTANCE.getSaveExecutor$cb_client().execute(() -> forceRoomSave$lambda$0(snapshot));
+      SaveScheduler.INSTANCE.getSaveExecutor$cb_client().execute(() -> forceRoomSaveTask(snapshot));
    }
 
    private final Map<String, Map<String, String>> snapshotRoomBlocks() {
       HashMap snapshot = new HashMap(roomBlocks.size());
 
-      for (Entry var3 : roomBlocks.entrySet()) {
-         String room = (String)var3.getKey();
-         Map map = (Map)var3.getValue();
+      for (Entry entry : roomBlocks.entrySet()) {
+         String room = (String)entry.getKey();
+         Map map = (Map)entry.getValue();
          snapshot.put(room, new HashMap(map));
       }
 
@@ -230,36 +229,32 @@ public final class RoomStore {
    }
 
    private final void writeRoomConfig(Map<String, ? extends Map<String, String>> snapshot) throws IOException {
-      File var10000 = roomBlocksFile.getParentFile();
-      if (var10000 != null) {
-         var10000.mkdirs();
+      File parentDir = roomBlocksFile.getParentFile();
+      if (parentDir != null) {
+         parentDir.mkdirs();
       }
 
       File tmpFile = new File(roomBlocksFile.getParentFile(), roomBlocksFile.getName() + ".tmp");
-      var var3 = new BufferedWriter(new FileWriter(tmpFile), 65536);
-      Throwable var4 = null;
+      BufferedWriter writer = new BufferedWriter(new FileWriter(tmpFile), 65536);
+      Throwable writerError = null;
 
       try {
-         BufferedWriter bw = var3;
-         int var6/* $VF was: $i$a$-use-RoomStore$writeRoomConfig$1 */ = 0;
-         var var7 = new JsonWriter(bw);
-         Throwable var8 = null;
+         JsonWriter jw = new JsonWriter(writer);
+         Throwable jsonWriterError = null;
 
          try {
-            JsonWriter jw = var7;
-            int var10/* $VF was: $i$a$-use-RoomStore$writeRoomConfig$1$1 */ = 0;
             jw.setIndent("  ");
             jw.beginObject();
 
-            for (Entry var12 : snapshot.entrySet()) {
-               String room = (String)var12.getKey();
-               Map<String, String> map = (Map<String, String>)var12.getValue();
+            for (Entry entry : snapshot.entrySet()) {
+               String room = (String)entry.getKey();
+               Map<String, String> map = (Map<String, String>)entry.getValue();
                jw.name(room);
                jw.beginObject();
 
-               for (Entry var16 : map.entrySet()) {
-                  String pos = (String)var16.getKey();
-                  String block = (String)var16.getValue();
+               for (Entry posEntry : map.entrySet()) {
+                  String pos = (String)posEntry.getKey();
+                  String block = (String)posEntry.getValue();
                   jw.name(pos).value(block);
                }
 
@@ -267,17 +262,17 @@ public final class RoomStore {
             }
 
             jw = jw.endObject();
-         } catch (Throwable var27) {
-            var8 = var27;
-            throw var27;
+         } catch (Throwable jsonError) {
+            jsonWriterError = jsonError;
+            throw jsonError;
          } finally {
-            CloseableKt.closeFinally(var7, var8);
+            CloseableKt.closeFinally(jw, jsonWriterError);
          }
-      } catch (Throwable var29) {
-         var4 = var29;
-         throw var29;
+      } catch (Throwable writeError) {
+         writerError = writeError;
+         throw writeError;
       } finally {
-         CloseableKt.closeFinally(var3, var4);
+         CloseableKt.closeFinally(writer, writerError);
       }
 
       if (roomBlocksFile.exists()) {
@@ -289,10 +284,8 @@ public final class RoomStore {
 
    public final void onRoomChanged$cb_client(@Nullable ScannedRoom newRoom) {
       HashSet dirtySections = new HashSet();
-      Iterator resolved = roomCacheKeys.iterator();
 
-      while (resolved.hasNext()) {
-         long key = ((Number)resolved.next()).longValue();
+      for (long key : roomCacheKeys) {
          dirtySections.add(DirtySections.INSTANCE.sectionKey$cb_client(BlockPos.getX(key), BlockPos.getY(key), BlockPos.getZ(key)));
          ReplacementCache.INSTANCE.getActiveCache$cb_client().remove(key);
          ReplacementCache.INSTANCE.getPhantomPositions$cb_client().remove(key);
@@ -303,14 +296,13 @@ public final class RoomStore {
 
       roomCacheKeys.clear();
       if (newRoom != null && newRoom.getRotation() != Rotation.NONE) {
-         List<RoomStore.ResolvedRoomBlock> resolvedx = resolvedRoomCache.get(newRoom.getData().getName());
-         if (resolvedx != null) {
+         List<RoomStore.ResolvedRoomBlock> resolved = resolvedRoomCache.get(newRoom.getData().getName());
+         if (resolved != null) {
             Rotation rot = newRoom.getRotation();
 
-            for (RoomStore.ResolvedRoomBlock entry : resolvedx) {
-               BlockPos var10000 = RoomDataKt.rotateAroundNorth(entry.getRelPos(), rot).offset(newRoom.getClayPos().getX(), 0, newRoom.getClayPos().getZ());
-               Intrinsics.checkNotNullExpressionValue(var10000, "offset(...)");
-               BlockPos absPos = var10000;
+            for (RoomStore.ResolvedRoomBlock entry : resolved) {
+               BlockPos absPos = RoomDataKt.rotateAroundNorth(entry.getRelPos(), rot).offset(newRoom.getClayPos().getX(), 0, newRoom.getClayPos().getZ());
+               Intrinsics.checkNotNullExpressionValue(absPos, "offset(...)");
                long packed = BlockPos.asLong(absPos.getX(), absPos.getY(), absPos.getZ());
                if (entry.getShapeState() != null && entry.getTextureState() != null) {
                   ReplacementCache.INSTANCE.getActiveCache$cb_client().put(packed, entry.getShapeState());
@@ -347,46 +339,43 @@ public final class RoomStore {
       if (rawMap != null && !rawMap.isEmpty()) {
          ArrayList list = new ArrayList(rawMap.size());
 
-         for (Entry var5 : rawMap.entrySet()) {
-            String relKey = (String)var5.getKey();
-            String raw = (String)var5.getValue();
-            CharSequence var10000 = relKey;
-            String[] relPos = new String[]{","};
-            List parts = StringsKt.split(var10000, relPos, false, 0);
+         for (Entry entry : rawMap.entrySet()) {
+            String relKey = (String)entry.getKey();
+            String raw = (String)entry.getValue();
+            CharSequence keyText = relKey;
+            String[] separators = new String[]{","};
+            List parts = StringsKt.split(keyText, separators, false, 0);
             if (parts.size() == 3) {
                try {
-                  BlockPos relPosx = new BlockPos(
+                  BlockPos relBlockPos = new BlockPos(
                      Integer.parseInt((String)parts.get(0)), Integer.parseInt((String)parts.get(1)), Integer.parseInt((String)parts.get(2))
                   );
                   boolean phantom = StringsKt.startsWith(raw, "!", false);
-                  String var21;
+                  String cleanRaw;
                   if (phantom) {
-                     var21 = raw.substring(1);
-                     Intrinsics.checkNotNullExpressionValue(var21, "substring(...)");
+                     cleanRaw = raw.substring(1);
+                     Intrinsics.checkNotNullExpressionValue(cleanRaw, "substring(...)");
                   } else {
-                     var21 = raw;
+                     cleanRaw = raw;
                   }
 
-                  String cleanRaw = var21;
-                  var21 = cleanRaw;
                   String[] blockStr = new String[]{"|shape="};
-                  List<String> shapeSplit = StringsKt.split(var21, blockStr, false, 2);
-                  String blockStrx = (String)shapeSplit.get(0);
+                  List<String> shapeSplit = StringsKt.split(cleanRaw, blockStr, false, 2);
+                  String blockText = (String)shapeSplit.get(0);
                   String shape = CollectionsKt.getOrNull(shapeSplit, 1);
                   if (shape != null) {
                      BlockState shapeState = BlockStateCodec.INSTANCE.resolveShapeState$cb_client(shape);
-                     BlockState textureState = BlockStateCodec.INSTANCE.resolveBlockState(blockStrx);
+                     BlockState textureState = BlockStateCodec.INSTANCE.resolveBlockState(blockText);
                      if (shapeState != null && textureState != null) {
-                        list.add(new RoomStore.ResolvedRoomBlock(relPosx, shapeState, phantom, shapeState, textureState));
+                        list.add(new RoomStore.ResolvedRoomBlock(relBlockPos, shapeState, phantom, shapeState, textureState));
                      }
                   } else {
-                     BlockState var23 = BlockStateCodec.INSTANCE.resolveBlockState(blockStrx);
-                     if (var23 != null) {
-                        BlockState state = var23;
-                        list.add(new RoomStore.ResolvedRoomBlock(relPosx, state, phantom, null, null));
+                     BlockState state = BlockStateCodec.INSTANCE.resolveBlockState(blockText);
+                     if (state != null) {
+                        list.add(new RoomStore.ResolvedRoomBlock(relBlockPos, state, phantom, null, null));
                      }
                   }
-               } catch (Exception var17) {
+               } catch (Exception ignored) {
                }
             }
          }
@@ -418,34 +407,32 @@ public final class RoomStore {
       Intrinsics.checkNotNullParameter(pos, "pos");
       Intrinsics.checkNotNullParameter(blockId, "blockId");
       Intrinsics.checkNotNullParameter(room, "room");
-      BlockPos var10000 = pos.subtract(room.getClayPos().atY(0));
-      Intrinsics.checkNotNullExpressionValue(var10000, "subtract(...)");
-      BlockPos relPos = RoomDataKt.rotateToNorth(var10000, room.getRotation());
+      BlockPos localPos = pos.subtract(room.getClayPos().atY(0));
+      Intrinsics.checkNotNullExpressionValue(localPos, "subtract(...)");
+      BlockPos relPos = RoomDataKt.rotateToNorth(localPos, room.getRotation());
       String relKey = relPos.getX() + "," + relPos.getY() + "," + relPos.getZ();
-      Map rotatedId = roomBlocks;
-      Object key$iv = room.getData().getName();
-      int $i$f$getOrPut = 0;
-      Object value$iv = rotatedId.get(key$iv);
-      Object var20;
-      if (value$iv == null) {
-         int var12/* $VF was: $i$a$-getOrPut-RoomStore$setRoomReplacementRaw$roomMap$1 */ = 0;
-         Object answer$iv = new LinkedHashMap();
-         rotatedId.put(key$iv, answer$iv);
-         var20 = answer$iv;
+      Map targetMap = roomBlocks;
+      Object roomKey = room.getData().getName();
+      Object existingValue = targetMap.get(roomKey);
+      Object roomMapValue;
+      if (existingValue == null) {
+         Object createdMap = new LinkedHashMap();
+         targetMap.put(roomKey, createdMap);
+         roomMapValue = createdMap;
       } else {
-         var20 = value$iv;
+         roomMapValue = existingValue;
       }
 
-      Map roomMap = (Map)var20;
-      String rotatedIdx = BlockStateCodec.INSTANCE.rotateStateToNorth$cb_client(blockId, room.getRotation());
-      key$iv = EditMode.INSTANCE.getCurrentShape() != null ? rotatedIdx + "|shape=" + EditMode.INSTANCE.getCurrentShape() : rotatedIdx;
-      roomMap.put(relKey, phantom ? "!" + key$iv : key$iv);
+      Map roomMap = (Map)roomMapValue;
+      String rotatedId = BlockStateCodec.INSTANCE.rotateStateToNorth$cb_client(blockId, room.getRotation());
+      roomKey = EditMode.INSTANCE.getCurrentShape() != null ? rotatedId + "|shape=" + EditMode.INSTANCE.getCurrentShape() : rotatedId;
+      roomMap.put(relKey, phantom ? "!" + roomKey : roomKey);
       long packed = BlockPos.asLong(pos.getX(), pos.getY(), pos.getZ());
       if (EditMode.INSTANCE.getCurrentShape() != null) {
-         BlockStateCodec var21 = BlockStateCodec.INSTANCE;
-         String var10001 = EditMode.INSTANCE.getCurrentShape();
-         Intrinsics.checkNotNull(var10001);
-         BlockState shapeState = var21.resolveShapeState$cb_client(var10001);
+         BlockStateCodec codec = BlockStateCodec.INSTANCE;
+         String shape = EditMode.INSTANCE.getCurrentShape();
+         Intrinsics.checkNotNull(shape);
+         BlockState shapeState = codec.resolveShapeState$cb_client(shape);
          BlockState textureState = BlockStateCodec.INSTANCE.resolveBlockState(blockId);
          if (shapeState != null && textureState != null) {
             ReplacementCache.INSTANCE.getActiveCache$cb_client().put(packed, shapeState);
@@ -474,39 +461,37 @@ public final class RoomStore {
    public final String rawAtWorld$cb_client(@NotNull BlockPos pos, @NotNull ScannedRoom room) {
       Intrinsics.checkNotNullParameter(pos, "pos");
       Intrinsics.checkNotNullParameter(room, "room");
-      BlockPos var10000 = pos.subtract(room.getClayPos().atY(0));
-      Intrinsics.checkNotNullExpressionValue(var10000, "subtract(...)");
-      BlockPos relPos = RoomDataKt.rotateToNorth(var10000, room.getRotation());
-      Map var4 = roomBlocks.get(room.getData().getName());
-      return var4 != null ? (String)var4.get(relPos.getX() + "," + relPos.getY() + "," + relPos.getZ()) : null;
+      BlockPos localPos = pos.subtract(room.getClayPos().atY(0));
+      Intrinsics.checkNotNullExpressionValue(localPos, "subtract(...)");
+      BlockPos relPos = RoomDataKt.rotateToNorth(localPos, room.getRotation());
+      Map roomMap = roomBlocks.get(room.getData().getName());
+      return roomMap != null ? (String)roomMap.get(relPos.getX() + "," + relPos.getY() + "," + relPos.getZ()) : null;
    }
 
    public final void restoreRoomFill$cb_client(@NotNull Map<String, String> snapshot, @NotNull ScannedRoom room) {
       Intrinsics.checkNotNullParameter(snapshot, "snapshot");
       Intrinsics.checkNotNullParameter(room, "room");
-      Map $this$getOrPut$iv = roomBlocks;
-      Object key$iv = room.getData().getName();
-      int $i$f$getOrPut = 0;
-      Object value$iv = $this$getOrPut$iv.get(key$iv);
-      Object var10000;
-      if (value$iv == null) {
-         int var8/* $VF was: $i$a$-getOrPut-RoomStore$restoreRoomFill$roomMap$1 */ = 0;
-         Object answer$iv = new LinkedHashMap();
-         $this$getOrPut$iv.put(key$iv, answer$iv);
-         var10000 = answer$iv;
+      Map targetMap = roomBlocks;
+      Object roomKey = room.getData().getName();
+      Object existingValue = targetMap.get(roomKey);
+      Object roomMapValue;
+      if (existingValue == null) {
+         Object createdMap = new LinkedHashMap();
+         targetMap.put(roomKey, createdMap);
+         roomMapValue = createdMap;
       } else {
-         var10000 = value$iv;
+         roomMapValue = existingValue;
       }
 
-      Map roomMap = (Map)var10000;
+      Map roomMap = (Map)roomMapValue;
 
-      for (Entry var10 : snapshot.entrySet()) {
-         String relKey = (String)var10.getKey();
-         value$iv = (String)var10.getValue();
-         if (value$iv == null) {
+      for (Entry entry : snapshot.entrySet()) {
+         String relKey = (String)entry.getKey();
+         existingValue = (String)entry.getValue();
+         if (existingValue == null) {
             roomMap.remove(relKey);
          } else {
-            roomMap.put(relKey, value$iv);
+            roomMap.put(relKey, existingValue);
          }
       }
 
@@ -514,22 +499,22 @@ public final class RoomStore {
          roomBlocks.remove(room.getData().getName());
       }
 
-      String var16;
+      String currentRoomName;
       label30: {
          this.resolveRoomBlocks$cb_client(room.getData().getName());
-         ScannedRoom var14 = RoomScanner.INSTANCE.getCurrentRoom();
-         if (var14 != null) {
-            RoomInfo var15 = var14.getData();
-            if (var15 != null) {
-               var16 = var15.getName();
+         ScannedRoom currentRoom = RoomScanner.INSTANCE.getCurrentRoom();
+         if (currentRoom != null) {
+            RoomInfo roomInfo = currentRoom.getData();
+            if (roomInfo != null) {
+               currentRoomName = roomInfo.getName();
                break label30;
             }
          }
 
-         var16 = null;
+         currentRoomName = null;
       }
 
-      if (Intrinsics.areEqual(var16, room.getData().getName())) {
+      if (Intrinsics.areEqual(currentRoomName, room.getData().getName())) {
          this.onRoomChanged$cb_client(RoomScanner.INSTANCE.getCurrentRoom());
       }
 
@@ -540,28 +525,26 @@ public final class RoomStore {
       Intrinsics.checkNotNullParameter(pos, "pos");
       Intrinsics.checkNotNullParameter(state, "state");
       Intrinsics.checkNotNullParameter(room, "room");
-      BlockPos var10000 = pos.subtract(room.getClayPos().atY(0));
-      Intrinsics.checkNotNullExpressionValue(var10000, "subtract(...)");
-      BlockPos relPos = RoomDataKt.rotateToNorth(var10000, room.getRotation());
+      BlockPos localPos = pos.subtract(room.getClayPos().atY(0));
+      Intrinsics.checkNotNullExpressionValue(localPos, "subtract(...)");
+      BlockPos relPos = RoomDataKt.rotateToNorth(localPos, room.getRotation());
       String relKey = relPos.getX() + "," + relPos.getY() + "," + relPos.getZ();
-      Map serialized = roomBlocks;
-      Object key$iv = room.getData().getName();
-      int $i$f$getOrPut = 0;
-      Object value$iv = serialized.get(key$iv);
-      Object var17;
-      if (value$iv == null) {
-         int var12/* $VF was: $i$a$-getOrPut-RoomStore$setRoomReplacementState$roomMap$1 */ = 0;
-         Object answer$iv = new LinkedHashMap();
-         serialized.put(key$iv, answer$iv);
-         var17 = answer$iv;
+      Map targetMap = roomBlocks;
+      Object roomKey = room.getData().getName();
+      Object existingValue = targetMap.get(roomKey);
+      Object roomMapValue;
+      if (existingValue == null) {
+         Object createdMap = new LinkedHashMap();
+         targetMap.put(roomKey, createdMap);
+         roomMapValue = createdMap;
       } else {
-         var17 = value$iv;
+         roomMapValue = existingValue;
       }
 
-      Map roomMap = (Map)var17;
-      String serializedx = BlockStateCodec.INSTANCE.serializeBlockState$cb_client(state);
-      key$iv = BlockStateCodec.INSTANCE.rotateStateToNorth$cb_client(serializedx, room.getRotation());
-      roomMap.put(relKey, phantom ? "!" + key$iv : key$iv);
+      Map roomMap = (Map)roomMapValue;
+      String serializedState = BlockStateCodec.INSTANCE.serializeBlockState$cb_client(state);
+      roomKey = BlockStateCodec.INSTANCE.rotateStateToNorth$cb_client(serializedState, room.getRotation());
+      roomMap.put(relKey, phantom ? "!" + roomKey : roomKey);
       long packed = BlockPos.asLong(pos.getX(), pos.getY(), pos.getZ());
       ReplacementCache.INSTANCE.getActiveCache$cb_client().put(packed, state);
       roomCacheKeys.add(packed);
@@ -579,16 +562,15 @@ public final class RoomStore {
    public final boolean removeRoomReplacement$cb_client(@NotNull BlockPos pos, @NotNull ScannedRoom room) {
       Intrinsics.checkNotNullParameter(pos, "pos");
       Intrinsics.checkNotNullParameter(room, "room");
-      BlockPos var10000 = pos.subtract(room.getClayPos().atY(0));
-      Intrinsics.checkNotNullExpressionValue(var10000, "subtract(...)");
-      BlockPos relPos = RoomDataKt.rotateToNorth(var10000, room.getRotation());
+      BlockPos localPos = pos.subtract(room.getClayPos().atY(0));
+      Intrinsics.checkNotNullExpressionValue(localPos, "subtract(...)");
+      BlockPos relPos = RoomDataKt.rotateToNorth(localPos, room.getRotation());
       String relKey = relPos.getX() + "," + relPos.getY() + "," + relPos.getZ();
-      Map var9 = roomBlocks.get(room.getData().getName());
-      if (var9 == null) {
+      Map roomMap = roomBlocks.get(room.getData().getName());
+      if (roomMap == null) {
          return false;
       }
 
-      Map roomMap = var9;
       boolean removed = roomMap.remove(relKey) != null;
       if (removed) {
          if (roomMap.isEmpty()) {
@@ -612,18 +594,15 @@ public final class RoomStore {
 
    public final int clearRoom(@NotNull String roomName) {
       Intrinsics.checkNotNullParameter(roomName, "roomName");
-      Map var10000 = roomBlocks.remove(roomName);
-      if (var10000 == null) {
+      Map roomMap = roomBlocks.remove(roomName);
+      if (roomMap == null) {
          return 0;
       }
 
-      Map roomMap = var10000;
       int count = roomMap.size();
       resolvedRoomCache.remove(roomName);
-      Iterator var4 = CollectionsKt.toList(roomCacheKeys).iterator();
 
-      while (var4.hasNext()) {
-         long key = ((Number)var4.next()).longValue();
+      for (long key : CollectionsKt.toList(roomCacheKeys)) {
          ReplacementCache.INSTANCE.getActiveCache$cb_client().remove(key);
          ReplacementCache.INSTANCE.getPhantomPositions$cb_client().remove(key);
       }
@@ -638,19 +617,15 @@ public final class RoomStore {
 
    public final int clearAllRooms() {
       int count = 0;
-      Iterator var2 = roomBlocks.entrySet().iterator();
-
-      while (var2.hasNext()) {
-         Map map = (Map)((Entry)var2.next()).getValue();
+      for (Entry entry : roomBlocks.entrySet()) {
+         Map map = (Map)entry.getValue();
          count += map.size();
       }
 
       roomBlocks.clear();
       resolvedRoomCache.clear();
-      var2 = CollectionsKt.toList(roomCacheKeys).iterator();
 
-      while (var2.hasNext()) {
-         long key = ((Number)var2.next()).longValue();
+      for (long key : CollectionsKt.toList(roomCacheKeys)) {
          ReplacementCache.INSTANCE.getActiveCache$cb_client().remove(key);
          ReplacementCache.INSTANCE.getPhantomPositions$cb_client().remove(key);
       }
@@ -668,28 +643,28 @@ public final class RoomStore {
 
    public final int getRoomBlockCount(@NotNull String roomName) {
       Intrinsics.checkNotNullParameter(roomName, "roomName");
-      Map var10000 = roomBlocks.get(roomName);
-      return var10000 != null ? var10000.size() : 0;
+      Map roomMap = roomBlocks.get(roomName);
+      return roomMap != null ? roomMap.size() : 0;
    }
 
-   private static final void saveRoomBlocksAsync$lambda$0(Map $snapshot) {
+   private static final void saveRoomBlocksTask(Map $snapshot) {
       try {
          INSTANCE.writeRoomConfig($snapshot);
-      } catch (Exception var2) {
+      } catch (Exception ignored) {
       }
    }
 
-   private static final void forceRoomSave$lambda$0(Map $snapshot) {
+   private static final void forceRoomSaveTask(Map $snapshot) {
       try {
          INSTANCE.writeRoomConfig($snapshot);
-      } catch (Exception var2) {
+      } catch (Exception ignored) {
       }
    }
 
    static {
-      KeySetView var10000 = ConcurrentHashMap.newKeySet();
-      Intrinsics.checkNotNullExpressionValue(var10000, "newKeySet(...)");
-      roomCacheKeys = var10000;
+      KeySetView keys = ConcurrentHashMap.newKeySet();
+      Intrinsics.checkNotNullExpressionValue(keys, "newKeySet(...)");
+      roomCacheKeys = keys;
    }
 
    @Metadata(
@@ -843,16 +818,16 @@ public final class RoomStore {
       public boolean equals(@Nullable Object other) {
          if (this == other) {
             return true;
-         } else if (!(other instanceof RoomStore.ResolvedRoomBlock var2)) {
+         } else if (!(other instanceof RoomStore.ResolvedRoomBlock that)) {
             return false;
-         } else if (!Intrinsics.areEqual(this.relPos, var2.relPos)) {
+         } else if (!Intrinsics.areEqual(this.relPos, that.relPos)) {
             return false;
-         } else if (!Intrinsics.areEqual(this.state, var2.state)) {
+         } else if (!Intrinsics.areEqual(this.state, that.state)) {
             return false;
-         } else if (this.phantom != var2.phantom) {
+         } else if (this.phantom != that.phantom) {
             return false;
          } else {
-            return !Intrinsics.areEqual(this.shapeState, var2.shapeState) ? false : Intrinsics.areEqual(this.textureState, var2.textureState);
+            return !Intrinsics.areEqual(this.shapeState, that.shapeState) ? false : Intrinsics.areEqual(this.textureState, that.textureState);
          }
       }
    }

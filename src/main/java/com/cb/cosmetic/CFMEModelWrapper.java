@@ -2,7 +2,6 @@ package com.cb.cosmetic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -122,30 +121,28 @@ public final class CFMEModelWrapper implements BlockStateModel {
       } else {
          BlockState originalState = CosmeticBlocks.INSTANCE.getOriginalShapeAt(pos.getX(), pos.getY(), pos.getZ());
          if (originalState != null) {
-            Baked newMaterial = Companion.particleMaterial(state);
-            BlockStateModel var10000 = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(originalState);
-            Intrinsics.checkNotNullExpressionValue(var10000, "get(...)");
-            BlockStateModel originalModel = var10000;
-            if (originalModel instanceof CFMEModelWrapper) {
-               originalModel = ((CFMEModelWrapper)originalModel).wrapped;
-            }
+             Baked newMaterial = Companion.particleMaterial(state);
+             BlockStateModel originalModel = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(originalState);
+             Intrinsics.checkNotNullExpressionValue(originalModel, "get(...)");
+             if (originalModel instanceof CFMEModelWrapper) {
+                originalModel = ((CFMEModelWrapper)originalModel).wrapped;
+             }
 
-            Set connectedDirs = new LinkedHashSet();
+             Set connectedDirs = new LinkedHashSet();
 
-            for (Direction dir : Direction.values()) {
-               BlockState var18 = blockView.getBlockState(pos.relative(dir));
-               Intrinsics.checkNotNullExpressionValue(var18, "getBlockState(...)");
-               BlockState adjState = var18;
-               if (state.skipRendering(adjState, dir)) {
-                  connectedDirs.add(dir);
-               }
-            }
+             for (Direction dir : Direction.values()) {
+                BlockState adjState = blockView.getBlockState(pos.relative(dir));
+                Intrinsics.checkNotNullExpressionValue(adjState, "getBlockState(...)");
+                if (state.skipRendering(adjState, dir)) {
+                   connectedDirs.add(dir);
+                }
+             }
 
-            Companion.emitRetextured(emitter, originalModel, random, cullTest, newMaterial, true, connectedDirs);
-         } else {
-            Predicate<Direction> modifiedCullTest = dir -> emitQuads$lambda$0(pos, blockView, state, (Predicate)cullTest, dir);
-            this.wrapped.emitQuads(emitter, blockView, pos, state, random, modifiedCullTest);
-         }
+             Companion.emitRetextured(emitter, originalModel, random, cullTest, newMaterial, true, connectedDirs);
+          } else {
+             Predicate<Direction> modifiedCullTest = dir -> shouldCull(pos, blockView, state, (Predicate)cullTest, dir);
+             this.wrapped.emitQuads(emitter, blockView, pos, state, random, modifiedCullTest);
+          }
       }
    }
 
@@ -159,9 +156,9 @@ public final class CFMEModelWrapper implements BlockStateModel {
    @NotNull
    @Override
    public Baked particleMaterial() {
-      Baked var10000 = this.wrapped.particleMaterial();
-      Intrinsics.checkNotNullExpressionValue(var10000, "particleMaterial(...)");
-      return var10000;
+      Baked material = this.wrapped.particleMaterial();
+      Intrinsics.checkNotNullExpressionValue(material, "particleMaterial(...)");
+      return material;
    }
 
    @MaterialFlags
@@ -170,14 +167,14 @@ public final class CFMEModelWrapper implements BlockStateModel {
       return this.wrapped.materialFlags();
    }
 
-   private static final boolean emitQuads$lambda$0(BlockPos $pos, BlockAndTintGetter $blockView, BlockState $state, Predicate $cullTest, Direction dir) {
+   private static final boolean shouldCull(BlockPos pos, BlockAndTintGetter blockView, BlockState state, Predicate cullTest, Direction dir) {
       if (dir == null) {
          return false;
       }
 
-      int adjX = $pos.getX() + dir.getStepX();
-      int adjY = $pos.getY() + dir.getStepY();
-      int adjZ = $pos.getZ() + dir.getStepZ();
+      int adjX = pos.getX() + dir.getStepX();
+      int adjY = pos.getY() + dir.getStepY();
+      int adjZ = pos.getZ() + dir.getStepZ();
       BlockState adjReplacement = CosmeticBlocks.INSTANCE.getReplacementAt(adjX, adjY, adjZ, false);
       if (adjReplacement != null) {
          if (adjReplacement.getBlock() instanceof StairBlock || adjReplacement.getBlock() instanceof SlabBlock) {
@@ -189,13 +186,12 @@ public final class CFMEModelWrapper implements BlockStateModel {
          }
       }
 
-      BlockState var10000 = $blockView.getBlockState(new BlockPos(adjX, adjY, adjZ));
-      Intrinsics.checkNotNullExpressionValue(var10000, "getBlockState(...)");
-      BlockState adjState = var10000;
-      if ($state.skipRendering(adjState, dir)) {
+      BlockState adjState = blockView.getBlockState(new BlockPos(adjX, adjY, adjZ));
+      Intrinsics.checkNotNullExpressionValue(adjState, "getBlockState(...)");
+      if (state.skipRendering(adjState, dir)) {
          return true;
       } else {
-         return Intrinsics.areEqual($state.getBlock(), adjState.getBlock()) && $state.getBlock() instanceof IronBarsBlock ? true : $cullTest.test(dir);
+         return Intrinsics.areEqual(state.getBlock(), adjState.getBlock()) && state.getBlock() instanceof IronBarsBlock ? true : cullTest.test(dir);
       }
    }
 
@@ -242,9 +238,9 @@ public final class CFMEModelWrapper implements BlockStateModel {
       }
 
       private final Baked particleMaterial(BlockState state) {
-         Baked var10000 = Minecraft.getInstance().getModelManager().getBlockStateModelSet().getParticleMaterial(state);
-         Intrinsics.checkNotNullExpressionValue(var10000, "getParticleMaterial(...)");
-         return var10000;
+         Baked material = Minecraft.getInstance().getModelManager().getBlockStateModelSet().getParticleMaterial(state);
+         Intrinsics.checkNotNullExpressionValue(material, "getParticleMaterial(...)");
+         return material;
       }
 
       private final void emitRetextured(
@@ -258,17 +254,13 @@ public final class CFMEModelWrapper implements BlockStateModel {
       ) {
          ArrayList parts = new ArrayList();
          geometryModel.collectParts(random, parts);
-         Iterator var9 = parts.iterator();
 
-         while (var9.hasNext()) {
-            BlockStateModelPart part = (BlockStateModelPart)var9.next();
+         for (BlockStateModelPart part : (Iterable<BlockStateModelPart>)parts) {
             TriState ao = part.useAmbientOcclusion() ? TriState.DEFAULT : TriState.FALSE;
 
             for (Direction dir : CFMEModelWrapper.DIRECTIONS) {
                if ((dir == null || !connectedDirs.contains(dir)) && (skipCull || !cullTest.test(dir))) {
-                  for (Object var17 : part.getQuads(dir)) {
-                     Intrinsics.checkNotNullExpressionValue(var17, "next(...)");
-                     BakedQuad quad = (BakedQuad)var17;
+                  for (BakedQuad quad : part.getQuads(dir)) {
                      emitter.cullFace(skipCull ? null : dir);
                      emitter.fromBakedQuad(quad);
                      this.normalizeUVs(emitter, quad);
@@ -284,9 +276,8 @@ public final class CFMEModelWrapper implements BlockStateModel {
       }
 
       private final void normalizeUVs(QuadEmitter emitter, BakedQuad quad) {
-         TextureAtlasSprite var10000 = quad.materialInfo().sprite();
-         Intrinsics.checkNotNullExpressionValue(var10000, "sprite(...)");
-         TextureAtlasSprite oldSprite = var10000;
+         TextureAtlasSprite oldSprite = quad.materialInfo().sprite();
+         Intrinsics.checkNotNullExpressionValue(oldSprite, "sprite(...)");
          float u0 = oldSprite.getU0();
          float v0 = oldSprite.getV0();
          float uRange = oldSprite.getU1() - u0;

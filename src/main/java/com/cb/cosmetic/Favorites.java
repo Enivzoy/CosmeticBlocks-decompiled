@@ -57,25 +57,24 @@ public final class Favorites {
       favorites.clear();
       if (favoritesFile.exists()) {
          try {
-            Iterable $this$forEach$iv = FilesKt.readLines(favoritesFile, kotlin.text.Charsets.UTF_8);
-            int $i$f$forEach = 0;
+            Iterable lines = FilesKt.readLines(favoritesFile, kotlin.text.Charsets.UTF_8);
 
-            for (Object element$iv : $this$forEach$iv) {
-               String line = (String)element$iv;
-               int var6/* $VF was: $i$a$-forEach-Favorites$loadFavorites$1 */ = 0;
+            for (Object element : lines) {
+               String line = (String)element;
+               int inlineMarker = 0;
                String trimmed = StringsKt.trim(line).toString();
                if (trimmed.length() > 0) {
                   favorites.add(trimmed);
                }
             }
-         } catch (Exception var8) {
+         } catch (Exception ignored) {
          }
       }
    }
 
    public final void saveFavorites() {
       ArrayList snapshot = new ArrayList<>(favorites);
-      SaveScheduler.INSTANCE.getSaveExecutor$cb_client().execute(() -> saveFavorites$lambda$0(snapshot));
+      SaveScheduler.INSTANCE.getSaveExecutor$cb_client().execute(() -> saveSnapshot(snapshot));
    }
 
    public final boolean addFavorite(@NotNull String blockId) {
@@ -115,15 +114,15 @@ public final class Favorites {
       return favorites.contains(BlockStateCodec.INSTANCE.normalizeBlockId$cb_client(blockId));
    }
 
-   private static final void saveFavorites$lambda$0(ArrayList $snapshot) {
+   private static final void saveSnapshot(ArrayList snapshot) {
       try {
-         File var1 = favoritesFile.getParentFile();
-         if (var1 != null) {
-            var1.mkdirs();
+         File parent = favoritesFile.getParentFile();
+         if (parent != null) {
+            parent.mkdirs();
          }
 
-         FilesKt.writeText(favoritesFile, CollectionsKt.joinToString($snapshot, "\n", "", "", -1, "...", null), kotlin.text.Charsets.UTF_8);
-      } catch (Exception var2) {
+         FilesKt.writeText(favoritesFile, CollectionsKt.joinToString(snapshot, "\n", "", "", -1, "...", null), kotlin.text.Charsets.UTF_8);
+      } catch (Exception ignored) {
       }
    }
 }

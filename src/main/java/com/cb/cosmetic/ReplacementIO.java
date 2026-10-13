@@ -69,7 +69,7 @@ public final class ReplacementIO {
          Map snapshot = ReplacementStore.INSTANCE.snapshotReplacements$cb_client();
          File file = ReplacementStore.INSTANCE.getConfigFile$cb_client(null);
          SaveScheduler.INSTANCE.setSaveInFlight$cb_client(true);
-         SaveScheduler.INSTANCE.getSaveExecutor$cb_client().execute(() -> save$lambda$0(snapshot, file));
+         SaveScheduler.INSTANCE.getSaveExecutor$cb_client().execute(() -> saveAsync(snapshot, file));
       }
    }
 
@@ -91,30 +91,28 @@ public final class ReplacementIO {
       }
 
       File tmpFile = new File(file.getParentFile(), file.getName() + ".tmp");
-      var var4 = new BufferedWriter(new FileWriter(tmpFile), 65536);
-      Throwable var5 = null;
+      var writer = new BufferedWriter(new FileWriter(tmpFile), 65536);
+      Throwable writerCause = null;
 
       try {
-         BufferedWriter bw = var4;
-         int var7/* $VF was: $i$a$-use-ReplacementIO$writeConfig$1 */ = 0;
-         var var8 = new JsonWriter(bw);
-         Throwable var9 = null;
+         BufferedWriter bw = writer;
+         var jsonWriter = new JsonWriter(bw);
+         Throwable jsonWriterCause = null;
 
          try {
-            JsonWriter jw = var8;
-            int var11/* $VF was: $i$a$-use-ReplacementIO$writeConfig$1$1 */ = 0;
+            JsonWriter jw = jsonWriter;
             jw.setIndent("  ");
             jw.beginObject();
 
-            for (Entry var13 : snapshot.entrySet()) {
-               String dim = (String)var13.getKey();
-               Map<String, String> dimMap = (Map<String, String>)var13.getValue();
+            for (Entry dimEntry : snapshot.entrySet()) {
+               String dim = (String)dimEntry.getKey();
+               Map<String, String> dimMap = (Map<String, String>)dimEntry.getValue();
                jw.name(dim);
                jw.beginObject();
 
-               for (Entry var17 : dimMap.entrySet()) {
-                  String pos = (String)var17.getKey();
-                  String block = (String)var17.getValue();
+               for (Entry posEntry : dimMap.entrySet()) {
+                  String pos = (String)posEntry.getKey();
+                  String block = (String)posEntry.getValue();
                   jw.name(pos).value(block);
                }
 
@@ -122,25 +120,25 @@ public final class ReplacementIO {
             }
 
             jw = jw.endObject();
-         } catch (Throwable var31) {
-            var9 = var31;
-            throw var31;
+         } catch (Throwable jsonWriterError) {
+            jsonWriterCause = jsonWriterError;
+            throw jsonWriterError;
          } finally {
-            CloseableKt.closeFinally(var8, var9);
+            CloseableKt.closeFinally(jsonWriter, jsonWriterCause);
          }
-      } catch (Throwable var33) {
-         var5 = var33;
-         throw var33;
+      } catch (Throwable writerError) {
+         writerCause = writerError;
+         throw writerError;
       } finally {
-         CloseableKt.closeFinally(var4, var5);
+         CloseableKt.closeFinally(writer, writerCause);
       }
 
       try {
-         Path var10000 = tmpFile.toPath();
-         Path var10001 = file.toPath();
-         CopyOption[] var35 = new CopyOption[]{StandardCopyOption.REPLACE_EXISTING};
-         Comparable var37 = Files.move(var10000, var10001, var35);
-      } catch (Exception var30/* $VF was: <unused var> */) {
+         Path sourcePath = tmpFile.toPath();
+         Path targetPath = file.toPath();
+         CopyOption[] copyOptions = new CopyOption[]{StandardCopyOption.REPLACE_EXISTING};
+         Comparable moveResult = Files.move(sourcePath, targetPath, copyOptions);
+      } catch (Exception ignored) {
          if (file.exists()) {
             file.delete();
          }
@@ -176,24 +174,24 @@ public final class ReplacementIO {
 
       boolean text;
       try {
-         String textx = FilesKt.readText(file, kotlin.text.Charsets.UTF_8);
-         if (StringsKt.isBlank(textx)) {
+         String content = FilesKt.readText(file, kotlin.text.Charsets.UTF_8);
+         if (StringsKt.isBlank(content)) {
             return false;
          }
 
-         JsonObject root = JsonParser.parseString(textx).getAsJsonObject();
+         JsonObject root = JsonParser.parseString(content).getAsJsonObject();
 
-         for (Entry var5 : root.entrySet()) {
-            Intrinsics.checkNotNull(var5);
-            String dim = (String)var5.getKey();
-            JsonElement element = (JsonElement)var5.getValue();
+         for (Entry rootEntry : root.entrySet()) {
+            Intrinsics.checkNotNull(rootEntry);
+            String dim = (String)rootEntry.getKey();
+            JsonElement element = (JsonElement)rootEntry.getValue();
             JsonObject dimObj = element.getAsJsonObject();
             Map dimMap = new LinkedHashMap();
 
-            for (Entry var11 : dimObj.entrySet()) {
-               Intrinsics.checkNotNull(var11);
-               String pos = (String)var11.getKey();
-               JsonElement block = (JsonElement)var11.getValue();
+            for (Entry posEntry : dimObj.entrySet()) {
+               Intrinsics.checkNotNull(posEntry);
+               String pos = (String)posEntry.getKey();
+               JsonElement block = (JsonElement)posEntry.getValue();
                dimMap.put(pos, block.getAsString());
             }
 
@@ -225,7 +223,7 @@ public final class ReplacementIO {
       }
    }
 
-   private static final void save$lambda$0(Map $snapshot, File $file) {
+   private static final void saveAsync(Map $snapshot, File $file) {
       try {
          INSTANCE.writeConfig($snapshot, $file);
       } catch (Exception e) {

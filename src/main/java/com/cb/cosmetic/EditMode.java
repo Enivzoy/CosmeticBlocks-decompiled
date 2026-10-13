@@ -126,9 +126,9 @@ public final class EditMode {
    }
 
    private final Minecraft getMc() {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      return var10000;
+      Minecraft instance = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(instance, "getInstance(...)");
+      return instance;
    }
 
    public final boolean getEditMode() {
@@ -140,9 +140,9 @@ public final class EditMode {
       return selectedBlock;
    }
 
-   public final void setSelectedBlock$cb_client(@NotNull String var1) {
-      Intrinsics.checkNotNullParameter(var1/* $VF was: <set-?> */, "<set-?>");
-      selectedBlock = var1/* $VF was: <set-?> */;
+   public final void setSelectedBlock$cb_client(@NotNull String value) {
+      Intrinsics.checkNotNullParameter(value, "<set-?>");
+      selectedBlock = value;
    }
 
    @Nullable
@@ -150,8 +150,8 @@ public final class EditMode {
       return currentShape;
    }
 
-   public final void setCurrentShape(@Nullable String var1) {
-      currentShape = var1/* $VF was: <set-?> */;
+   public final void setCurrentShape(@Nullable String value) {
+      currentShape = value;
    }
 
    public final boolean getFillMode() {
@@ -200,9 +200,8 @@ public final class EditMode {
 
       HitResult hitResult = this.getMc().hitResult;
       if (hitResult instanceof BlockHitResult && ((BlockHitResult)hitResult).getType() == Type.BLOCK) {
-         BlockPos var10000 = ((BlockHitResult)hitResult).getBlockPos();
-         Intrinsics.checkNotNullExpressionValue(var10000, "getBlockPos(...)");
-         BlockPos pos = var10000;
+         BlockPos pos = ((BlockHitResult)hitResult).getBlockPos();
+         Intrinsics.checkNotNullExpressionValue(pos, "getBlockPos(...)");
          BlockState replacement = ReplacementCache.INSTANCE.getReplacementAt(pos.getX(), pos.getY(), pos.getZ(), false);
          if (replacement != null) {
             selectedBlock = BlockStateCodec.INSTANCE.serializeBlockState$cb_client(replacement);
@@ -247,60 +246,55 @@ public final class EditMode {
       Intrinsics.checkNotNullParameter(property, "property");
       Intrinsics.checkNotNullParameter(value, "value");
       int bracketIdx = StringsKt.indexOf(selectedBlock, '[', 0, false);
-      String var10000;
+      String baseId;
       if (bracketIdx != -1) {
-         var10000 = selectedBlock.substring(0, bracketIdx);
-         Intrinsics.checkNotNullExpressionValue(var10000, "substring(...)");
+         baseId = selectedBlock.substring(0, bracketIdx);
+         Intrinsics.checkNotNullExpressionValue(baseId, "substring(...)");
       } else {
-         var10000 = selectedBlock;
+         baseId = selectedBlock;
       }
 
-      String baseId = var10000;
-      Identifier var19 = Identifier.parse(baseId);
-      Intrinsics.checkNotNullExpressionValue(var19, "parse(...)");
-      Identifier loc = var19;
+      Identifier loc = Identifier.parse(baseId);
+      Intrinsics.checkNotNullExpressionValue(loc, "parse(...)");
       Block block = BuiltInRegistries.BLOCK.getOptional(loc).orElse(null);
       if (block == null) {
          ChatUtil.INSTANCE.error("Current brush is invalid");
       } else {
          Property prop = block.getStateDefinition().getProperty(property);
          if (prop == null) {
-            Collection var24 = block.getStateDefinition().getProperties();
-            Intrinsics.checkNotNullExpressionValue(var24, "getProperties(...)");
-            String available = CollectionsKt.joinToString(var24, ", ", "", "", -1, "...", it -> setBlockProperty$lambda$0((Property)it));
+            Collection properties = block.getStateDefinition().getProperties();
+            Intrinsics.checkNotNullExpressionValue(properties, "getProperties(...)");
+            String available = CollectionsKt.joinToString(properties, ", ", "", "", -1, "...", it -> propertyName((Property)it));
             ChatUtil.INSTANCE.error("'" + property + "' is not a valid property. Available: " + available);
          } else {
             Map props = new LinkedHashMap();
             if (bracketIdx != -1) {
-               var10000 = selectedBlock.substring(bracketIdx + 1, selectedBlock.length() - 1);
-               Intrinsics.checkNotNullExpressionValue(var10000, "substring(...)");
-               String propsStr = var10000;
-               var10000 = propsStr;
-               String[] blockName = new String[]{","};
+               String propsStr = selectedBlock.substring(bracketIdx + 1, selectedBlock.length() - 1);
+               Intrinsics.checkNotNullExpressionValue(propsStr, "substring(...)");
+               String[] delimiters = new String[]{","};
 
-               for (String entry : StringsKt.split(var10000, blockName, false, 0)) {
+               for (String entry : StringsKt.split(propsStr, delimiters, false, 0)) {
                   int eqIdx = StringsKt.indexOf(entry, '=', 0, false);
                   if (eqIdx != -1) {
-                     String var10001 = entry.substring(0, eqIdx);
-                     Intrinsics.checkNotNullExpressionValue(var10001, "substring(...)");
-                     String var10002 = entry.substring(eqIdx + 1);
-                     Intrinsics.checkNotNullExpressionValue(var10002, "substring(...)");
-                     props.put(var10001, var10002);
+                     String propKey = entry.substring(0, eqIdx);
+                     Intrinsics.checkNotNullExpressionValue(propKey, "substring(...)");
+                     String propValue = entry.substring(eqIdx + 1);
+                     Intrinsics.checkNotNullExpressionValue(propValue, "substring(...)");
+                     props.put(propKey, propValue);
                   }
                }
             }
 
-            Optional var22 = prop.getValue(value);
-            Intrinsics.checkNotNullExpressionValue(var22, "getValue(...)");
-            Optional parsed = var22;
+            Optional parsed = prop.getValue(value);
+            Intrinsics.checkNotNullExpressionValue(parsed, "getValue(...)");
             if (parsed.isEmpty()) {
-               List var23 = prop.getPossibleValues();
-               Intrinsics.checkNotNullExpressionValue(var23, "getPossibleValues(...)");
-               String allowed = CollectionsKt.joinToString(var23, ", ", "", "", -1, "...", it -> setBlockProperty$lambda$1(prop, (Comparable)it));
+               List possibleValues = prop.getPossibleValues();
+               Intrinsics.checkNotNullExpressionValue(possibleValues, "getPossibleValues(...)");
+               String allowed = CollectionsKt.joinToString(possibleValues, ", ", "", "", -1, "...", it -> propertyValueName(prop, (Comparable)it));
                ChatUtil.INSTANCE.error("'" + value + "' is not valid for '" + property + "'. Options: " + allowed);
             } else {
                props.put(property, value);
-               String propsStr = CollectionsKt.joinToString(props.entrySet(), ",", "", "", -1, "...", it -> setBlockProperty$lambda$2((Entry)it));
+               String propsStr = CollectionsKt.joinToString(props.entrySet(), ",", "", "", -1, "...", it -> formatEntry((Entry)it));
                selectedBlock = baseId + "[" + propsStr + "]";
                String blockName = StringsKt.removePrefix(selectedBlock, "minecraft:");
                ChatUtil.INSTANCE.success("Brush set to " + blockName);
@@ -311,80 +305,69 @@ public final class EditMode {
 
    public final void listBlockProperties() {
       int bracketIdx = StringsKt.indexOf(selectedBlock, '[', 0, false);
-      String var10000;
+      String baseId;
       if (bracketIdx != -1) {
-         var10000 = selectedBlock.substring(0, bracketIdx);
-         Intrinsics.checkNotNullExpressionValue(var10000, "substring(...)");
+         baseId = selectedBlock.substring(0, bracketIdx);
+         Intrinsics.checkNotNullExpressionValue(baseId, "substring(...)");
       } else {
-         var10000 = selectedBlock;
+         baseId = selectedBlock;
       }
 
-      String baseId = var10000;
-      Identifier var24 = Identifier.parse(baseId);
-      Intrinsics.checkNotNullExpressionValue(var24, "parse(...)");
-      Identifier loc = var24;
+      Identifier loc = Identifier.parse(baseId);
+      Intrinsics.checkNotNullExpressionValue(loc, "parse(...)");
       Block block = BuiltInRegistries.BLOCK.getOptional(loc).orElse(null);
       if (block == null) {
          ChatUtil.INSTANCE.error("Current brush is invalid");
       } else {
-         Map var10000m;
+         Map stateProps;
          label47: {
             BlockState state = BlockStateCodec.INSTANCE.resolveBlockState(selectedBlock);
             if (state != null) {
-               Stream var25 = state.getValues();
-               if (var25 != null) {
-                  List var26 = var25.toList();
-                  if (var26 != null) {
-                     Iterable $this$associate$iv = var26;
-                     int $i$f$associate = 0;
-                     int capacity$iv = RangesKt.coerceAtLeast(MapsKt.mapCapacity(CollectionsKt.collectionSizeOrDefault($this$associate$iv, 10)), 16);
-                     Iterable $this$associateTo$iv$iv = $this$associate$iv;
-                     Map destination$iv$iv = new LinkedHashMap(capacity$iv);
-                     int $i$f$associateTo = 0;
+               Stream values = state.getValues();
+               if (values != null) {
+                  List valuesList = values.toList();
+                  if (valuesList != null) {
+                     int initialCapacity = RangesKt.coerceAtLeast(MapsKt.mapCapacity(CollectionsKt.collectionSizeOrDefault(valuesList, 10)), 16);
+                     Map statePropsMap = new LinkedHashMap(initialCapacity);
 
-                     for (Object element$iv$iv : $this$associateTo$iv$iv) {
-                        Map var18 = destination$iv$iv;
-                        Value it = (Value)element$iv$iv;
-                        int var20/* $VF was: $i$a$-associate-EditMode$listBlockProperties$stateProps$1 */ = 0;
-                        Pair var23 = TuplesKt.to(it.property(), it.value());
-                        var18.put(var23.getFirst(), var23.getSecond());
+                     for (Object element : valuesList) {
+                        Value propertyValue = (Value)element;
+                        Pair pair = TuplesKt.to(propertyValue.property(), propertyValue.value());
+                        statePropsMap.put(pair.getFirst(), pair.getSecond());
                      }
 
-                     var10000m = destination$iv$iv;
+                     stateProps = statePropsMap;
                      break label47;
                   }
                }
             }
 
-            var10000m = MapsKt.emptyMap();
+            stateProps = MapsKt.emptyMap();
          }
 
-         Map stateProps = var10000m;
-         Collection var28 = block.getStateDefinition().getProperties();
-         Intrinsics.checkNotNullExpressionValue(var28, "getProperties(...)");
-         Collection props = var28;
+         Collection props = block.getStateDefinition().getProperties();
+         Intrinsics.checkNotNullExpressionValue(props, "getProperties(...)");
          if (props.isEmpty()) {
             ChatUtil.INSTANCE.warning(StringsKt.removePrefix(baseId, "minecraft:") + " has no properties");
          } else {
             ChatUtil.INSTANCE.success("Properties for " + StringsKt.removePrefix(baseId, "minecraft:") + ":");
 
-            for (Object var29 : props) {
-               Intrinsics.checkNotNullExpressionValue(var29, "next(...)");
-               Property p = (Property)var29;
-               String var31;
+            for (Object element : props) {
+               Intrinsics.checkNotNullExpressionValue(element, "next(...)");
+               Property p = (Property)element;
+               String current;
                if (stateProps.containsKey(p)) {
-                  BlockStateCodec var30 = BlockStateCodec.INSTANCE;
-                  Object var10002 = stateProps.get(p);
-                  Intrinsics.checkNotNull(var10002, "null cannot be cast to non-null type kotlin.Comparable<kotlin.Any>");
-                  var31 = var30.getPropertyValueName$cb_client(p, (Comparable<?>)var10002);
+                  BlockStateCodec codec = BlockStateCodec.INSTANCE;
+                  Object storedValue = stateProps.get(p);
+                  Intrinsics.checkNotNull(storedValue, "null cannot be cast to non-null type kotlin.Comparable<kotlin.Any>");
+                  current = codec.getPropertyValueName$cb_client(p, (Comparable<?>)storedValue);
                } else {
-                  var31 = "?";
+                  current = "?";
                }
 
-               String current = var31;
-               List var32 = p.getPossibleValues();
-               Intrinsics.checkNotNullExpressionValue(var32, "getPossibleValues(...)");
-               String options = CollectionsKt.joinToString(var32, ", ", "", "", -1, "...", it -> listBlockProperties$lambda$1(p, (Comparable)it));
+               List possibleValues = p.getPossibleValues();
+               Intrinsics.checkNotNullExpressionValue(possibleValues, "getPossibleValues(...)");
+               String options = CollectionsKt.joinToString(possibleValues, ", ", "", "", -1, "...", it -> formatPropertyValue(p, (Comparable)it));
                ChatUtil.INSTANCE.send("  " + p.getName() + "=" + current + " §8[" + options + "]");
             }
          }
@@ -393,18 +376,15 @@ public final class EditMode {
 
    @Nullable
    public final Pair<BlockPos, Direction> findPhantomHitResult$cb_client() {
-      LocalPlayer var10000 = this.getMc().player;
-      if (var10000 == null) {
+      LocalPlayer player = this.getMc().player;
+      if (player == null) {
          return null;
       }
 
-      LocalPlayer player = var10000;
-      Vec3 var17 = player.getEyePosition(1.0F);
-      Intrinsics.checkNotNullExpressionValue(var17, "getEyePosition(...)");
-      Vec3 eyePos = var17;
-      Vec3 var18 = player.getLookAngle();
-      Intrinsics.checkNotNullExpressionValue(var18, "getLookAngle(...)");
-      Vec3 lookVec = var18;
+      Vec3 eyePos = player.getEyePosition(1.0F);
+      Intrinsics.checkNotNullExpressionValue(eyePos, "getEyePosition(...)");
+      Vec3 lookVec = player.getLookAngle();
+      Intrinsics.checkNotNullExpressionValue(lookVec, "getLookAngle(...)");
       double reach = 5.0;
       double step = 0.15;
       Set checked = new LinkedHashSet();
@@ -425,8 +405,8 @@ public final class EditMode {
 
    @Nullable
    public final BlockPos findPhantomTarget$cb_client() {
-      Pair var10000 = this.findPhantomHitResult$cb_client();
-      return var10000 != null ? (BlockPos)var10000.getFirst() : null;
+      Pair hit = this.findPhantomHitResult$cb_client();
+      return hit != null ? (BlockPos)hit.getFirst() : null;
    }
 
    private final Direction getEntryFace(double eyeX, double eyeY, double eyeZ, double dirX, double dirY, double dirZ, int blockX, int blockY, int blockZ) {
@@ -484,28 +464,25 @@ public final class EditMode {
                if (placeMode) {
                   boolean hitIsFull;
                   BlockPos pos;
-                  boolean var50;
+                  boolean isAir;
                   label164: {
                      ClientLevel level = this.getMc().level;
                      BlockState hitState = level != null ? level.getBlockState(((BlockHitResult)hitResult).getBlockPos()) : null;
                      hitIsFull = hitState != null && hitState.isCollisionShapeFullBlock(level, ((BlockHitResult)hitResult).getBlockPos());
-                     BlockPos var40 = hitIsFull
+                     pos = hitIsFull
                         ? ((BlockHitResult)hitResult).getBlockPos().relative(((BlockHitResult)hitResult).getDirection())
                         : ((BlockHitResult)hitResult).getBlockPos();
-                     Intrinsics.checkNotNull(var40);
-                     pos = var40;
+                     Intrinsics.checkNotNull(pos);
                      if (level != null) {
-                        BlockState var49 = level.getBlockState(pos);
-                        if (var49 != null) {
-                           var50 = var49.isAir();
+                        BlockState targetState = level.getBlockState(pos);
+                        if (targetState != null) {
+                           isAir = targetState.isAir();
                            break label164;
                         }
                      }
 
-                     var50 = true;
+                     isAir = true;
                   }
-
-                  boolean isAir = var50;
                   boolean isNonFull = !hitIsFull && Intrinsics.areEqual(pos, ((BlockHitResult)hitResult).getBlockPos());
                   boolean hasCFME = ReplacementCache.INSTANCE.getActiveCache$cb_client().containsKey(BlockPos.asLong(pos.getX(), pos.getY(), pos.getZ()));
                   if ((isAir || isNonFull) && !hasCFME) {
@@ -524,15 +501,14 @@ public final class EditMode {
                      ChatUtil.INSTANCE.success(pos.getX() + "," + pos.getY() + "," + pos.getZ() + " -> " + blockName);
                   }
                } else if (fillMode) {
-                  ChatUtil var51 = ChatUtil.INSTANCE;
-                  WorldEditMode var10001 = WorldEditMode.INSTANCE;
-                  BlockPos var10002 = ((BlockHitResult)hitResult).getBlockPos();
-                  Intrinsics.checkNotNullExpressionValue(var10002, "getBlockPos(...)");
-                  var51.send(var10001.floodFill(var10002, selectedBlock));
+                  ChatUtil chat = ChatUtil.INSTANCE;
+                  WorldEditMode worldEdit = WorldEditMode.INSTANCE;
+                  BlockPos blockPos = ((BlockHitResult)hitResult).getBlockPos();
+                  Intrinsics.checkNotNullExpressionValue(blockPos, "getBlockPos(...)");
+                  chat.send(worldEdit.floodFill(blockPos, selectedBlock));
                } else {
-                  BlockPos var52 = ((BlockHitResult)hitResult).getBlockPos();
-                  Intrinsics.checkNotNullExpressionValue(var52, "getBlockPos(...)");
-                  BlockPos pos = var52;
+                  BlockPos pos = ((BlockHitResult)hitResult).getBlockPos();
+                  Intrinsics.checkNotNullExpressionValue(pos, "getBlockPos(...)");
                   if (hasExplicit) {
                      ReplacementStore.INSTANCE.setReplacement(pos, selectedBlock, false);
                   } else {
@@ -553,27 +529,23 @@ public final class EditMode {
                   BlockPos phantomPos;
                   Direction face;
                   BlockPos pos;
-                  boolean var48;
+                  boolean isAir;
                   label148: {
-                     Pair blockName = phantomHit;
-                     phantomPos = (BlockPos)blockName.component1();
-                     face = (Direction)blockName.component2();
-                     BlockPos var10000 = phantomPos.relative(face);
-                     Intrinsics.checkNotNullExpressionValue(var10000, "relative(...)");
-                     pos = var10000;
+                     phantomPos = (BlockPos)phantomHit.component1();
+                     face = (Direction)phantomHit.component2();
+                     pos = phantomPos.relative(face);
+                     Intrinsics.checkNotNullExpressionValue(pos, "relative(...)");
                      ClientLevel level = this.getMc().level;
                      if (level != null) {
-                        BlockState var47 = level.getBlockState(pos);
-                        if (var47 != null) {
-                           var48 = var47.isAir();
+                        BlockState state = level.getBlockState(pos);
+                        if (state != null) {
+                           isAir = state.isAir();
                            break label148;
                         }
                      }
 
-                     var48 = true;
+                     isAir = true;
                   }
-
-                  boolean isAir = var48;
                   boolean hasCFME = ReplacementCache.INSTANCE.getActiveCache$cb_client().containsKey(BlockPos.asLong(pos.getX(), pos.getY(), pos.getZ()));
                   if (isAir && !hasCFME) {
                      if (hasExplicit) {
@@ -602,16 +574,15 @@ public final class EditMode {
             BlockPos removedPos = null;
             HitResult hitResult = this.getMc().hitResult;
             if (hitResult instanceof BlockHitResult && ((BlockHitResult)hitResult).getType() == Type.BLOCK) {
-               BlockPos var53 = ((BlockHitResult)hitResult).getBlockPos();
-               Intrinsics.checkNotNullExpressionValue(var53, "getBlockPos(...)");
-               BlockPos pos = var53;
+               BlockPos pos = ((BlockHitResult)hitResult).getBlockPos();
+               Intrinsics.checkNotNullExpressionValue(pos, "getBlockPos(...)");
                removed = ReplacementStore.INSTANCE.removeReplacement(pos);
                removedPos = pos;
                if (!removed) {
                   removedPos = pos.relative(((BlockHitResult)hitResult).getDirection());
-                  ReplacementStore var54 = ReplacementStore.INSTANCE;
+                  ReplacementStore store = ReplacementStore.INSTANCE;
                   Intrinsics.checkNotNull(removedPos);
-                  removed = var54.removeReplacement(removedPos);
+                  removed = store.removeReplacement(removedPos);
                }
             }
 
@@ -632,17 +603,14 @@ public final class EditMode {
             boolean picked = false;
             HitResult hitResult = this.getMc().hitResult;
             if (hitResult instanceof BlockHitResult && ((BlockHitResult)hitResult).getType() == Type.BLOCK) {
-               BlockPos var55 = ((BlockHitResult)hitResult).getBlockPos();
-               Intrinsics.checkNotNullExpressionValue(var55, "getBlockPos(...)");
-               BlockPos pos = var55;
+               BlockPos pos = ((BlockHitResult)hitResult).getBlockPos();
+               Intrinsics.checkNotNullExpressionValue(pos, "getBlockPos(...)");
                BlockState replacement = ReplacementCache.INSTANCE.getReplacementAt(pos.getX(), pos.getY(), pos.getZ(), false);
-               BlockState var56 = replacement;
+               BlockState state = replacement;
                if (replacement == null) {
-                  ClientLevel var57 = this.getMc().level;
-                  var56 = var57 != null ? var57.getBlockState(pos) : null;
+                  ClientLevel level = this.getMc().level;
+                  state = level != null ? level.getBlockState(pos) : null;
                }
-
-               BlockState state = var56;
                if (state != null && !state.isAir()) {
                   selectedBlock = BlockStateCodec.INSTANCE.serializeBlockState$cb_client(state);
                   String blockName = StringsKt.removePrefix(selectedBlock, "minecraft:");
@@ -670,25 +638,25 @@ public final class EditMode {
       }
    }
 
-   private static final CharSequence setBlockProperty$lambda$0(Property it) {
+   private static final CharSequence propertyName(Property it) {
       Intrinsics.checkNotNullParameter(it, "it");
-      String var10000 = it.getName();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getName(...)");
-      return var10000;
+      String name = it.getName();
+      Intrinsics.checkNotNullExpressionValue(name, "getName(...)");
+      return name;
    }
 
-   private static final CharSequence setBlockProperty$lambda$1(Property $prop, Comparable it) {
+   private static final CharSequence propertyValueName(Property property, Comparable it) {
       Intrinsics.checkNotNullParameter(it, "it");
-      return BlockStateCodec.INSTANCE.getPropertyValueName$cb_client($prop, it);
+      return BlockStateCodec.INSTANCE.getPropertyValueName$cb_client(property, it);
    }
 
-   private static final CharSequence setBlockProperty$lambda$2(Entry it) {
+   private static final CharSequence formatEntry(Entry it) {
       Intrinsics.checkNotNullParameter(it, "it");
       return it.getKey() + "=" + it.getValue();
    }
 
-   private static final CharSequence listBlockProperties$lambda$1(Property $p, Comparable it) {
+   private static final CharSequence formatPropertyValue(Property property, Comparable it) {
       Intrinsics.checkNotNullParameter(it, "it");
-      return BlockStateCodec.INSTANCE.getPropertyValueName$cb_client($p, it);
+      return BlockStateCodec.INSTANCE.getPropertyValueName$cb_client(property, it);
    }
 }

@@ -129,7 +129,7 @@ public final class CosmeticBlocks {
         RoomStore.INSTANCE.resolveAllRoomBlocks();
         RoomScanner.INSTANCE.init();
         ReplacementCache.INSTANCE.rebuildActiveCache$cb_client();
-        ClientTickEvents.END_CLIENT_TICK.register(CosmeticBlocks::register$lambda$0);
+        ClientTickEvents.END_CLIENT_TICK.register(CosmeticBlocks::onEndClientTick);
     }
 
     public final void flushAll() {
@@ -589,7 +589,7 @@ public final class CosmeticBlocks {
         return this.getReplacementAt(x, y, z, false);
     }
 
-    private static final void register$lambda$0(Minecraft minecraft) {
+    private static final void onEndClientTick(Minecraft minecraft) {
         boolean pressed;
         long window;
         HitResult hit;
@@ -674,18 +674,18 @@ public final class CosmeticBlocks {
         CosmeticRenderer.INSTANCE.emitGizmos();
     }
 
-    private static final Boolean updatingConnections$lambda$0() {
+    private static final Boolean initialUpdatingConnections() {
         return false;
     }
 
     static {
-        updatingConnections = ThreadLocal.withInitial(CosmeticBlocks::updatingConnections$lambda$0);
+        updatingConnections = ThreadLocal.withInitial(CosmeticBlocks::initialUpdatingConnections);
     }
 
     @Metadata(mv={2, 3, 0}, k=1, xi=48, d1={"\u0000\u0018\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\b\n\u0002\b\u0003\b\u00e6\u0080\u0001\u0018\u00002\u00020\u0001J\"\u0010\u0002\u001a\u0004\u0018\u00010\u00032\u0006\u0010\u0004\u001a\u00020\u00052\u0006\u0010\u0006\u001a\u00020\u00052\u0006\u0010\u0007\u001a\u00020\u0005H&\u00a8\u0006\b\u00c0\u0006\u0003"}, d2={"Lcom/cb/cosmetic/CosmeticBlocks$BlockStateGetter;", "", "get", "Lnet/minecraft/world/level/block/state/BlockState;", "x", "", "y", "z", "cb_client"})
     public static interface BlockStateGetter {
         @Nullable
-        public BlockState get(int var1, int var2, int var3);
+        public BlockState get(int x, int y, int z);
     }
 }
 

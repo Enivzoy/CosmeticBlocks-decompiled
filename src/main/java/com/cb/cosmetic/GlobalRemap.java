@@ -121,12 +121,11 @@ public final class GlobalRemap {
          return null;
       }
 
-      GlobalRemap.Resolved var10000 = resolved.get(block);
-      if (var10000 == null) {
+      GlobalRemap.Resolved r = resolved.get(block);
+      if (r == null) {
          return null;
       }
 
-      GlobalRemap.Resolved r = var10000;
       if (r.getTotal() <= 0) {
          return null;
       }
@@ -152,46 +151,39 @@ public final class GlobalRemap {
    public final void rebuild$cb_client() {
       HashMap map = new HashMap();
 
-      for (Entry var3 : remaps.entrySet()) {
-         String sourceId = (String)var3.getKey();
-         List<GlobalRemap.RemapTarget> targets = (List<GlobalRemap.RemapTarget>)var3.getValue();
-         BlockState states = BlockStateCodec.INSTANCE.resolveBlockState(BlockStateCodec.INSTANCE.normalizeBlockId$cb_client(sourceId));
-         if (states != null) {
-            Block cum = states.getBlock();
-            if (cum != null) {
-               Block sourceBlock = cum;
-               ArrayList var15 = new ArrayList(targets.size());
-               ArrayList var16 = new ArrayList(targets.size());
+      for (Entry entry : remaps.entrySet()) {
+         String sourceId = (String)entry.getKey();
+         List<GlobalRemap.RemapTarget> targets = (List<GlobalRemap.RemapTarget>)entry.getValue();
+         BlockState sourceState = BlockStateCodec.INSTANCE.resolveBlockState(BlockStateCodec.INSTANCE.normalizeBlockId$cb_client(sourceId));
+         if (sourceState != null) {
+            Block sourceBlock = sourceState.getBlock();
+            if (sourceBlock != null) {
+               ArrayList stateList = new ArrayList(targets.size());
+               ArrayList cumWeights = new ArrayList(targets.size());
                int running = 0;
 
                for (GlobalRemap.RemapTarget t : targets) {
                   if (t.getWeight() > 0) {
-                     BlockState var10000 = BlockStateCodec.INSTANCE.resolveBlockState(BlockStateCodec.INSTANCE.normalizeBlockId$cb_client(t.getId()));
-                     if (var10000 != null) {
-                        BlockState state = var10000;
+                     BlockState state = BlockStateCodec.INSTANCE.resolveBlockState(BlockStateCodec.INSTANCE.normalizeBlockId$cb_client(t.getId()));
+                     if (state != null) {
                         running += t.getWeight();
-                        var15.add(state);
-                        var16.add(running);
+                        stateList.add(state);
+                        cumWeights.add(running);
                      }
                   }
                }
 
-               if (!var15.isEmpty()) {
-                  Map var17 = map;
-                  Collection $this$toTypedArray$iv = var15;
-                  int $i$f$toTypedArray = 0;
-                  Collection thisCollection$iv = $this$toTypedArray$iv;
-                  GlobalRemap.Resolved var19 = new GlobalRemap.Resolved((BlockState[])thisCollection$iv.toArray(new BlockState[0]), CollectionsKt.toIntArray(var16), running);
-                  var17.put(sourceBlock, var19);
+               if (!stateList.isEmpty()) {
+                  GlobalRemap.Resolved resolvedEntry = new GlobalRemap.Resolved((BlockState[])stateList.toArray(new BlockState[0]), CollectionsKt.toIntArray(cumWeights), running);
+                  map.put(sourceBlock, resolvedEntry);
                }
             }
          }
       }
 
       resolved = map;
-      Minecraft var21 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var21, "getInstance(...)");
-      Minecraft mc = var21;
+      Minecraft mc = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(mc, "getInstance(...)");
       if (mc.level != null) {
          BlockPos center = mc.player != null ? mc.player.blockPosition() : BlockPos.ZERO;
          int dist = mc.options.getEffectiveRenderDistance() * 16 + 16;
@@ -203,19 +195,19 @@ public final class GlobalRemap {
 
    @NotNull
    public final List<String> sources() {
-      Set var10000 = remaps.keySet();
-      Intrinsics.checkNotNullExpressionValue(var10000, "<get-keys>(...)");
-      return CollectionsKt.toList(var10000);
+      Set keys = remaps.keySet();
+      Intrinsics.checkNotNullExpressionValue(keys, "<get-keys>(...)");
+      return CollectionsKt.toList(keys);
    }
 
    @NotNull
    public final List<GlobalRemap.RemapTarget> targetsOf(@NotNull String source) {
       Intrinsics.checkNotNullParameter(source, "source");
-      List var10000 = remaps.get(source);
-      if (var10000 != null) {
-         var10000 = CollectionsKt.toList(var10000);
-         if (var10000 != null) {
-            return var10000;
+      List targets = remaps.get(source);
+      if (targets != null) {
+         targets = CollectionsKt.toList(targets);
+         if (targets != null) {
+            return targets;
          }
       }
 
@@ -232,44 +224,41 @@ public final class GlobalRemap {
       Intrinsics.checkNotNullParameter(targetId, "targetId");
       String src = BlockStateCodec.INSTANCE.normalizeBlockId$cb_client(source);
       String tgt = BlockStateCodec.INSTANCE.normalizeBlockId$cb_client(targetId);
-      Map existing = remaps;
-      Object key$iv = src;
-      int $i$f$getOrPut = 0;
-      Object value$iv = existing.get(key$iv);
-      Object var10000;
-      if (value$iv == null) {
-         int var11/* $VF was: $i$a$-getOrPut-GlobalRemap$addTarget$list$1 */ = 0;
-         Object answer$iv = new ArrayList();
-         existing.put(key$iv, answer$iv);
-         var10000 = answer$iv;
+      Map remapMap = remaps;
+      Object key = src;
+      Object value = remapMap.get(key);
+      Object listValue;
+      if (value == null) {
+         Object newList = new ArrayList();
+         remapMap.put(key, newList);
+         listValue = newList;
       } else {
-         var10000 = value$iv;
+         listValue = value;
       }
 
-      List list = (List)var10000;
+      List list = (List)listValue;
       Iterator valueIterator = list.iterator();
+      Object found;
 
       while (true) {
          if (valueIterator.hasNext()) {
-            Object element$iv = valueIterator.next();
-            GlobalRemap.RemapTarget it = (GlobalRemap.RemapTarget)element$iv;
-            int var13/* $VF was: $i$a$-firstOrNull-GlobalRemap$addTarget$existing$1 */ = 0;
+            Object element = valueIterator.next();
+            GlobalRemap.RemapTarget it = (GlobalRemap.RemapTarget)element;
             if (!Intrinsics.areEqual(it.getId(), tgt)) {
                continue;
             }
 
-            var10000 = element$iv;
+            found = element;
             break;
          }
 
-         var10000 = null;
+         found = null;
          break;
       }
 
-      GlobalRemap.RemapTarget existingx = (GlobalRemap.RemapTarget)var10000;
-      if (existingx != null) {
-         GlobalRemap.RemapTarget var16 = existingx;
-         var16.setWeight(var16.getWeight() + weight);
+      GlobalRemap.RemapTarget existingTarget = (GlobalRemap.RemapTarget)found;
+      if (existingTarget != null) {
+         existingTarget.setWeight(existingTarget.getWeight() + weight);
       } else {
          list.add(new GlobalRemap.RemapTarget(tgt, RangesKt.coerceAtLeast(weight, 1)));
       }
@@ -280,11 +269,10 @@ public final class GlobalRemap {
 
    public final void setWeight(@NotNull String source, int index, int weight) {
       Intrinsics.checkNotNullParameter(source, "source");
-      List var10000 = remaps.get(BlockStateCodec.INSTANCE.normalizeBlockId$cb_client(source));
-      if (var10000 != null) {
-         List list = var10000;
-         if (0 <= index ? index < list.size() : false) {
-            ((GlobalRemap.RemapTarget)list.get(index)).setWeight(RangesKt.coerceIn(weight, 1, 999));
+      List remapList = remaps.get(BlockStateCodec.INSTANCE.normalizeBlockId$cb_client(source));
+      if (remapList != null) {
+         if (0 <= index ? index < remapList.size() : false) {
+            ((GlobalRemap.RemapTarget)remapList.get(index)).setWeight(RangesKt.coerceIn(weight, 1, 999));
             this.rebuild$cb_client();
             this.save();
          }
@@ -294,12 +282,11 @@ public final class GlobalRemap {
    public final void removeTarget(@NotNull String source, int index) {
       Intrinsics.checkNotNullParameter(source, "source");
       String key = BlockStateCodec.INSTANCE.normalizeBlockId$cb_client(source);
-      List var10000 = remaps.get(key);
-      if (var10000 != null) {
-         List list = var10000;
-         if (0 <= index ? index < list.size() : false) {
-            list.remove(index);
-            if (list.isEmpty()) {
+      List remapList = remaps.get(key);
+      if (remapList != null) {
+         if (0 <= index ? index < remapList.size() : false) {
+            remapList.remove(index);
+            if (remapList.isEmpty()) {
                remaps.remove(key);
             }
 
@@ -325,44 +312,38 @@ public final class GlobalRemap {
 
    @NotNull
    public final String exportJson() {
-      String var10000 = gson.toJson(remaps);
-      Intrinsics.checkNotNullExpressionValue(var10000, "toJson(...)");
-      return var10000;
+      String json = gson.toJson(remaps);
+      Intrinsics.checkNotNullExpressionValue(json, "toJson(...)");
+      return json;
    }
 
    public final boolean importJson(@NotNull String json) {
       Intrinsics.checkNotNullParameter(json, "json");
 
-      boolean type;
+      boolean success;
       try {
-         Type typex = (new TypeToken<LinkedHashMap<String, List<GlobalRemap.RemapTarget>>>() {}).getType();
-         LinkedHashMap var10000 = gson.fromJson(json, typex);
-         if (var10000 == null) {
+         Type mapType = (new TypeToken<LinkedHashMap<String, List<GlobalRemap.RemapTarget>>>() {}).getType();
+         LinkedHashMap parsed = gson.fromJson(json, mapType);
+         if (parsed == null) {
             return false;
          }
 
-         LinkedHashMap parsed = var10000;
          remaps.clear();
 
-         for (Object var5o : parsed.entrySet()) {
-            Entry var5 = (Entry)var5o;
-            String src = (String)var5.getKey();
-            List<GlobalRemap.RemapTarget> targets = (List<GlobalRemap.RemapTarget>)var5.getValue();
-            Iterable $this$filter$iv = targets;
-            int $i$f$filter = 0;
-            Iterable $this$filterTo$iv$iv = $this$filter$iv;
-            var destination$iv$iv = new ArrayList();
-            int $i$f$filterTo = 0;
+         for (Object entryObj : parsed.entrySet()) {
+            Entry entry = (Entry)entryObj;
+            String src = (String)entry.getKey();
+            List<GlobalRemap.RemapTarget> targets = (List<GlobalRemap.RemapTarget>)entry.getValue();
+            List filtered = new ArrayList();
 
-            for (Object element$iv$iv : $this$filterTo$iv$iv) {
-               GlobalRemap.RemapTarget it = (GlobalRemap.RemapTarget)element$iv$iv;
-               int var17/* $VF was: $i$a$-filter-GlobalRemap$importJson$clean$1 */ = 0;
-               if (!StringsKt.isBlank(it.getId()) && it.getWeight() > 0) {
-                  destination$iv$iv.add(element$iv$iv);
+            for (Object element : targets) {
+               GlobalRemap.RemapTarget target = (GlobalRemap.RemapTarget)element;
+               if (!StringsKt.isBlank(target.getId()) && target.getWeight() > 0) {
+                  filtered.add(element);
                }
             }
 
-            List clean = CollectionsKt.toMutableList((Collection & List)destination$iv$iv);
+            List clean = CollectionsKt.toMutableList((Collection & List)filtered);
             if (!clean.isEmpty()) {
                remaps.put(BlockStateCodec.INSTANCE.normalizeBlockId$cb_client(src), clean);
             }
@@ -370,12 +351,12 @@ public final class GlobalRemap {
 
          this.rebuild$cb_client();
          this.save();
-         type = true;
-      } catch (Exception var18/* $VF was: <unused var> */) {
-         type = false;
+         success = true;
+      } catch (Exception ignored) {
+         success = false;
       }
 
-      return type;
+      return success;
    }
 
    public final void load() {
@@ -401,15 +382,15 @@ public final class GlobalRemap {
 
    public final void save() {
       try {
-         File var10000 = file.getParentFile();
-         if (var10000 != null) {
-            var10000.mkdirs();
+         File parent = file.getParentFile();
+         if (parent != null) {
+            parent.mkdirs();
          }
 
          File tmp = new File(file.getParentFile(), file.getName() + ".tmp");
-         String var10001 = gson.toJson(remaps);
-         Intrinsics.checkNotNullExpressionValue(var10001, "toJson(...)");
-         FilesKt.writeText(tmp, var10001, kotlin.text.Charsets.UTF_8);
+         String json = gson.toJson(remaps);
+         Intrinsics.checkNotNullExpressionValue(json, "toJson(...)");
+         FilesKt.writeText(tmp, json, kotlin.text.Charsets.UTF_8);
          if (file.exists()) {
             file.delete();
          }
@@ -470,17 +451,17 @@ public final class GlobalRemap {
          return this.id;
       }
 
-      public final void setId(@NotNull String var1) {
-         Intrinsics.checkNotNullParameter(var1/* $VF was: <set-?> */, "<set-?>");
-         this.id = var1/* $VF was: <set-?> */;
+      public final void setId(@NotNull String value) {
+         Intrinsics.checkNotNullParameter(value, "<set-?>");
+         this.id = value;
       }
 
       public final int getWeight() {
          return this.weight;
       }
 
-      public final void setWeight(int var1) {
-         this.weight = var1/* $VF was: <set-?> */;
+      public final void setWeight(int value) {
+         this.weight = value;
       }
 
       @NotNull
@@ -514,10 +495,10 @@ public final class GlobalRemap {
       public boolean equals(@Nullable Object other) {
          if (this == other) {
             return true;
-         } else if (!(other instanceof GlobalRemap.RemapTarget var2)) {
+         } else if (!(other instanceof GlobalRemap.RemapTarget that)) {
             return false;
          } else {
-            return !Intrinsics.areEqual(this.id, var2.id) ? false : this.weight == var2.weight;
+            return !Intrinsics.areEqual(this.id, that.id) ? false : this.weight == that.weight;
          }
       }
    }

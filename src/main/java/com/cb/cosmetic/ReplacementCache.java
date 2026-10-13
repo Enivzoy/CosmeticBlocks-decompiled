@@ -178,18 +178,18 @@ public final class ReplacementCache {
       Intrinsics.checkNotNullParameter(raw, "raw");
       long packed = BlockPos.asLong(x, y, z);
       boolean phantom = StringsKt.startsWith(raw, "!", false);
-      String var10000;
+      String strippedRaw;
       if (phantom) {
-         var10000 = raw.substring(1);
-         Intrinsics.checkNotNullExpressionValue(var10000, "substring(...)");
+         strippedRaw = raw.substring(1);
+         Intrinsics.checkNotNullExpressionValue(strippedRaw, "substring(...)");
       } else {
-         var10000 = raw;
+         strippedRaw = raw;
       }
 
-      String cleanRaw = var10000;
-      var10000 = cleanRaw;
+      String cleanRaw = strippedRaw;
+      strippedRaw = cleanRaw;
       String[] blockId = new String[]{"|shape="};
-      List<String> shapeSplit = StringsKt.split(var10000, blockId, false, 2);
+      List<String> shapeSplit = StringsKt.split(strippedRaw, blockId, false, 2);
       String blockIdx = (String)shapeSplit.get(0);
       String shape = CollectionsKt.getOrNull(shapeSplit, 1);
       if (shape != null) {
@@ -244,37 +244,35 @@ public final class ReplacementCache {
       retextureCache.clear();
       originalShapeCache.clear();
       shapedPositions.clear();
-      String var10000 = LocationTracker.INSTANCE.getCurrentDimension();
-      if (var10000 != null) {
-         String dim = var10000;
-         Map<String, String> var24 = ReplacementStore.INSTANCE.getReplacements$cb_client().get(dim);
-         if (var24 != null) {
-            Map<String, String> dimMap = var24;
+      String dim = LocationTracker.INSTANCE.getCurrentDimension();
+      if (dim != null) {
+         Map<String, String> dimMap = ReplacementStore.INSTANCE.getReplacements$cb_client().get(dim);
+         if (dimMap != null) {
 
-            for (Entry var4 : dimMap.entrySet()) {
-               String key = (String)var4.getKey();
-               String raw = (String)var4.getValue();
-               CharSequence var25 = key;
-               String[] x = new String[]{","};
-               List parts = StringsKt.split(var25, x, false, 0);
+            for (Entry entry : dimMap.entrySet()) {
+               String key = (String)entry.getKey();
+               String raw = (String)entry.getValue();
+               CharSequence keySeq = key;
+               String[] delimiters = new String[]{","};
+               List parts = StringsKt.split(keySeq, delimiters, false, 0);
                if (parts.size() == 3) {
                   try {
                      int xx = Integer.parseInt((String)parts.get(0));
                      int y = Integer.parseInt((String)parts.get(1));
                      int z = Integer.parseInt((String)parts.get(2));
                      boolean phantom = StringsKt.startsWith(raw, "!", false);
-                     String var26;
-                     if (phantom) {
-                        var26 = raw.substring(1);
-                        Intrinsics.checkNotNullExpressionValue(var26, "substring(...)");
-                     } else {
-                        var26 = raw;
-                     }
+                      String strippedRaw;
+                      if (phantom) {
+                         strippedRaw = raw.substring(1);
+                         Intrinsics.checkNotNullExpressionValue(strippedRaw, "substring(...)");
+                      } else {
+                         strippedRaw = raw;
+                      }
 
-                     String cleanRaw = var26;
-                     var26 = cleanRaw;
-                     String[] blockId = new String[]{"|shape="};
-                     List<String> shapeSplit = StringsKt.split(var26, blockId, false, 2);
+                      String cleanRaw = strippedRaw;
+                      strippedRaw = cleanRaw;
+                      String[] blockId = new String[]{"|shape="};
+                      List<String> shapeSplit = StringsKt.split(strippedRaw, blockId, false, 2);
                      String blockIdx = (String)shapeSplit.get(0);
                      String shape = CollectionsKt.getOrNull(shapeSplit, 1);
                      long packed = BlockPos.asLong(xx, y, z);
@@ -298,7 +296,7 @@ public final class ReplacementCache {
                            }
                         }
                      }
-                  } catch (Exception var20) {
+                  } catch (Exception ignored) {
                   }
                }
             }
@@ -324,11 +322,11 @@ public final class ReplacementCache {
    }
 
    static {
-      KeySetView var10000 = ConcurrentHashMap.newKeySet();
-      Intrinsics.checkNotNullExpressionValue(var10000, "newKeySet(...)");
-      phantomPositions = var10000;
-      var10000 = ConcurrentHashMap.newKeySet();
-      Intrinsics.checkNotNullExpressionValue(var10000, "newKeySet(...)");
-      shapedPositions = var10000;
+      KeySetView keySet = ConcurrentHashMap.newKeySet();
+      Intrinsics.checkNotNullExpressionValue(keySet, "newKeySet(...)");
+      phantomPositions = keySet;
+      keySet = ConcurrentHashMap.newKeySet();
+      Intrinsics.checkNotNullExpressionValue(keySet, "newKeySet(...)");
+      shapedPositions = keySet;
    }
 }
