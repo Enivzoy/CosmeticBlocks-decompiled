@@ -82,42 +82,20 @@ public final class ConfigListComponent extends SettingComponent<ConfigListSettin
    @Override
    public void render(float mouseX, float mouseY, float delta) {
       this.renderRowBase(mouseX, mouseY, delta);
-      NVGRenderer var10000 = NVGRenderer.INSTANCE;
-      CharSequence listHeight = this.getSetting().getValue();
-      CharSequence var10001;
-      if (listHeight.length() == 0) {
-         NVGRenderer var22 = var10000;
-         int var5/* $VF was: $i$a$-ifEmpty-ConfigListComponent$render$1 */ = 0;
-         var10001 = "—";
-         var10000 = var22;
-      } else {
-         var10001 = listHeight;
-      }
-
-      var10000.textRight((String)var10001, this.getPadRight(), this.getY() + this.getRowH() / 2.0F, 12.0F, -6513508, null);
+      String display = this.getSetting().getValue();
+      String shown = display.length() == 0 ? "—" : display;
+      NVGRenderer.INSTANCE.textRight(shown, this.getPadRight(), this.getY() + this.getRowH() / 2.0F, 12.0F, -6513508, null);
       this.expandAnim.setTarget(this.open ? 1.0F : 0.0F);
       this.expandAnim.update(delta);
       if (this.expandAnim.getValue() > 0.01F && !this.options.isEmpty()) {
-         float listHeightx = this.expandAnim.getValue() * (this.options.size() * this.optionH + 4.0F);
-         NVGRenderer var26 = NVGRenderer.INSTANCE;
-         float x$iv = this.getX();
-         float y$iv = this.getY() + this.getRowH();
-         float w$iv = this.getWidth();
-         float h$iv = listHeightx;
-         int $i$f$scissor = 0;
-         var26.save();
-         var26.intersectScissor(x$iv, y$iv, w$iv, h$iv);
+         float expandedHeight = this.expandAnim.getValue() * (this.options.size() * this.optionH + 4.0F);
+         NVGRenderer.INSTANCE.save();
+         NVGRenderer.INSTANCE.intersectScissor(this.getX(), this.getY() + this.getRowH(), this.getWidth(), expandedHeight);
 
          try {
-            int var11/* $VF was: $i$a$-scissor-ConfigListComponent$render$2 */ = 0;
-            float oy = 0.0F;
-            oy = this.getY() + this.getRowH() + 2.0F;
-            Iterable $this$forEach$iv = this.options;
-            int $i$f$forEach = 0;
+            float oy = this.getY() + this.getRowH() + 2.0F;
 
-            for (Object element$iv : $this$forEach$iv) {
-               String opt = (String)element$iv;
-               int var18/* $VF was: $i$a$-forEach-ConfigListComponent$render$2$1 */ = 0;
+            for (String opt : this.options) {
                boolean hovered = mouseX >= this.getX() && mouseX <= this.getX() + this.getWidth() && mouseY >= oy && mouseY <= oy + this.optionH;
                if (hovered) {
                   NVGRenderer.INSTANCE.rect(this.getX() + 6.0F, oy, this.getWidth() - 12.0F, this.optionH, 318767103, 4.0F);
@@ -128,7 +106,7 @@ public final class ConfigListComponent extends SettingComponent<ConfigListSettin
                oy += this.optionH;
             }
          } finally {
-            var26.restore();
+            NVGRenderer.INSTANCE.restore();
          }
       }
    }

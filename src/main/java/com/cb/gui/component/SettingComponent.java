@@ -121,24 +121,24 @@ public abstract class SettingComponent<S extends Setting<?>> {
       return this.x;
    }
 
-   public final void setX(float var1) {
-      this.x = var1/* $VF was: <set-?> */;
+   public final void setX(float x) {
+      this.x = x;
    }
 
    public final float getY() {
       return this.y;
    }
 
-   public final void setY(float var1) {
-      this.y = var1/* $VF was: <set-?> */;
+   public final void setY(float y) {
+      this.y = y;
    }
 
    public final float getWidth() {
       return this.width;
    }
 
-   public final void setWidth(float var1) {
-      this.width = var1/* $VF was: <set-?> */;
+   public final void setWidth(float width) {
+      this.width = width;
    }
 
    @NotNull
@@ -166,7 +166,7 @@ public abstract class SettingComponent<S extends Setting<?>> {
       return mouseX >= this.x && mouseX <= this.x + this.width && mouseY >= this.y && mouseY <= this.y + this.getHeight();
    }
 
-   public abstract void render(float var1, float var2, float var3);
+   public abstract void render(float mouseX, float mouseY, float delta);
 
    public boolean mouseClicked(float mouseX, float mouseY, int button) {
       return false;
@@ -229,31 +229,30 @@ public abstract class SettingComponent<S extends Setting<?>> {
       public final SettingComponent<?> create(@NotNull ClickGuiScreen gui, @NotNull Setting<?> setting) {
          Intrinsics.checkNotNullParameter(gui, "gui");
          Intrinsics.checkNotNullParameter(setting, "setting");
-         Setting var3 = setting;
-         return var3 instanceof BooleanSetting
+         return setting instanceof BooleanSetting
             ? new BooleanComponent(gui, (BooleanSetting)setting)
             : (
-               var3 instanceof NumberSetting
+               setting instanceof NumberSetting
                   ? new SliderComponent(gui, (NumberSetting)setting)
                   : (
-                     var3 instanceof ModeSetting
+                     setting instanceof ModeSetting
                         ? new ModeComponent(gui, (ModeSetting<?>)setting)
                         : (
-                           var3 instanceof ColorSetting
+                           setting instanceof ColorSetting
                               ? new ColorComponent(gui, (ColorSetting)setting)
                               : (
-                                 var3 instanceof KeybindSetting
+                                 setting instanceof KeybindSetting
                                     ? new KeybindComponent(gui, (KeybindSetting)setting)
                                     : (
-                                       var3 instanceof StringSetting
+                                       setting instanceof StringSetting
                                           ? new StringComponent(gui, (StringSetting)setting)
                                           : (
-                                             var3 instanceof ConfigListSetting
+                                             setting instanceof ConfigListSetting
                                                 ? new ConfigListComponent(gui, (ConfigListSetting)setting)
                                                 : (
-                                                   var3 instanceof LabelSetting
+                                                   setting instanceof LabelSetting
                                                       ? new TextComponent(gui, (LabelSetting)setting)
-                                                      : (var3 instanceof ButtonSetting ? new ButtonComponent(gui, (ButtonSetting)setting) : null)
+                                                      : (setting instanceof ButtonSetting ? new ButtonComponent(gui, (ButtonSetting)setting) : null)
                                                 )
                                           )
                                     )

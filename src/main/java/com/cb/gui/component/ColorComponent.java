@@ -132,22 +132,15 @@ public final class ColorComponent extends SettingComponent<ColorSetting> {
             this.updateDrag(mouseX, mouseY);
          }
 
-         NVGRenderer this_$iv = NVGRenderer.INSTANCE;
-         float x$iv = this.getX();
-         float y$iv = this.getY() + 26.0F;
-         float w$iv = this.getWidth();
-         float h$iv = this.openAnim.getValue() * 134.0F;
-         int $i$f$scissor = 0;
-         this_$iv.save();
-         this_$iv.intersectScissor(x$iv, y$iv, w$iv, h$iv);
+         NVGRenderer.INSTANCE.save();
+         NVGRenderer.INSTANCE.intersectScissor(this.getX(), this.getY() + 26.0F, this.getWidth(), this.openAnim.getValue() * 134.0F);
 
          try {
-            int var14/* $VF was: $i$a$-scissor-ColorComponent$render$1 */ = 0;
             this.renderSvBox();
             this.renderHueBar();
             this.renderAlphaBar();
          } finally {
-            this_$iv.restore();
+            NVGRenderer.INSTANCE.restore();
          }
       }
    }

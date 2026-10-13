@@ -5,7 +5,6 @@ import com.cb.render.Anim;
 import com.cb.render.NVGRenderer;
 import com.cb.setting.ModeSetting;
 import kotlin.Metadata;
-import kotlin.collections.CollectionsKt;
 import kotlin.jvm.internal.Intrinsics;
 import kotlin.jvm.internal.SourceDebugExtension;
 import org.jetbrains.annotations.NotNull;
@@ -88,34 +87,17 @@ public final class ModeComponent extends SettingComponent<ModeSetting<?>> {
       this.chevron(this.getPadRight() - 5.0F, midY, this.openAnim.getValue());
       if (!(this.openAnim.getValue() <= 0.01F)) {
          float listTop = this.getY() + 26.0F;
-         NVGRenderer this_$iv = NVGRenderer.INSTANCE;
-         float x$iv = this.getX();
-         float y$iv = listTop;
-         float w$iv = this.getWidth();
-         float h$iv = this.openAnim.getValue() * this.getExpandedExtra();
-         int $i$f$scissor = 0;
-         this_$iv.save();
-         this_$iv.intersectScissor(x$iv, y$iv, w$iv, h$iv);
+         NVGRenderer.INSTANCE.save();
+         NVGRenderer.INSTANCE.intersectScissor(this.getX(), listTop, this.getWidth(), this.openAnim.getValue() * this.getExpandedExtra());
 
          try {
-            int var12/* $VF was: $i$a$-scissor-ModeComponent$render$1 */ = 0;
-            Iterable $this$forEachIndexed$iv = this.getSetting().getOptions();
-            int $i$f$forEachIndexed = 0;
-            int index$iv = 0;
+            int index = 0;
 
-            for (Object item$iv : $this$forEachIndexed$iv) {
-               int var18 = index$iv++;
-               if (var18 < 0) {
-                  CollectionsKt.throwIndexOverflow();
-               }
-
-               Enum option = (Enum)item$iv;
-               int index = var18;
-               int var21/* $VF was: $i$a$-forEachIndexed-ModeComponent$render$1$1 */ = 0;
-               float rowY = listTop + index * 22.0F;
+            for (Enum option : this.getSetting().getOptions()) {
+               int currentIndex = index++;
+               float rowY = listTop + currentIndex * 22.0F;
                boolean selected = Intrinsics.areEqual(option, this.getSetting().getValue());
-               float var24 = this.getPadLeft();
-               boolean hovered = (mouseX <= this.getPadRight() ? var24 <= mouseX : false) && mouseY >= rowY && mouseY < rowY + 22.0F;
+               boolean hovered = mouseX >= this.getPadLeft() && mouseX <= this.getPadRight() && mouseY >= rowY && mouseY < rowY + 22.0F;
                if (hovered) {
                   NVGRenderer.INSTANCE.rect(this.getX() + 10.0F, rowY + 1.0F, this.getWidth() - 20.0F, 20.0F, 318767103, 4.0F);
                }
@@ -130,7 +112,7 @@ public final class ModeComponent extends SettingComponent<ModeSetting<?>> {
                   );
             }
          } finally {
-            this_$iv.restore();
+            NVGRenderer.INSTANCE.restore();
          }
       }
    }

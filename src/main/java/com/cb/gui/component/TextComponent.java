@@ -91,27 +91,25 @@ public final class TextComponent extends SettingComponent<LabelSetting> {
 
       List out = new ArrayList();
       StringBuilder current = new StringBuilder();
-      CharSequence var10000 = text;
-      char[] word = new char[]{' '};
 
-      for (String wordx : StringsKt.split(var10000, word, false, 0)) {
+      for (String wordx : StringsKt.split(text, new char[]{' '}, false, 0)) {
          if (current.length() == 0) {
             current.append(wordx);
          } else if (current.length() + 1 + wordx.length() <= maxChars) {
             current.append(' ').append(wordx);
          } else {
-            String var10001 = current.toString();
-            Intrinsics.checkNotNullExpressionValue(var10001, "toString(...)");
-            out.add(var10001);
+            String line = current.toString();
+            Intrinsics.checkNotNullExpressionValue(line, "toString(...)");
+            out.add(line);
             current.setLength(0);
             current.append(wordx);
          }
       }
 
       if (current.length() > 0) {
-         String var9 = current.toString();
-         Intrinsics.checkNotNullExpressionValue(var9, "toString(...)");
-         out.add(var9);
+         String line = current.toString();
+         Intrinsics.checkNotNullExpressionValue(line, "toString(...)");
+         out.add(line);
       }
 
       return out;

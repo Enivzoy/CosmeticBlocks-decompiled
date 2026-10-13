@@ -80,29 +80,21 @@ public final class StringComponent extends SettingComponent<StringSetting> {
       float nameWidth = NVGRenderer.INSTANCE.textWidth(this.getSetting().getName(), 12.0F, null) + 12.0F;
       float maxTextWidth = RangesKt.coerceAtLeast(this.getPadRight() - this.getPadLeft() - nameWidth, 20.0F);
       float midY = this.getY() + 13.0F;
-      NVGRenderer this_$iv = NVGRenderer.INSTANCE;
-      float x$iv = this.getPadRight() - maxTextWidth;
-      float y$iv = this.getY();
-      float w$iv = maxTextWidth;
-      float h$iv = 26.0F;
-      int $i$f$scissor = 0;
-      this_$iv.save();
-      this_$iv.intersectScissor(x$iv, y$iv, w$iv, h$iv);
+      NVGRenderer.INSTANCE.save();
+      NVGRenderer.INSTANCE.intersectScissor(this.getPadRight() - maxTextWidth, this.getY(), maxTextWidth, 26.0F);
 
       try {
-         int var17/* $VF was: $i$a$-scissor-StringComponent$render$1 */ = 0;
          NVGRenderer.INSTANCE.textRight(display, this.getPadRight(), midY, 12.0F, color, NVGRenderer.Font.REGULAR);
          if (this.focused && this.blinkTimer % 1.0F < 0.55F) {
             float textWidth = NVGRenderer.INSTANCE.textWidth(value, 12.0F, null);
             float textStart = this.getPadRight() - textWidth;
-            NVGRenderer var10001 = NVGRenderer.INSTANCE;
-            String var10002 = value.substring(0, this.cursor);
-            Intrinsics.checkNotNullExpressionValue(var10002, "substring(...)");
-            float caretX = textStart + var10001.textWidth(var10002, 12.0F, null);
+            String prefix = value.substring(0, this.cursor);
+            Intrinsics.checkNotNullExpressionValue(prefix, "substring(...)");
+            float caretX = textStart + NVGRenderer.INSTANCE.textWidth(prefix, 12.0F, null);
             NVGRenderer.INSTANCE.rect(RangesKt.coerceAtMost(caretX, this.getPadRight()), midY - 6.0F, 1.2F, 12.0F, -1750963, 0.0F);
          }
       } finally {
-         this_$iv.restore();
+         NVGRenderer.INSTANCE.restore();
       }
 
       if (this.focused) {
@@ -135,36 +127,31 @@ public final class StringComponent extends SettingComponent<StringSetting> {
 
       this.blinkTimer = 0.0F;
       switch (key) {
-         case 86:
+          case 86:
             if ((modifiers & 2) != 0) {
-               String var10001 = Minecraft.getInstance().keyboardHandler.getClipboard();
-               Intrinsics.checkNotNullExpressionValue(var10001, "getClipboard(...)");
-               this.insert(var10001);
+               String clipboard = Minecraft.getInstance().keyboardHandler.getClipboard();
+               Intrinsics.checkNotNullExpressionValue(clipboard, "getClipboard(...)");
+               this.insert(clipboard);
             }
             break;
-         case 256:
-         case 257:
-         case 335:
+          case 256:
+          case 257:
+          case 335:
             this.focused = false;
             break;
-         case 259:
+          case 259:
             if (this.cursor > 0) {
-               StringSetting var10 = this.getSetting();
-               String var6 = this.getSetting().getValue();
-               int var8 = this.cursor - 1;
-               int var9 = this.cursor;
-               var10.setValue(StringsKt.removeRange(var6, var8, var9).toString());
-               int var7 = this.cursor;
-               this.cursor = var7 + -1;
+               StringSetting setting = this.getSetting();
+               String current = this.getSetting().getValue();
+               setting.setValue(StringsKt.removeRange(current, this.cursor - 1, this.cursor).toString());
+               this.cursor--;
             }
             break;
-         case 261:
+          case 261:
             if (this.cursor < this.getSetting().getValue().length()) {
-               StringSetting var10000 = this.getSetting();
-               String var3 = this.getSetting().getValue();
-               int var4 = this.cursor;
-               int var5 = this.cursor + 1;
-               var10000.setValue(StringsKt.removeRange(var3, var4, var5).toString());
+               StringSetting setting = this.getSetting();
+               String current = this.getSetting().getValue();
+               setting.setValue(StringsKt.removeRange(current, this.cursor, this.cursor + 1).toString());
             }
             break;
          case 262:
@@ -195,31 +182,22 @@ public final class StringComponent extends SettingComponent<StringSetting> {
    }
 
    private final void insert(String text) {
-      String $this$filter$iv = text;
-      int $i$f$filter = 0;
-      CharSequence $this$filterTo$iv$iv = $this$filter$iv;
-      var destination$iv$iv = new StringBuilder();
-      int $i$f$filterTo = 0;
-      int index$iv$iv = 0;
+      StringBuilder filtered = new StringBuilder();
 
-      for (int var9 = $this$filterTo$iv$iv.length(); index$iv$iv < var9; index$iv$iv++) {
-         char element$iv$iv = $this$filterTo$iv$iv.charAt(index$iv$iv);
-         char it = element$iv$iv;
-         int var12/* $VF was: $i$a$-filter-StringComponent$insert$clean$1 */ = 0;
-         if (it >= ' ' && it != 127) {
-            destination$iv$iv.append(element$iv$iv);
+      for (int index = 0; index < text.length(); index++) {
+         char ch = text.charAt(index);
+         if (ch >= ' ' && ch != 127) {
+            filtered.append(ch);
          }
       }
 
-      String clean = ((StringBuilder)destination$iv$iv).toString();
+      String clean = filtered.toString();
       if (clean.length() != 0) {
-         $this$filter$iv = this.getSetting().getValue();
-         StringSetting var10000 = this.getSetting();
-         String var10001 = new StringBuilder($this$filter$iv).insert(this.cursor, clean).toString();
-         Intrinsics.checkNotNullExpressionValue(var10001, "toString(...)");
-         var10000.setValue(var10001);
+         String original = this.getSetting().getValue();
+         StringSetting setting = this.getSetting();
+         setting.setValue(new StringBuilder(original).insert(this.cursor, clean).toString());
          this.cursor = RangesKt.coerceIn(
-            this.cursor + (this.getSetting().getValue().length() - $this$filter$iv.length()), 0, this.getSetting().getValue().length()
+            this.cursor + (this.getSetting().getValue().length() - original.length()), 0, this.getSetting().getValue().length()
          );
          this.blinkTimer = 0.0F;
       }

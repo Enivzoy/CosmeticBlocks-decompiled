@@ -94,15 +94,12 @@ public final class SliderComponent extends SettingComponent<NumberSetting> {
    public boolean mouseClicked(float mouseX, float mouseY, int button) {
       if (button != 0) {
          return false;
+      } else if (this.contains(mouseX, mouseY)) {
+         this.dragging = true;
+         this.updateFromMouse(mouseX);
+         return true;
       } else {
-         float var4 = this.getX();
-         if ((mouseX <= this.getX() + this.getWidth() ? var4 <= mouseX : false) && mouseY >= this.getY() && mouseY <= this.getY() + this.getHeight()) {
-            this.dragging = true;
-            this.updateFromMouse(mouseX);
-            return true;
-         } else {
-            return false;
-         }
+         return false;
       }
    }
 

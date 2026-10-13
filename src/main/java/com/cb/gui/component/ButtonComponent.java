@@ -53,44 +53,28 @@ public final class ButtonComponent extends SettingComponent<ButtonSetting> {
 
    @Override
    public void render(float mouseX, float mouseY, float delta) {
-      boolean var10000;
-      label32: {
-         this.renderRowBase(mouseX, mouseY, delta);
-         this.pillW = RangesKt.coerceAtLeast(
-            NVGRenderer.INSTANCE.textWidth(this.getSetting().getActionLabel(), 12.0F, null) + 18.0F, 44.0F
-         );
-         this.pillH = 15.0F;
-         this.pillX = this.getPadRight() - this.pillW;
-         this.pillY = this.getY() + (26.0F - this.pillH) / 2.0F;
-         float bg = this.pillX;
-         if (mouseX <= this.pillX + this.pillW ? bg <= mouseX : false) {
-            bg = this.pillY;
-            if (mouseY <= this.pillY + this.pillH ? bg <= mouseY : false) {
-               var10000 = true;
-               break label32;
-            }
-         }
-
-         var10000 = false;
-      }
-
-      boolean hovered = var10000;
+      this.renderRowBase(mouseX, mouseY, delta);
+      this.pillW = RangesKt.coerceAtLeast(
+         NVGRenderer.INSTANCE.textWidth(this.getSetting().getActionLabel(), 12.0F, null) + 18.0F, 44.0F
+      );
+      this.pillH = 15.0F;
+      this.pillX = this.getPadRight() - this.pillW;
+      this.pillY = this.getY() + (26.0F - this.pillH) / 2.0F;
+      boolean hovered = this.isPillHovered(mouseX, mouseY);
       int bg = hovered ? -1750963 : -14013910;
       NVGRenderer.INSTANCE.rect(this.pillX, this.pillY, this.pillW, this.pillH, bg, this.pillH / 2.0F);
       NVGRenderer.INSTANCE.textCentered(this.getSetting().getActionLabel(), this.pillX + this.pillW / 2.0F, this.pillY + this.pillH / 2.0F, 12.0F, -1184275, null);
    }
 
+   private boolean isPillHovered(float mouseX, float mouseY) {
+      return mouseX >= this.pillX && mouseX <= this.pillX + this.pillW && mouseY >= this.pillY && mouseY <= this.pillY + this.pillH;
+   }
+
    @Override
    public boolean mouseClicked(float mouseX, float mouseY, int button) {
-      if (button == 0) {
-         float var4 = this.pillX;
-         if (mouseX <= this.pillX + this.pillW ? var4 <= mouseX : false) {
-            var4 = this.pillY;
-            if (mouseY <= this.pillY + this.pillH ? var4 <= mouseY : false) {
-               this.getSetting().getOnClick().invoke();
-               return true;
-            }
-         }
+      if (button == 0 && this.isPillHovered(mouseX, mouseY)) {
+         this.getSetting().getOnClick().invoke();
+         return true;
       }
 
       return false;
