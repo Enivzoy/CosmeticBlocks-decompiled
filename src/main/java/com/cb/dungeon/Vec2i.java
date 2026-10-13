@@ -78,10 +78,10 @@ public final class Vec2i {
    public boolean equals(@Nullable Object other) {
       if (this == other) {
          return true;
-      } else if (!(other instanceof Vec2i var2)) {
+      } else if (!(other instanceof Vec2i that)) {
          return false;
       } else {
-         return this.x != var2.x ? false : this.z == var2.z;
+         return this.x != that.x ? false : this.z == that.z;
       }
    }
 }

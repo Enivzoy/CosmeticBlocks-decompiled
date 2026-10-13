@@ -150,16 +150,16 @@ public final class RoomInfo {
    public boolean equals(@Nullable Object other) {
       if (this == other) {
          return true;
-      } else if (!(other instanceof RoomInfo var2)) {
+      } else if (!(other instanceof RoomInfo that)) {
          return false;
-      } else if (!Intrinsics.areEqual(this.name, var2.name)) {
+      } else if (!Intrinsics.areEqual(this.name, that.name)) {
          return false;
-      } else if (this.type != var2.type) {
+      } else if (this.type != that.type) {
          return false;
-      } else if (!Intrinsics.areEqual(this.cores, var2.cores)) {
+      } else if (!Intrinsics.areEqual(this.cores, that.cores)) {
          return false;
       } else {
-         return this.secrets != var2.secrets ? false : this.shape == var2.shape;
+         return this.secrets != that.secrets ? false : this.shape == that.shape;
       }
    }
 }

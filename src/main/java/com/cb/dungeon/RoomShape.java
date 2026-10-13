@@ -43,35 +43,34 @@ public enum RoomShape {
       @NotNull
       public final RoomShape fromString(@NotNull String s) {
          Intrinsics.checkNotNullParameter(s, "s");
-         String var2 = s;
-         switch (var2.hashCode()) {
+         switch (s.hashCode()) {
             case 76:
-               if (var2.equals("L")) {
+               if (s.equals("L")) {
                   return RoomShape.L;
                }
                break;
             case 50858:
-               if (var2.equals("1x1")) {
+               if (s.equals("1x1")) {
                   return RoomShape.S1x1;
                }
                break;
             case 50859:
-               if (var2.equals("1x2")) {
+               if (s.equals("1x2")) {
                   return RoomShape.S1x2;
                }
                break;
             case 50860:
-               if (var2.equals("1x3")) {
+               if (s.equals("1x3")) {
                   return RoomShape.S1x3;
                }
                break;
             case 50861:
-               if (var2.equals("1x4")) {
+               if (s.equals("1x4")) {
                   return RoomShape.S1x4;
                }
                break;
             case 51820:
-               if (var2.equals("2x2")) {
+               if (s.equals("2x2")) {
                   return RoomShape.S2x2;
                }
          }

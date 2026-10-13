@@ -1,6 +1,5 @@
 package com.cb.dungeon;
 
-import java.util.Iterator;
 import kotlin.Metadata;
 import kotlin.enums.EnumEntries;
 import kotlin.jvm.internal.Intrinsics;
@@ -65,34 +64,14 @@ public enum RoomType {
       @NotNull
       public final RoomType fromString(@NotNull String s) {
          Intrinsics.checkNotNullParameter(s, "s");
-         Iterable $this$firstOrNull$iv = RoomType.getEntries();
-         int $i$f$firstOrNull = 0;
-         Iterator var4 = $this$firstOrNull$iv.iterator();
 
-         RoomType var10000;
-         while (true) {
-            if (var4.hasNext()) {
-               Object element$iv = var4.next();
-               RoomType it = (RoomType)element$iv;
-               int var7/* $VF was: $i$a$-firstOrNull-RoomType$Companion$fromString$1 */ = 0;
-               if (!StringsKt.equals(it.name(), s, true)) {
-                  continue;
-               }
-
-               var10000 = (RoomType)element$iv;
-               break;
+         for (RoomType type : RoomType.getEntries()) {
+            if (StringsKt.equals(type.name(), s, true)) {
+               return type;
             }
-
-            var10000 = null;
-            break;
          }
 
-         var10000 = var10000;
-         if (var10000 == null) {
-            var10000 = RoomType.NORMAL;
-         }
-
-         return var10000;
+         return RoomType.NORMAL;
       }
    }
 }

@@ -1,0 +1,1184 @@
+﻿Compiled from "RoomScanner.kt"
+public final class com.cb.dungeon.RoomScanner {
+  public static final com.cb.dungeon.RoomScanner INSTANCE;
+
+  private static final int START;
+
+  private static final int ROOM_SIZE_SHIFT;
+
+  private static final java.util.List<net.minecraft.core.Direction> horizontals;
+
+  private static final net.minecraft.core.BlockPos$MutableBlockPos mutableBlockPos;
+
+  private static java.util.List<com.cb.dungeon.RoomInfo> roomDatabase;
+
+  private static java.util.Map<java.lang.Integer, com.cb.dungeon.RoomInfo> coreToRoom;
+
+  private static boolean loaded;
+
+  private static com.cb.dungeon.ScannedRoom currentRoom;
+
+  private static com.cb.dungeon.Vec2i lastRoomCenter;
+
+  private com.cb.dungeon.RoomScanner();
+    Code:
+         0: aload_0
+         1: invokespecial #8                  // Method java/lang/Object."<init>":()V
+         4: return
+
+  private final net.minecraft.client.Minecraft getMc();
+    Code:
+         0: invokestatic  #17                 // Method net/minecraft/client/Minecraft.getInstance:()Lnet/minecraft/client/Minecraft;
+         3: dup
+         4: ldc           #19                 // String getInstance(...)
+         6: invokestatic  #25                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullExpressionValue:(Ljava/lang/Object;Ljava/lang/String;)V
+         9: areturn
+
+  public final com.cb.dungeon.ScannedRoom getCurrentRoom();
+    Code:
+         0: getstatic     #32                 // Field currentRoom:Lcom/cb/dungeon/ScannedRoom;
+         3: areturn
+
+  public final void init();
+    Code:
+         0: getstatic     #37                 // Field loaded:Z
+         3: ifne          14
+         6: aload_0
+         7: invokespecial #40                 // Method loadRoomDatabase:()V
+        10: iconst_1
+        11: putstatic     #37                 // Field loaded:Z
+        14: return
+
+  public final void unload();
+    Code:
+         0: aconst_null
+         1: putstatic     #32                 // Field currentRoom:Lcom/cb/dungeon/ScannedRoom;
+         4: aconst_null
+         5: putstatic     #45                 // Field lastRoomCenter:Lcom/cb/dungeon/Vec2i;
+         8: return
+
+  private final void loadRoomDatabase();
+    Code:
+         0: nop
+         1: ldc           #2                  // class com/cb/dungeon/RoomScanner
+         3: ldc           #51                 // String /assets/cb/rooms.json
+         5: invokevirtual #57                 // Method java/lang/Class.getResourceAsStream:(Ljava/lang/String;)Ljava/io/InputStream;
+         8: dup
+         9: ifnonnull     14
+        12: pop
+        13: return
+        14: astore_1
+        15: aload_1
+        16: astore_3
+        17: getstatic     #63                 // Field kotlin/text/Charsets.UTF_8:Ljava/nio/charset/Charset;
+        20: astore        4
+        22: new           #65                 // class java/io/InputStreamReader
+        25: dup
+        26: aload_3
+        27: aload         4
+        29: invokespecial #68                 // Method java/io/InputStreamReader."<init>":(Ljava/io/InputStream;Ljava/nio/charset/Charset;)V
+        32: checkcast     #70                 // class java/io/Reader
+        35: astore        5
+        37: sipush        8192
+        40: istore        6
+        42: aload         5
+        44: instanceof    #72                 // class java/io/BufferedReader
+        47: ifeq          58
+        50: aload         5
+        52: checkcast     #72                 // class java/io/BufferedReader
+        55: goto          69
+        58: new           #72                 // class java/io/BufferedReader
+        61: dup
+        62: aload         5
+        64: iload         6
+        66: invokespecial #75                 // Method java/io/BufferedReader."<init>":(Ljava/io/Reader;I)V
+        69: checkcast     #77                 // class java/io/Closeable
+        72: astore_3
+        73: aconst_null
+        74: astore        4
+        76: nop
+        77: aload_3
+        78: checkcast     #72                 // class java/io/BufferedReader
+        81: astore        5
+        83: iconst_0
+        84: istore        6
+        86: aload         5
+        88: checkcast     #70                 // class java/io/Reader
+        91: invokestatic  #83                 // Method kotlin/io/TextStreamsKt.readText:(Ljava/io/Reader;)Ljava/lang/String;
+        94: astore        5
+        96: aload_3
+        97: aload         4
+        99: invokestatic  #89                 // Method kotlin/io/CloseableKt.closeFinally:(Ljava/io/Closeable;Ljava/lang/Throwable;)V
+       102: aload         5
+       104: goto          127
+       107: astore        6
+       109: aload         6
+       111: astore        4
+       113: aload         6
+       115: athrow
+       116: astore        6
+       118: aload_3
+       119: aload         4
+       121: invokestatic  #89                 // Method kotlin/io/CloseableKt.closeFinally:(Ljava/io/Closeable;Ljava/lang/Throwable;)V
+       124: aload         6
+       126: athrow
+       127: astore_2
+       128: new           #91                 // class com/cb/dungeon/RoomScanner$loadRoomDatabase$type$1
+       131: dup
+       132: invokespecial #92                 // Method com/cb/dungeon/RoomScanner$loadRoomDatabase$type$1."<init>":()V
+       135: invokevirtual #96                 // Method com/cb/dungeon/RoomScanner$loadRoomDatabase$type$1.getType:()Ljava/lang/reflect/Type;
+       138: astore_3
+       139: new           #98                 // class com/google/gson/Gson
+       142: dup
+       143: invokespecial #99                 // Method com/google/gson/Gson."<init>":()V
+       146: aload_2
+       147: aload_3
+       148: invokevirtual #103                // Method com/google/gson/Gson.fromJson:(Ljava/lang/String;Ljava/lang/reflect/Type;)Ljava/lang/Object;
+       151: dup
+       152: ldc           #105                // String fromJson(...)
+       154: invokestatic  #25                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullExpressionValue:(Ljava/lang/Object;Ljava/lang/String;)V
+       157: checkcast     #107                // class java/util/List
+       160: astore        4
+       162: aload         4
+       164: checkcast     #109                // class java/lang/Iterable
+       167: astore        5
+       169: iconst_0
+       170: istore        6
+       172: aload         5
+       174: astore        7
+       176: new           #111                // class java/util/ArrayList
+       179: dup
+       180: aload         5
+       182: bipush        10
+       184: invokestatic  #117                // Method kotlin/collections/CollectionsKt.collectionSizeOrDefault:(Ljava/lang/Iterable;I)I
+       187: invokespecial #120                // Method java/util/ArrayList."<init>":(I)V
+       190: checkcast     #122                // class java/util/Collection
+       193: astore        8
+       195: iconst_0
+       196: istore        9
+       198: aload         7
+       200: invokeinterface #126,  1          // InterfaceMethod java/lang/Iterable.iterator:()Ljava/util/Iterator;
+       205: astore        10
+       207: aload         10
+       209: invokeinterface #132,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       214: ifeq          297
+       217: aload         10
+       219: invokeinterface #136,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       224: astore        11
+       226: aload         8
+       228: aload         11
+       230: checkcast     #138                // class com/cb/dungeon/RoomScanner$RoomJsonEntry
+       233: astore        12
+       235: astore        24
+       237: iconst_0
+       238: istore        13
+       240: new           #140                // class com/cb/dungeon/RoomInfo
+       243: dup
+       244: aload         12
+       246: invokevirtual #144                // Method com/cb/dungeon/RoomScanner$RoomJsonEntry.getName:()Ljava/lang/String;
+       249: getstatic     #150                // Field com/cb/dungeon/RoomType.Companion:Lcom/cb/dungeon/RoomType$Companion;
+       252: aload         12
+       254: invokevirtual #152                // Method com/cb/dungeon/RoomScanner$RoomJsonEntry.getType:()Ljava/lang/String;
+       257: invokevirtual #158                // Method com/cb/dungeon/RoomType$Companion.fromString:(Ljava/lang/String;)Lcom/cb/dungeon/RoomType;
+       260: aload         12
+       262: invokevirtual #162                // Method com/cb/dungeon/RoomScanner$RoomJsonEntry.getCores:()Ljava/util/List;
+       265: aload         12
+       267: invokevirtual #166                // Method com/cb/dungeon/RoomScanner$RoomJsonEntry.getSecrets:()I
+       270: getstatic     #171                // Field com/cb/dungeon/RoomShape.Companion:Lcom/cb/dungeon/RoomShape$Companion;
+       273: aload         12
+       275: invokevirtual #174                // Method com/cb/dungeon/RoomScanner$RoomJsonEntry.getShape:()Ljava/lang/String;
+       278: invokevirtual #179                // Method com/cb/dungeon/RoomShape$Companion.fromString:(Ljava/lang/String;)Lcom/cb/dungeon/RoomShape;
+       281: invokespecial #182                // Method com/cb/dungeon/RoomInfo."<init>":(Ljava/lang/String;Lcom/cb/dungeon/RoomType;Ljava/util/List;ILcom/cb/dungeon/RoomShape;)V
+       284: nop
+       285: aload         24
+       287: swap
+       288: invokeinterface #186,  2          // InterfaceMethod java/util/Collection.add:(Ljava/lang/Object;)Z
+       293: pop
+       294: goto          207
+       297: aload         8
+       299: checkcast     #107                // class java/util/List
+       302: nop
+       303: putstatic     #190                // Field roomDatabase:Ljava/util/List;
+       306: getstatic     #190                // Field roomDatabase:Ljava/util/List;
+       309: checkcast     #109                // class java/lang/Iterable
+       312: astore        5
+       314: iconst_0
+       315: istore        6
+       317: aload         5
+       319: astore        7
+       321: new           #111                // class java/util/ArrayList
+       324: dup
+       325: invokespecial #191                // Method java/util/ArrayList."<init>":()V
+       328: checkcast     #122                // class java/util/Collection
+       331: astore        8
+       333: iconst_0
+       334: istore        9
+       336: aload         7
+       338: invokeinterface #126,  1          // InterfaceMethod java/lang/Iterable.iterator:()Ljava/util/Iterator;
+       343: astore        10
+       345: aload         10
+       347: invokeinterface #132,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       352: ifeq          503
+       355: aload         10
+       357: invokeinterface #136,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       362: astore        11
+       364: aload         11
+       366: checkcast     #140                // class com/cb/dungeon/RoomInfo
+       369: astore        12
+       371: iconst_0
+       372: istore        13
+       374: aload         12
+       376: invokevirtual #192                // Method com/cb/dungeon/RoomInfo.getCores:()Ljava/util/List;
+       379: checkcast     #109                // class java/lang/Iterable
+       382: astore        14
+       384: iconst_0
+       385: istore        15
+       387: aload         14
+       389: astore        16
+       391: new           #111                // class java/util/ArrayList
+       394: dup
+       395: aload         14
+       397: bipush        10
+       399: invokestatic  #117                // Method kotlin/collections/CollectionsKt.collectionSizeOrDefault:(Ljava/lang/Iterable;I)I
+       402: invokespecial #120                // Method java/util/ArrayList."<init>":(I)V
+       405: checkcast     #122                // class java/util/Collection
+       408: astore        17
+       410: iconst_0
+       411: istore        18
+       413: aload         16
+       415: invokeinterface #126,  1          // InterfaceMethod java/lang/Iterable.iterator:()Ljava/util/Iterator;
+       420: astore        19
+       422: aload         19
+       424: invokeinterface #132,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       429: ifeq          480
+       432: aload         19
+       434: invokeinterface #136,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       439: astore        20
+       441: aload         17
+       443: aload         20
+       445: checkcast     #194                // class java/lang/Number
+       448: invokevirtual #197                // Method java/lang/Number.intValue:()I
+       451: istore        21
+       453: astore        22
+       455: iconst_0
+       456: istore        23
+       458: iload         21
+       460: invokestatic  #203                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       463: aload         12
+       465: invokestatic  #209                // Method kotlin/TuplesKt.to:(Ljava/lang/Object;Ljava/lang/Object;)Lkotlin/Pair;
+       468: aload         22
+       470: swap
+       471: invokeinterface #186,  2          // InterfaceMethod java/util/Collection.add:(Ljava/lang/Object;)Z
+       476: pop
+       477: goto          422
+       480: aload         17
+       482: checkcast     #107                // class java/util/List
+       485: nop
+       486: checkcast     #109                // class java/lang/Iterable
+       489: nop
+       490: astore        12
+       492: aload         8
+       494: aload         12
+       496: invokestatic  #213                // Method kotlin/collections/CollectionsKt.addAll:(Ljava/util/Collection;Ljava/lang/Iterable;)Z
+       499: pop
+       500: goto          345
+       503: aload         8
+       505: checkcast     #107                // class java/util/List
+       508: nop
+       509: checkcast     #109                // class java/lang/Iterable
+       512: invokestatic  #219                // Method kotlin/collections/MapsKt.toMap:(Ljava/lang/Iterable;)Ljava/util/Map;
+       515: putstatic     #223                // Field coreToRoom:Ljava/util/Map;
+       518: goto          526
+       521: astore_1
+       522: aload_1
+       523: invokevirtual #226                // Method java/lang/Exception.printStackTrace:()V
+       526: return
+      Exception table:
+         from    to  target type
+            76    96   107   Class java/lang/Throwable
+            76    96   116   any
+           107   116   116   any
+           116   118   116   any
+             0   518   521   Class java/lang/Exception
+
+  public final boolean tick();
+    Code:
+         0: aload_0
+         1: invokespecial #273                // Method getMc:()Lnet/minecraft/client/Minecraft;
+         4: getfield      #277                // Field net/minecraft/client/Minecraft.player:Lnet/minecraft/client/player/LocalPlayer;
+         7: dup
+         8: ifnonnull     14
+        11: pop
+        12: iconst_0
+        13: ireturn
+        14: astore_1
+        15: aload_0
+        16: invokespecial #273                // Method getMc:()Lnet/minecraft/client/Minecraft;
+        19: getfield      #281                // Field net/minecraft/client/Minecraft.level:Lnet/minecraft/client/multiplayer/ClientLevel;
+        22: dup
+        23: ifnonnull     29
+        26: pop
+        27: iconst_0
+        28: ireturn
+        29: astore_2
+        30: aload_0
+        31: aload_1
+        32: invokevirtual #287                // Method net/minecraft/client/player/LocalPlayer.blockPosition:()Lnet/minecraft/core/BlockPos;
+        35: invokevirtual #292                // Method net/minecraft/core/BlockPos.getX:()I
+        38: aload_1
+        39: invokevirtual #287                // Method net/minecraft/client/player/LocalPlayer.blockPosition:()Lnet/minecraft/core/BlockPos;
+        42: invokevirtual #295                // Method net/minecraft/core/BlockPos.getZ:()I
+        45: invokevirtual #299                // Method getRoomCenter:(II)Lcom/cb/dungeon/Vec2i;
+        48: astore_3
+        49: getstatic     #32                 // Field currentRoom:Lcom/cb/dungeon/ScannedRoom;
+        52: astore        4
+        54: aload         4
+        56: ifnull        75
+        59: aload         4
+        61: invokevirtual #305                // Method com/cb/dungeon/ScannedRoom.getComponents:()Ljava/util/Set;
+        64: aload_3
+        65: invokeinterface #310,  2          // InterfaceMethod java/util/Set.contains:(Ljava/lang/Object;)Z
+        70: ifeq          75
+        73: iconst_0
+        74: ireturn
+        75: aload_3
+        76: getstatic     #45                 // Field lastRoomCenter:Lcom/cb/dungeon/Vec2i;
+        79: invokestatic  #314                // Method kotlin/jvm/internal/Intrinsics.areEqual:(Ljava/lang/Object;Ljava/lang/Object;)Z
+        82: ifeq          87
+        85: iconst_0
+        86: ireturn
+        87: aload_3
+        88: putstatic     #45                 // Field lastRoomCenter:Lcom/cb/dungeon/Vec2i;
+        91: aload_0
+        92: aload_3
+        93: aload_2
+        94: invokespecial #318                // Method scanRoom:(Lcom/cb/dungeon/Vec2i;Lnet/minecraft/client/multiplayer/ClientLevel;)Lcom/cb/dungeon/ScannedRoom;
+        97: astore        5
+        99: aload         5
+       101: ifnull        178
+       104: aload         5
+       106: invokevirtual #322                // Method com/cb/dungeon/ScannedRoom.getRotation:()Lcom/cb/dungeon/Rotation;
+       109: getstatic     #328                // Field com/cb/dungeon/Rotation.NONE:Lcom/cb/dungeon/Rotation;
+       112: if_acmpeq     178
+       115: aload         4
+       117: ifnull        163
+       120: aload         4
+       122: invokevirtual #332                // Method com/cb/dungeon/ScannedRoom.getData:()Lcom/cb/dungeon/RoomInfo;
+       125: invokevirtual #333                // Method com/cb/dungeon/RoomInfo.getName:()Ljava/lang/String;
+       128: aload         5
+       130: invokevirtual #332                // Method com/cb/dungeon/ScannedRoom.getData:()Lcom/cb/dungeon/RoomInfo;
+       133: invokevirtual #333                // Method com/cb/dungeon/RoomInfo.getName:()Ljava/lang/String;
+       136: invokestatic  #314                // Method kotlin/jvm/internal/Intrinsics.areEqual:(Ljava/lang/Object;Ljava/lang/Object;)Z
+       139: ifeq          163
+       142: aload         4
+       144: invokevirtual #305                // Method com/cb/dungeon/ScannedRoom.getComponents:()Ljava/util/Set;
+       147: aload         5
+       149: invokevirtual #305                // Method com/cb/dungeon/ScannedRoom.getComponents:()Ljava/util/Set;
+       152: checkcast     #122                // class java/util/Collection
+       155: invokeinterface #337,  2          // InterfaceMethod java/util/Set.containsAll:(Ljava/util/Collection;)Z
+       160: ifne          167
+       163: iconst_1
+       164: goto          168
+       167: iconst_0
+       168: istore        6
+       170: aload         5
+       172: putstatic     #32                 // Field currentRoom:Lcom/cb/dungeon/ScannedRoom;
+       175: iload         6
+       177: ireturn
+       178: iconst_0
+       179: ireturn
+
+  public final com.cb.dungeon.Vec2i getRoomCenter(int, int);
+    Code:
+         0: iload_1
+         1: sipush        -185
+         4: isub
+         5: bipush        16
+         7: iadd
+         8: iconst_5
+         9: ishr
+        10: istore_3
+        11: iload_2
+        12: sipush        -185
+        15: isub
+        16: bipush        16
+        18: iadd
+        19: iconst_5
+        20: ishr
+        21: istore        4
+        23: new           #344                // class com/cb/dungeon/Vec2i
+        26: dup
+        27: iload_3
+        28: iconst_5
+        29: ishl
+        30: sipush        -185
+        33: iadd
+        34: iload         4
+        36: iconst_5
+        37: ishl
+        38: sipush        -185
+        41: iadd
+        42: invokespecial #348                // Method com/cb/dungeon/Vec2i."<init>":(II)V
+        45: areturn
+
+  private final com.cb.dungeon.ScannedRoom scanRoom(com.cb.dungeon.Vec2i, net.minecraft.client.multiplayer.ClientLevel);
+    Code:
+         0: nop
+         1: aload_2
+         2: aload_1
+         3: invokevirtual #353                // Method com/cb/dungeon/Vec2i.getX:()I
+         6: iconst_4
+         7: ishr
+         8: aload_1
+         9: invokevirtual #354                // Method com/cb/dungeon/Vec2i.getZ:()I
+        12: iconst_4
+        13: ishr
+        14: invokevirtual #358                // Method net/minecraft/client/multiplayer/ClientLevel.getChunk:(II)Lnet/minecraft/world/level/chunk/LevelChunk;
+        17: astore        5
+        19: goto          26
+        22: astore        6
+        24: aconst_null
+        25: areturn
+        26: aload         5
+        28: astore        4
+        30: aload         4
+        32: invokestatic  #362                // Method kotlin/jvm/internal/Intrinsics.checkNotNull:(Ljava/lang/Object;)V
+        35: aload         4
+        37: astore_3
+        38: aload_0
+        39: aload_1
+        40: invokevirtual #353                // Method com/cb/dungeon/Vec2i.getX:()I
+        43: aload_1
+        44: invokevirtual #354                // Method com/cb/dungeon/Vec2i.getZ:()I
+        47: aload_3
+        48: invokespecial #366                // Method getTopLayerOfRoom:(IILnet/minecraft/world/level/chunk/LevelChunk;)I
+        51: istore        4
+        53: iload         4
+        55: ifgt          60
+        58: aconst_null
+        59: areturn
+        60: aload_0
+        61: aload_1
+        62: invokevirtual #353                // Method com/cb/dungeon/Vec2i.getX:()I
+        65: aload_1
+        66: invokevirtual #354                // Method com/cb/dungeon/Vec2i.getZ:()I
+        69: iload         4
+        71: aload_3
+        72: invokespecial #370                // Method getCoreAtHeight:(IIILnet/minecraft/world/level/chunk/LevelChunk;)I
+        75: istore        5
+        77: getstatic     #223                // Field coreToRoom:Ljava/util/Map;
+        80: iload         5
+        82: invokestatic  #203                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        85: invokeinterface #376,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        90: checkcast     #140                // class com/cb/dungeon/RoomInfo
+        93: dup
+        94: ifnonnull     100
+        97: pop
+        98: aconst_null
+        99: areturn
+       100: astore        6
+       102: aload_0
+       103: aload_1
+       104: aload         6
+       106: invokevirtual #192                // Method com/cb/dungeon/RoomInfo.getCores:()Ljava/util/List;
+       109: iload         4
+       111: aload_2
+       112: aconst_null
+       113: aconst_null
+       114: bipush        48
+       116: aconst_null
+       117: invokestatic  #380                // Method findComponentsRecursive$default:(Lcom/cb/dungeon/RoomScanner;Lcom/cb/dungeon/Vec2i;Ljava/util/List;ILnet/minecraft/client/multiplayer/ClientLevel;Ljava/util/Set;Ljava/util/Set;ILjava/lang/Object;)Ljava/util/Set;
+       120: astore        7
+       122: new           #301                // class com/cb/dungeon/ScannedRoom
+       125: dup
+       126: aload         6
+       128: aconst_null
+       129: aconst_null
+       130: aload         7
+       132: bipush        6
+       134: aconst_null
+       135: invokespecial #383                // Method com/cb/dungeon/ScannedRoom."<init>":(Lcom/cb/dungeon/RoomInfo;Lcom/cb/dungeon/Rotation;Lnet/minecraft/core/BlockPos;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+       138: astore        8
+       140: aload_0
+       141: aload         8
+       143: iload         4
+       145: aload_2
+       146: invokespecial #387                // Method findRotation:(Lcom/cb/dungeon/ScannedRoom;ILnet/minecraft/client/multiplayer/ClientLevel;)V
+       149: aload         8
+       151: areturn
+      Exception table:
+         from    to  target type
+             0    19    22   Class java/lang/Exception
+
+  private final int getTopLayerOfRoom(int, int, net.minecraft.world.level.chunk.LevelChunk);
+    Code:
+         0: sipush        140
+         3: istore        4
+         5: bipush        59
+         7: iload         4
+         9: if_icmpge     80
+        12: getstatic     #400                // Field mutableBlockPos:Lnet/minecraft/core/BlockPos$MutableBlockPos;
+        15: iload_1
+        16: iload         4
+        18: iload_2
+        19: invokevirtual #406                // Method net/minecraft/core/BlockPos$MutableBlockPos.set:(III)Lnet/minecraft/core/BlockPos$MutableBlockPos;
+        22: pop
+        23: aload_3
+        24: getstatic     #400                // Field mutableBlockPos:Lnet/minecraft/core/BlockPos$MutableBlockPos;
+        27: checkcast     #289                // class net/minecraft/core/BlockPos
+        30: invokevirtual #410                // Method net/minecraft/world/level/chunk/LevelChunk.getBlockState:(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;
+        33: dup
+        34: ldc_w         #412                // String getBlockState(...)
+        37: invokestatic  #25                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullExpressionValue:(Ljava/lang/Object;Ljava/lang/String;)V
+        40: astore        5
+        42: aload         5
+        44: invokevirtual #417                // Method net/minecraft/world/level/block/state/BlockState.isAir:()Z
+        47: ifne          74
+        50: aload         5
+        52: invokevirtual #421                // Method net/minecraft/world/level/block/state/BlockState.getBlock:()Lnet/minecraft/world/level/block/Block;
+        55: getstatic     #427                // Field net/minecraft/world/level/block/Blocks.GOLD_BLOCK:Lnet/minecraft/world/level/block/Block;
+        58: invokestatic  #314                // Method kotlin/jvm/internal/Intrinsics.areEqual:(Ljava/lang/Object;Ljava/lang/Object;)Z
+        61: ifeq          71
+        64: iload         4
+        66: iconst_1
+        67: isub
+        68: goto          73
+        71: iload         4
+        73: ireturn
+        74: iinc          4, -1
+        77: goto          5
+        80: iconst_0
+        81: ireturn
+
+  private final int getCoreAtHeight(int, int, int, net.minecraft.world.level.chunk.LevelChunk);
+    Code:
+         0: new           #434                // class java/lang/StringBuilder
+         3: dup
+         4: sipush        150
+         7: invokespecial #435                // Method java/lang/StringBuilder."<init>":(I)V
+        10: astore        5
+        12: iload_3
+        13: new           #437                // class kotlin/ranges/IntRange
+        16: dup
+        17: bipush        11
+        19: sipush        140
+        22: invokespecial #438                // Method kotlin/ranges/IntRange."<init>":(II)V
+        25: checkcast     #440                // class kotlin/ranges/ClosedRange
+        28: invokestatic  #446                // Method kotlin/ranges/RangesKt.coerceIn:(ILkotlin/ranges/ClosedRange;)I
+        31: istore        6
+        33: aload         5
+        35: iconst_0
+        36: istore        7
+        38: sipush        140
+        41: iload         6
+        43: isub
+        44: istore        8
+        46: iload         8
+        48: newarray       char
+        50: astore        9
+        52: astore        14
+        54: iload         7
+        56: iload         8
+        58: if_icmpge     78
+        61: iload         7
+        63: istore        10
+        65: aload         9
+        67: iload         10
+        69: bipush        48
+        71: castore
+        72: iinc          7, 1
+        75: goto          54
+        78: aload         14
+        80: aload         9
+        82: invokevirtual #450                // Method java/lang/StringBuilder.append:([C)Ljava/lang/StringBuilder;
+        85: pop
+        86: iconst_0
+        87: istore        7
+        89: iload         6
+        91: istore        8
+        93: bipush        11
+        95: iload         8
+        97: if_icmpge     286
+       100: getstatic     #400                // Field mutableBlockPos:Lnet/minecraft/core/BlockPos$MutableBlockPos;
+       103: iload_1
+       104: iload         8
+       106: iload_2
+       107: invokevirtual #406                // Method net/minecraft/core/BlockPos$MutableBlockPos.set:(III)Lnet/minecraft/core/BlockPos$MutableBlockPos;
+       110: pop
+       111: aload         4
+       113: getstatic     #400                // Field mutableBlockPos:Lnet/minecraft/core/BlockPos$MutableBlockPos;
+       116: checkcast     #289                // class net/minecraft/core/BlockPos
+       119: invokevirtual #410                // Method net/minecraft/world/level/chunk/LevelChunk.getBlockState:(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;
+       122: invokevirtual #421                // Method net/minecraft/world/level/block/state/BlockState.getBlock:()Lnet/minecraft/world/level/block/Block;
+       125: dup
+       126: ldc_w         #452                // String getBlock(...)
+       129: invokestatic  #25                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullExpressionValue:(Ljava/lang/Object;Ljava/lang/String;)V
+       132: astore        9
+       134: aload         9
+       136: getstatic     #455                // Field net/minecraft/world/level/block/Blocks.AIR:Lnet/minecraft/world/level/block/Block;
+       139: invokestatic  #314                // Method kotlin/jvm/internal/Intrinsics.areEqual:(Ljava/lang/Object;Ljava/lang/Object;)Z
+       142: ifeq          213
+       145: iload         7
+       147: iconst_2
+       148: if_icmplt     213
+       151: iload         8
+       153: bipush        69
+       155: if_icmpge     213
+       158: aload         5
+       160: iconst_0
+       161: istore        10
+       163: iload         8
+       165: bipush        11
+       167: isub
+       168: istore        11
+       170: iload         11
+       172: newarray       char
+       174: astore        12
+       176: astore        14
+       178: iload         10
+       180: iload         11
+       182: if_icmpge     202
+       185: iload         10
+       187: istore        13
+       189: aload         12
+       191: iload         13
+       193: bipush        48
+       195: castore
+       196: iinc          10, 1
+       199: goto          178
+       202: aload         14
+       204: aload         12
+       206: invokevirtual #450                // Method java/lang/StringBuilder.append:([C)Ljava/lang/StringBuilder;
+       209: pop
+       210: goto          286
+       213: aload         9
+       215: getstatic     #458                // Field net/minecraft/world/level/block/Blocks.BEDROCK:Lnet/minecraft/world/level/block/Block;
+       218: invokestatic  #314                // Method kotlin/jvm/internal/Intrinsics.areEqual:(Ljava/lang/Object;Ljava/lang/Object;)Z
+       221: ifeq          233
+       224: iload         7
+       226: iinc          7, 1
+       229: pop
+       230: goto          272
+       233: iconst_0
+       234: istore        7
+       236: aload         9
+       238: getstatic     #461                // Field net/minecraft/world/level/block/Blocks.OAK_PLANKS:Lnet/minecraft/world/level/block/Block;
+       241: invokestatic  #314                // Method kotlin/jvm/internal/Intrinsics.areEqual:(Ljava/lang/Object;Ljava/lang/Object;)Z
+       244: ifne          269
+       247: aload         9
+       249: getstatic     #464                // Field net/minecraft/world/level/block/Blocks.TRAPPED_CHEST:Lnet/minecraft/world/level/block/Block;
+       252: invokestatic  #314                // Method kotlin/jvm/internal/Intrinsics.areEqual:(Ljava/lang/Object;Ljava/lang/Object;)Z
+       255: ifne          269
+       258: aload         9
+       260: getstatic     #467                // Field net/minecraft/world/level/block/Blocks.CHEST:Lnet/minecraft/world/level/block/Block;
+       263: invokestatic  #314                // Method kotlin/jvm/internal/Intrinsics.areEqual:(Ljava/lang/Object;Ljava/lang/Object;)Z
+       266: ifeq          272
+       269: goto          280
+       272: aload         5
+       274: aload         9
+       276: invokevirtual #470                // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+       279: pop
+       280: iinc          8, -1
+       283: goto          93
+       286: aload         5
+       288: invokevirtual #473                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+       291: invokevirtual #476                // Method java/lang/String.hashCode:()I
+       294: ireturn
+
+  private final java.util.Set<com.cb.dungeon.Vec2i> findComponentsRecursive(com.cb.dungeon.Vec2i, java.util.List<java.lang.Integer>, int, net.minecraft.client.multiplayer.ClientLevel, java.util.Set<com.cb.dungeon.Vec2i>, java.util.Set<com.cb.dungeon.Vec2i>);
+    Code:
+         0: aload         5
+         2: aload_1
+         3: invokeinterface #310,  2          // InterfaceMethod java/util/Set.contains:(Ljava/lang/Object;)Z
+         8: ifeq          14
+        11: aload         6
+        13: areturn
+        14: aload         5
+        16: aload_1
+        17: invokeinterface #489,  2          // InterfaceMethod java/util/Set.add:(Ljava/lang/Object;)Z
+        22: pop
+        23: nop
+        24: aload         4
+        26: aload_1
+        27: invokevirtual #353                // Method com/cb/dungeon/Vec2i.getX:()I
+        30: iconst_4
+        31: ishr
+        32: aload_1
+        33: invokevirtual #354                // Method com/cb/dungeon/Vec2i.getZ:()I
+        36: iconst_4
+        37: ishr
+        38: invokevirtual #358                // Method net/minecraft/client/multiplayer/ClientLevel.getChunk:(II)Lnet/minecraft/world/level/chunk/LevelChunk;
+        41: astore        9
+        43: goto          51
+        46: astore        10
+        48: aload         6
+        50: areturn
+        51: aload         9
+        53: astore        8
+        55: aload         8
+        57: invokestatic  #362                // Method kotlin/jvm/internal/Intrinsics.checkNotNull:(Ljava/lang/Object;)V
+        60: aload         8
+        62: astore        7
+        64: aload_0
+        65: aload_1
+        66: invokevirtual #353                // Method com/cb/dungeon/Vec2i.getX:()I
+        69: aload_1
+        70: invokevirtual #354                // Method com/cb/dungeon/Vec2i.getZ:()I
+        73: iload_3
+        74: aload         7
+        76: invokespecial #370                // Method getCoreAtHeight:(IIILnet/minecraft/world/level/chunk/LevelChunk;)I
+        79: istore        8
+        81: aload_2
+        82: iload         8
+        84: invokestatic  #203                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        87: invokeinterface #490,  2          // InterfaceMethod java/util/List.contains:(Ljava/lang/Object;)Z
+        92: ifne          98
+        95: aload         6
+        97: areturn
+        98: aload         6
+       100: aload_1
+       101: invokeinterface #489,  2          // InterfaceMethod java/util/Set.add:(Ljava/lang/Object;)Z
+       106: pop
+       107: getstatic     #493                // Field horizontals:Ljava/util/List;
+       110: invokeinterface #494,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+       115: astore        9
+       117: aload         9
+       119: invokeinterface #132,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       124: ifeq          224
+       127: aload         9
+       129: invokeinterface #136,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       134: checkcast     #496                // class net/minecraft/core/Direction
+       137: astore        10
+       139: aload_1
+       140: invokevirtual #353                // Method com/cb/dungeon/Vec2i.getX:()I
+       143: aload         10
+       145: invokevirtual #500                // Method net/minecraft/core/Direction.getAxis:()Lnet/minecraft/core/Direction$Axis;
+       148: getstatic     #506                // Field net/minecraft/core/Direction$Axis.X:Lnet/minecraft/core/Direction$Axis;
+       151: if_acmpne     162
+       154: aload         10
+       156: invokevirtual #509                // Method net/minecraft/core/Direction.getStepX:()I
+       159: goto          163
+       162: iconst_0
+       163: iconst_5
+       164: ishl
+       165: iadd
+       166: istore        11
+       168: aload_1
+       169: invokevirtual #354                // Method com/cb/dungeon/Vec2i.getZ:()I
+       172: aload         10
+       174: invokevirtual #500                // Method net/minecraft/core/Direction.getAxis:()Lnet/minecraft/core/Direction$Axis;
+       177: getstatic     #511                // Field net/minecraft/core/Direction$Axis.Z:Lnet/minecraft/core/Direction$Axis;
+       180: if_acmpne     191
+       183: aload         10
+       185: invokevirtual #514                // Method net/minecraft/core/Direction.getStepZ:()I
+       188: goto          192
+       191: iconst_0
+       192: iconst_5
+       193: ishl
+       194: iadd
+       195: istore        12
+       197: aload_0
+       198: new           #344                // class com/cb/dungeon/Vec2i
+       201: dup
+       202: iload         11
+       204: iload         12
+       206: invokespecial #348                // Method com/cb/dungeon/Vec2i."<init>":(II)V
+       209: aload_2
+       210: iload_3
+       211: aload         4
+       213: aload         5
+       215: aload         6
+       217: invokespecial #516                // Method findComponentsRecursive:(Lcom/cb/dungeon/Vec2i;Ljava/util/List;ILnet/minecraft/client/multiplayer/ClientLevel;Ljava/util/Set;Ljava/util/Set;)Ljava/util/Set;
+       220: pop
+       221: goto          117
+       224: aload         6
+       226: areturn
+      Exception table:
+         from    to  target type
+            23    43    46   Class java/lang/Exception
+
+  static java.util.Set findComponentsRecursive$default(com.cb.dungeon.RoomScanner, com.cb.dungeon.Vec2i, java.util.List, int, net.minecraft.client.multiplayer.ClientLevel, java.util.Set, java.util.Set, int, java.lang.Object);
+    Code:
+         0: iload         7
+         2: bipush        16
+         4: iand
+         5: ifeq          20
+         8: new           #525                // class java/util/LinkedHashSet
+        11: dup
+        12: invokespecial #526                // Method java/util/LinkedHashSet."<init>":()V
+        15: checkcast     #307                // class java/util/Set
+        18: astore        5
+        20: iload         7
+        22: bipush        32
+        24: iand
+        25: ifeq          40
+        28: new           #525                // class java/util/LinkedHashSet
+        31: dup
+        32: invokespecial #526                // Method java/util/LinkedHashSet."<init>":()V
+        35: checkcast     #307                // class java/util/Set
+        38: astore        6
+        40: aload_0
+        41: aload_1
+        42: aload_2
+        43: iload_3
+        44: aload         4
+        46: aload         5
+        48: aload         6
+        50: invokespecial #516                // Method findComponentsRecursive:(Lcom/cb/dungeon/Vec2i;Ljava/util/List;ILnet/minecraft/client/multiplayer/ClientLevel;Ljava/util/Set;Ljava/util/Set;)Ljava/util/Set;
+        53: areturn
+
+  private final void findRotation(com.cb.dungeon.ScannedRoom, int, net.minecraft.client.multiplayer.ClientLevel);
+    Code:
+         0: aload_1
+         1: invokevirtual #332                // Method com/cb/dungeon/ScannedRoom.getData:()Lcom/cb/dungeon/RoomInfo;
+         4: invokevirtual #333                // Method com/cb/dungeon/RoomInfo.getName:()Ljava/lang/String;
+         7: ldc_w         #528                // String Fairy
+        10: invokestatic  #314                // Method kotlin/jvm/internal/Intrinsics.areEqual:(Ljava/lang/Object;Ljava/lang/Object;)Z
+        13: ifeq          80
+        16: aload_1
+        17: invokevirtual #305                // Method com/cb/dungeon/ScannedRoom.getComponents:()Ljava/util/Set;
+        20: checkcast     #109                // class java/lang/Iterable
+        23: invokestatic  #532                // Method kotlin/collections/CollectionsKt.firstOrNull:(Ljava/lang/Iterable;)Ljava/lang/Object;
+        26: checkcast     #344                // class com/cb/dungeon/Vec2i
+        29: dup
+        30: ifnull        77
+        33: astore        6
+        35: iconst_0
+        36: istore        7
+        38: aload_1
+        39: new           #289                // class net/minecraft/core/BlockPos
+        42: dup
+        43: aload         6
+        45: invokevirtual #353                // Method com/cb/dungeon/Vec2i.getX:()I
+        48: bipush        15
+        50: isub
+        51: iload_2
+        52: aload         6
+        54: invokevirtual #354                // Method com/cb/dungeon/Vec2i.getZ:()I
+        57: bipush        15
+        59: isub
+        60: invokespecial #535                // Method net/minecraft/core/BlockPos."<init>":(III)V
+        63: invokevirtual #539                // Method com/cb/dungeon/ScannedRoom.setClayPos:(Lnet/minecraft/core/BlockPos;)V
+        66: aload_1
+        67: getstatic     #542                // Field com/cb/dungeon/Rotation.SOUTH:Lcom/cb/dungeon/Rotation;
+        70: invokevirtual #546                // Method com/cb/dungeon/ScannedRoom.setRotation:(Lcom/cb/dungeon/Rotation;)V
+        73: nop
+        74: goto          79
+        77: pop
+        78: nop
+        79: return
+        80: invokestatic  #550                // Method com/cb/dungeon/Rotation.getEntries:()Lkotlin/enums/EnumEntries;
+        83: invokeinterface #553,  1          // InterfaceMethod kotlin/enums/EnumEntries.iterator:()Ljava/util/Iterator;
+        88: astore        4
+        90: aload         4
+        92: invokeinterface #132,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        97: ifeq          265
+       100: aload         4
+       102: invokeinterface #136,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       107: checkcast     #324                // class com/cb/dungeon/Rotation
+       110: astore        5
+       112: aload         5
+       114: getstatic     #328                // Field com/cb/dungeon/Rotation.NONE:Lcom/cb/dungeon/Rotation;
+       117: if_acmpeq     90
+       120: aload_1
+       121: invokevirtual #305                // Method com/cb/dungeon/ScannedRoom.getComponents:()Ljava/util/Set;
+       124: invokeinterface #554,  1          // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+       129: astore        6
+       131: aload         6
+       133: invokeinterface #132,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       138: ifeq          90
+       141: aload         6
+       143: invokeinterface #136,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       148: checkcast     #344                // class com/cb/dungeon/Vec2i
+       151: astore        7
+       153: new           #289                // class net/minecraft/core/BlockPos
+       156: dup
+       157: aload         7
+       159: invokevirtual #353                // Method com/cb/dungeon/Vec2i.getX:()I
+       162: aload         5
+       164: invokevirtual #555                // Method com/cb/dungeon/Rotation.getX:()I
+       167: iadd
+       168: iload_2
+       169: aload         7
+       171: invokevirtual #354                // Method com/cb/dungeon/Vec2i.getZ:()I
+       174: aload         5
+       176: invokevirtual #556                // Method com/cb/dungeon/Rotation.getZ:()I
+       179: iadd
+       180: invokespecial #535                // Method net/minecraft/core/BlockPos."<init>":(III)V
+       183: astore        8
+       185: nop
+       186: aload_3
+       187: aload         8
+       189: invokevirtual #557                // Method net/minecraft/client/multiplayer/ClientLevel.getBlockState:(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;
+       192: astore        11
+       194: goto          202
+       197: astore        12
+       199: goto          131
+       202: aload         11
+       204: astore        10
+       206: aload         10
+       208: invokestatic  #362                // Method kotlin/jvm/internal/Intrinsics.checkNotNull:(Ljava/lang/Object;)V
+       211: aload         10
+       213: astore        9
+       215: aload         9
+       217: invokevirtual #421                // Method net/minecraft/world/level/block/state/BlockState.getBlock:()Lnet/minecraft/world/level/block/Block;
+       220: getstatic     #560                // Field net/minecraft/world/level/block/Blocks.BLUE_TERRACOTTA:Lnet/minecraft/world/level/block/Block;
+       223: invokestatic  #314                // Method kotlin/jvm/internal/Intrinsics.areEqual:(Ljava/lang/Object;Ljava/lang/Object;)Z
+       226: ifeq          131
+       229: aload_1
+       230: invokevirtual #305                // Method com/cb/dungeon/ScannedRoom.getComponents:()Ljava/util/Set;
+       233: invokeinterface #563,  1          // InterfaceMethod java/util/Set.size:()I
+       238: iconst_1
+       239: if_icmpeq     252
+       242: aload_0
+       243: aload         8
+       245: aload_3
+       246: invokespecial #567                // Method validateClay:(Lnet/minecraft/core/BlockPos;Lnet/minecraft/client/multiplayer/ClientLevel;)Z
+       249: ifeq          131
+       252: aload_1
+       253: aload         8
+       255: invokevirtual #539                // Method com/cb/dungeon/ScannedRoom.setClayPos:(Lnet/minecraft/core/BlockPos;)V
+       258: aload_1
+       259: aload         5
+       261: invokevirtual #546                // Method com/cb/dungeon/ScannedRoom.setRotation:(Lcom/cb/dungeon/Rotation;)V
+       264: return
+       265: return
+      Exception table:
+         from    to  target type
+           185   194   197   Class java/lang/Exception
+
+  private final boolean validateClay(net.minecraft.core.BlockPos, net.minecraft.client.multiplayer.ClientLevel);
+    Code:
+         0: getstatic     #493                // Field horizontals:Ljava/util/List;
+         3: invokeinterface #494,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+         8: astore_3
+         9: aload_3
+        10: invokeinterface #132,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        15: ifeq          139
+        18: aload_3
+        19: invokeinterface #136,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        24: checkcast     #496                // class net/minecraft/core/Direction
+        27: astore        4
+        29: aload_1
+        30: aload         4
+        32: invokevirtual #500                // Method net/minecraft/core/Direction.getAxis:()Lnet/minecraft/core/Direction$Axis;
+        35: getstatic     #506                // Field net/minecraft/core/Direction$Axis.X:Lnet/minecraft/core/Direction$Axis;
+        38: if_acmpne     49
+        41: aload         4
+        43: invokevirtual #509                // Method net/minecraft/core/Direction.getStepX:()I
+        46: goto          50
+        49: iconst_0
+        50: iconst_0
+        51: aload         4
+        53: invokevirtual #500                // Method net/minecraft/core/Direction.getAxis:()Lnet/minecraft/core/Direction$Axis;
+        56: getstatic     #511                // Field net/minecraft/core/Direction$Axis.Z:Lnet/minecraft/core/Direction$Axis;
+        59: if_acmpne     70
+        62: aload         4
+        64: invokevirtual #514                // Method net/minecraft/core/Direction.getStepZ:()I
+        67: goto          71
+        70: iconst_0
+        71: invokevirtual #576                // Method net/minecraft/core/BlockPos.offset:(III)Lnet/minecraft/core/BlockPos;
+        74: dup
+        75: ldc_w         #578                // String offset(...)
+        78: invokestatic  #25                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullExpressionValue:(Ljava/lang/Object;Ljava/lang/String;)V
+        81: astore        5
+        83: nop
+        84: aload_2
+        85: aload         5
+        87: invokevirtual #557                // Method net/minecraft/client/multiplayer/ClientLevel.getBlockState:(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;
+        90: invokevirtual #421                // Method net/minecraft/world/level/block/state/BlockState.getBlock:()Lnet/minecraft/world/level/block/Block;
+        93: astore        8
+        95: goto          102
+        98: astore        9
+       100: iconst_0
+       101: ireturn
+       102: aload         8
+       104: astore        7
+       106: aload         7
+       108: invokestatic  #362                // Method kotlin/jvm/internal/Intrinsics.checkNotNull:(Ljava/lang/Object;)V
+       111: aload         7
+       113: astore        6
+       115: aload         6
+       117: getstatic     #455                // Field net/minecraft/world/level/block/Blocks.AIR:Lnet/minecraft/world/level/block/Block;
+       120: invokestatic  #314                // Method kotlin/jvm/internal/Intrinsics.areEqual:(Ljava/lang/Object;Ljava/lang/Object;)Z
+       123: ifne          9
+       126: aload         6
+       128: getstatic     #560                // Field net/minecraft/world/level/block/Blocks.BLUE_TERRACOTTA:Lnet/minecraft/world/level/block/Block;
+       131: invokestatic  #314                // Method kotlin/jvm/internal/Intrinsics.areEqual:(Ljava/lang/Object;Ljava/lang/Object;)Z
+       134: ifne          9
+       137: iconst_0
+       138: ireturn
+       139: iconst_1
+       140: ireturn
+      Exception table:
+         from    to  target type
+            83    95    98   Class java/lang/Exception
+
+  public final boolean isReady();
+    Code:
+         0: getstatic     #223                // Field coreToRoom:Ljava/util/Map;
+         3: invokeinterface #584,  1          // InterfaceMethod java/util/Map.isEmpty:()Z
+         8: ifne          15
+        11: iconst_1
+        12: goto          16
+        15: iconst_0
+        16: ireturn
+
+  public final com.cb.dungeon.ScannedRoom scanAt(com.cb.dungeon.Vec2i, net.minecraft.client.multiplayer.ClientLevel);
+    Code:
+         0: aload_1
+         1: ldc_w         #586                // String center
+         4: invokestatic  #589                // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+         7: aload_2
+         8: ldc_w         #590                // String level
+        11: invokestatic  #589                // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+        14: aload_0
+        15: aload_1
+        16: aload_2
+        17: invokespecial #318                // Method scanRoom:(Lcom/cb/dungeon/Vec2i;Lnet/minecraft/client/multiplayer/ClientLevel;)Lcom/cb/dungeon/ScannedRoom;
+        20: areturn
+
+  public final java.lang.String detectDoorType(int, int, net.minecraft.client.multiplayer.ClientLevel);
+    Code:
+         0: aload_3
+         1: ldc_w         #590                // String level
+         4: invokestatic  #589                // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+         7: iconst_0
+         8: istore        4
+        10: sipush        140
+        13: istore        5
+        15: bipush        11
+        17: iload         5
+        19: if_icmpge     87
+        22: getstatic     #400                // Field mutableBlockPos:Lnet/minecraft/core/BlockPos$MutableBlockPos;
+        25: iload_1
+        26: iload         5
+        28: iload_2
+        29: invokevirtual #406                // Method net/minecraft/core/BlockPos$MutableBlockPos.set:(III)Lnet/minecraft/core/BlockPos$MutableBlockPos;
+        32: pop
+        33: nop
+        34: aload_3
+        35: getstatic     #400                // Field mutableBlockPos:Lnet/minecraft/core/BlockPos$MutableBlockPos;
+        38: checkcast     #289                // class net/minecraft/core/BlockPos
+        41: invokevirtual #557                // Method net/minecraft/client/multiplayer/ClientLevel.getBlockState:(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;
+        44: astore        8
+        46: goto          53
+        49: astore        9
+        51: aconst_null
+        52: areturn
+        53: aload         8
+        55: astore        7
+        57: aload         7
+        59: invokestatic  #362                // Method kotlin/jvm/internal/Intrinsics.checkNotNull:(Ljava/lang/Object;)V
+        62: aload         7
+        64: astore        6
+        66: aload         6
+        68: invokevirtual #417                // Method net/minecraft/world/level/block/state/BlockState.isAir:()Z
+        71: ifne          81
+        74: iload         5
+        76: istore        4
+        78: goto          87
+        81: iinc          5, -1
+        84: goto          15
+        87: bipush        73
+        89: iload         4
+        91: if_icmpgt     109
+        94: iload         4
+        96: bipush        83
+        98: if_icmpge     105
+       101: iconst_1
+       102: goto          110
+       105: iconst_0
+       106: goto          110
+       109: iconst_0
+       110: ifne          115
+       113: aconst_null
+       114: areturn
+       115: getstatic     #400                // Field mutableBlockPos:Lnet/minecraft/core/BlockPos$MutableBlockPos;
+       118: iload_1
+       119: bipush        69
+       121: iload_2
+       122: invokevirtual #406                // Method net/minecraft/core/BlockPos$MutableBlockPos.set:(III)Lnet/minecraft/core/BlockPos$MutableBlockPos;
+       125: pop
+       126: nop
+       127: aload_3
+       128: getstatic     #400                // Field mutableBlockPos:Lnet/minecraft/core/BlockPos$MutableBlockPos;
+       131: checkcast     #289                // class net/minecraft/core/BlockPos
+       134: invokevirtual #557                // Method net/minecraft/client/multiplayer/ClientLevel.getBlockState:(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;
+       137: invokevirtual #421                // Method net/minecraft/world/level/block/state/BlockState.getBlock:()Lnet/minecraft/world/level/block/Block;
+       140: astore        7
+       142: goto          149
+       145: astore        8
+       147: aconst_null
+       148: areturn
+       149: aload         7
+       151: astore        6
+       153: aload         6
+       155: invokestatic  #362                // Method kotlin/jvm/internal/Intrinsics.checkNotNull:(Ljava/lang/Object;)V
+       158: aload         6
+       160: astore        5
+       162: aload         5
+       164: astore        6
+       166: aload         6
+       168: getstatic     #595                // Field net/minecraft/world/level/block/Blocks.COAL_BLOCK:Lnet/minecraft/world/level/block/Block;
+       171: invokestatic  #314                // Method kotlin/jvm/internal/Intrinsics.areEqual:(Ljava/lang/Object;Ljava/lang/Object;)Z
+       174: ifeq          183
+       177: ldc_w         #597                // String wither
+       180: goto          218
+       183: aload         6
+       185: getstatic     #600                // Field net/minecraft/world/level/block/Blocks.RED_TERRACOTTA:Lnet/minecraft/world/level/block/Block;
+       188: invokestatic  #314                // Method kotlin/jvm/internal/Intrinsics.areEqual:(Ljava/lang/Object;Ljava/lang/Object;)Z
+       191: ifeq          200
+       194: ldc_w         #602                // String blood
+       197: goto          218
+       200: aload         6
+       202: getstatic     #455                // Field net/minecraft/world/level/block/Blocks.AIR:Lnet/minecraft/world/level/block/Block;
+       205: invokestatic  #314                // Method kotlin/jvm/internal/Intrinsics.areEqual:(Ljava/lang/Object;Ljava/lang/Object;)Z
+       208: ifeq          217
+       211: ldc_w         #604                // String normal
+       214: goto          218
+       217: aconst_null
+       218: areturn
+      Exception table:
+         from    to  target type
+            33    46    49   Class java/lang/Exception
+           126   142   145   Class java/lang/Exception
+
+  static {};
+    Code:
+         0: new           #2                  // class com/cb/dungeon/RoomScanner
+         3: dup
+         4: invokespecial #609                // Method "<init>":()V
+         7: putstatic     #612                // Field INSTANCE:Lcom/cb/dungeon/RoomScanner;
+        10: iconst_4
+        11: anewarray     #496                // class net/minecraft/core/Direction
+        14: astore_0
+        15: aload_0
+        16: iconst_0
+        17: getstatic     #615                // Field net/minecraft/core/Direction.NORTH:Lnet/minecraft/core/Direction;
+        20: aastore
+        21: aload_0
+        22: iconst_1
+        23: getstatic     #617                // Field net/minecraft/core/Direction.SOUTH:Lnet/minecraft/core/Direction;
+        26: aastore
+        27: aload_0
+        28: iconst_2
+        29: getstatic     #620                // Field net/minecraft/core/Direction.EAST:Lnet/minecraft/core/Direction;
+        32: aastore
+        33: aload_0
+        34: iconst_3
+        35: getstatic     #623                // Field net/minecraft/core/Direction.WEST:Lnet/minecraft/core/Direction;
+        38: aastore
+        39: aload_0
+        40: invokestatic  #627                // Method kotlin/collections/CollectionsKt.listOf:([Ljava/lang/Object;)Ljava/util/List;
+        43: putstatic     #493                // Field horizontals:Ljava/util/List;
+        46: new           #402                // class net/minecraft/core/BlockPos$MutableBlockPos
+        49: dup
+        50: invokespecial #628                // Method net/minecraft/core/BlockPos$MutableBlockPos."<init>":()V
+        53: putstatic     #400                // Field mutableBlockPos:Lnet/minecraft/core/BlockPos$MutableBlockPos;
+        56: invokestatic  #631                // Method kotlin/collections/CollectionsKt.emptyList:()Ljava/util/List;
+        59: putstatic     #190                // Field roomDatabase:Ljava/util/List;
+        62: invokestatic  #635                // Method kotlin/collections/MapsKt.emptyMap:()Ljava/util/Map;
+        65: putstatic     #223                // Field coreToRoom:Ljava/util/Map;
+        68: return
+}

@@ -85,9 +85,9 @@ public final class ScannedRoom {
       return this.rotation;
    }
 
-   public final void setRotation(@NotNull Rotation var1) {
-      Intrinsics.checkNotNullParameter(var1/* $VF was: <set-?> */, "<set-?>");
-      this.rotation = var1/* $VF was: <set-?> */;
+   public final void setRotation(@NotNull Rotation rotation) {
+      Intrinsics.checkNotNullParameter(rotation, "<set-?>");
+      this.rotation = rotation;
    }
 
    @NotNull
@@ -95,9 +95,9 @@ public final class ScannedRoom {
       return this.clayPos;
    }
 
-   public final void setClayPos(@NotNull BlockPos var1) {
-      Intrinsics.checkNotNullParameter(var1/* $VF was: <set-?> */, "<set-?>");
-      this.clayPos = var1/* $VF was: <set-?> */;
+   public final void setClayPos(@NotNull BlockPos clayPos) {
+      Intrinsics.checkNotNullParameter(clayPos, "<set-?>");
+      this.clayPos = clayPos;
    }
 
    @NotNull
@@ -152,14 +152,14 @@ public final class ScannedRoom {
    public boolean equals(@Nullable Object other) {
       if (this == other) {
          return true;
-      } else if (!(other instanceof ScannedRoom var2)) {
+      } else if (!(other instanceof ScannedRoom that)) {
          return false;
-      } else if (!Intrinsics.areEqual(this.data, var2.data)) {
+      } else if (!Intrinsics.areEqual(this.data, that.data)) {
          return false;
-      } else if (this.rotation != var2.rotation) {
+      } else if (this.rotation != that.rotation) {
          return false;
       } else {
-         return !Intrinsics.areEqual(this.clayPos, var2.clayPos) ? false : Intrinsics.areEqual(this.components, var2.components);
+         return !Intrinsics.areEqual(this.clayPos, that.clayPos) ? false : Intrinsics.areEqual(this.components, that.components);
       }
    }
 }

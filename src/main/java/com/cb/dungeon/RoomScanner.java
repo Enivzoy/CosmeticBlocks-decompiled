@@ -5,19 +5,17 @@ import com.google.gson.reflect.TypeToken;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.lang.reflect.Type;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import kotlin.Metadata;
+import kotlin.Pair;
 import kotlin.TuplesKt;
 import kotlin.collections.CollectionsKt;
 import kotlin.collections.MapsKt;
-import kotlin.io.CloseableKt;
 import kotlin.io.TextStreamsKt;
 import kotlin.jvm.internal.Intrinsics;
 import kotlin.jvm.internal.SourceDebugExtension;
@@ -138,9 +136,9 @@ public final class RoomScanner {
    }
 
    private final Minecraft getMc() {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      return var10000;
+      Minecraft mc = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(mc, "getInstance(...)");
+      return mc;
    }
 
    @Nullable
@@ -162,103 +160,57 @@ public final class RoomScanner {
 
    private final void loadRoomDatabase() {
       try {
-         InputStream var10000 = RoomScanner.class.getResourceAsStream("/assets/cb/rooms.json");
-         if (var10000 == null) {
+         InputStream stream = RoomScanner.class.getResourceAsStream("/assets/cb/rooms.json");
+         if (stream == null) {
             return;
          }
 
-         InputStream stream = var10000;
-         InputStream type = stream;
-         Charset entries = Charsets.UTF_8;
-         Reader $this$flatMap$iv = new InputStreamReader(type, entries);
-         int var6/* $VF was: $i$a$-use-RoomScanner$loadRoomDatabase$json$1 */ = 8192;
-         var var31 = $this$flatMap$iv instanceof BufferedReader
-            ? (BufferedReader)$this$flatMap$iv
-            : new BufferedReader($this$flatMap$iv, var6/* $VF was: $i$a$-use-RoomScanner$loadRoomDatabase$json$1 */);
-         Throwable var33 = null;
-         String var36;
-
-         try {
-            BufferedReader it = var31;
-            var6/* $VF was: $i$a$-use-RoomScanner$loadRoomDatabase$json$1 */ = 0;
-            var36 = TextStreamsKt.readText(it);
-         } catch (Throwable var28) {
-            var33 = var28;
-            throw var28;
-         } finally {
-            CloseableKt.closeFinally(var31, var33);
+         String json;
+         try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, Charsets.UTF_8), 8192)) {
+            json = TextStreamsKt.readText(reader);
          }
 
-         String json = var36;
-         Type var32 = (new TypeToken<List<? extends RoomScanner.RoomJsonEntry>>() {}).getType();
-         Object var50 = new Gson().fromJson(json, var32);
-         Intrinsics.checkNotNullExpressionValue(var50, "fromJson(...)");
-         List entriesx = (List)var50;
-         Iterable var37 = entriesx;
-         int $i$f$flatMap = 0;
-         Iterable $this$flatMapTo$iv$iv = var37;
-         var destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault(var37, 10));
-         int $i$f$flatMapTo = 0;
+         Type type = (new TypeToken<List<RoomScanner.RoomJsonEntry>>() {}).getType();
+         List<RoomScanner.RoomJsonEntry> entries = new Gson().fromJson(json, type);
+         Intrinsics.checkNotNullExpressionValue(entries, "fromJson(...)");
+         List<RoomInfo> database = new ArrayList<>(CollectionsKt.collectionSizeOrDefault(entries, 10));
 
-         for (Object item$iv$iv : $this$flatMapTo$iv$iv) {
-            RoomScanner.RoomJsonEntry list$iv$iv = (RoomScanner.RoomJsonEntry)item$iv$iv;
-            ArrayList var24 = destination$iv$iv;
-            int var13/* $VF was: $i$a$-map-RoomScanner$loadRoomDatabase$1 */ = 0;
-            var24.add(
+         for (RoomScanner.RoomJsonEntry entry : entries) {
+            database.add(
                new RoomInfo(
-                  list$iv$iv.getName(),
-                  RoomType.Companion.fromString(list$iv$iv.getType()),
-                  list$iv$iv.getCores(),
-                  list$iv$iv.getSecrets(),
-                  RoomShape.Companion.fromString(list$iv$iv.getShape())
+                  entry.getName(),
+                  RoomType.Companion.fromString(entry.getType()),
+                  entry.getCores(),
+                  entry.getSecrets(),
+                  RoomShape.Companion.fromString(entry.getShape())
                )
             );
          }
 
-         roomDatabase = destination$iv$iv;
-         Iterable $this$flatMap$ivx = roomDatabase;
-         $i$f$flatMap = 0;
-         $this$flatMapTo$iv$iv = $this$flatMap$ivx;
-         var destination$iv$ivx = new ArrayList();
-         $i$f$flatMapTo = 0;
+         roomDatabase = database;
+         List<Pair<Integer, RoomInfo>> coreRooms = new ArrayList<>();
 
-         for (Object element$iv$iv : $this$flatMapTo$iv$iv) {
-            RoomInfo room = (RoomInfo)element$iv$iv;
-            int var49/* $VF was: $i$a$-flatMap-RoomScanner$loadRoomDatabase$2 */ = 0;
-            Iterable $this$map$iv = room.getCores();
-            int $i$f$map = 0;
-            Iterable $this$mapTo$iv$iv = $this$map$iv;
-            var destination$iv$ivxx = new ArrayList(CollectionsKt.collectionSizeOrDefault($this$map$iv, 10));
-            int $i$f$mapTo = 0;
-
-            for (Object item$iv$iv : $this$mapTo$iv$iv) {
-               int core = ((Number)item$iv$iv).intValue();
-               Collection var22 = destination$iv$ivxx;
-               int var23/* $VF was: $i$a$-map-RoomScanner$loadRoomDatabase$2$1 */ = 0;
-               var22.add(TuplesKt.to(core, room));
+         for (RoomInfo room : roomDatabase) {
+            for (Integer core : room.getCores()) {
+               coreRooms.add(TuplesKt.to(core, room));
             }
-
-            List list$iv$iv = destination$iv$ivxx;
-            CollectionsKt.addAll(destination$iv$ivx, list$iv$iv);
          }
 
-         coreToRoom = MapsKt.toMap(destination$iv$ivx);
+         coreToRoom = MapsKt.toMap(coreRooms);
       } catch (Exception e) {
          e.printStackTrace();
       }
    }
 
    public final boolean tick() {
-      LocalPlayer var10000 = this.getMc().player;
-      if (var10000 == null) {
+      LocalPlayer player = this.getMc().player;
+      if (player == null) {
          return false;
       } else {
-         LocalPlayer player = var10000;
-         ClientLevel var7 = this.getMc().level;
-         if (var7 == null) {
+         ClientLevel level = this.getMc().level;
+         if (level == null) {
             return false;
          } else {
-            ClientLevel level = var7;
             Vec2i center = this.getRoomCenter(player.blockPosition().getX(), player.blockPosition().getZ());
             ScannedRoom current = currentRoom;
             if (current != null && current.getComponents().contains(center)) {
@@ -284,46 +236,42 @@ public final class RoomScanner {
 
    @NotNull
    public final Vec2i getRoomCenter(int posX, int posZ) {
-      int roomX = posX - -185 + 16 >> 5;
-      int roomZ = posZ - -185 + 16 >> 5;
-      return new Vec2i((roomX << 5) + -185, (roomZ << 5) + -185);
+      int roomX = posX - START + 16 >> ROOM_SIZE_SHIFT;
+      int roomZ = posZ - START + 16 >> ROOM_SIZE_SHIFT;
+      return new Vec2i((roomX << ROOM_SIZE_SHIFT) + START, (roomZ << ROOM_SIZE_SHIFT) + START);
    }
 
    private final ScannedRoom scanRoom(Vec2i center, ClientLevel level) {
-      LevelChunk core;
+      LevelChunk chunk;
       try {
-         core = level.getChunk(center.getX() >> 4, center.getZ() >> 4);
-      } catch (Exception var9/* $VF was: <unused var> */) {
+         chunk = level.getChunk(center.getX() >> 4, center.getZ() >> 4);
+      } catch (Exception ignored) {
          return null;
       }
 
-      LevelChunk roomHeight = core;
-      Intrinsics.checkNotNull(roomHeight);
-      LevelChunk chunk = roomHeight;
-      int roomHeightx = this.getTopLayerOfRoom(center.getX(), center.getZ(), chunk);
-      if (roomHeightx <= 0) {
+      Intrinsics.checkNotNull(chunk);
+      int roomHeight = this.getTopLayerOfRoom(center.getX(), center.getZ(), chunk);
+      if (roomHeight <= 0) {
          return null;
       }
 
-      int corex = this.getCoreAtHeight(center.getX(), center.getZ(), roomHeightx, chunk);
-      RoomInfo var10000 = coreToRoom.get(corex);
-      if (var10000 == null) {
+      int core = this.getCoreAtHeight(center.getX(), center.getZ(), roomHeight, chunk);
+      RoomInfo roomInfo = coreToRoom.get(core);
+      if (roomInfo == null) {
          return null;
       }
 
-      RoomInfo roomInfo = var10000;
-      Set components = this.findComponentsRecursive(center, roomInfo.getCores(), roomHeightx, level, null, null);
-      ScannedRoom room = new ScannedRoom(roomInfo, null, null, components);
-      this.findRotation(room, roomHeightx, level);
+      Set<Vec2i> components = this.findComponentsRecursive(center, roomInfo.getCores(), roomHeight, level, new LinkedHashSet<>(), new LinkedHashSet<>());
+      ScannedRoom room = new ScannedRoom(roomInfo, Rotation.NONE, BlockPos.ZERO, components);
+      this.findRotation(room, roomHeight, level);
       return room;
    }
 
    private final int getTopLayerOfRoom(int x, int z, LevelChunk chunk) {
       for (int y = 140; 59 < y; y--) {
          mutableBlockPos.set(x, y, z);
-         BlockState var10000 = chunk.getBlockState(mutableBlockPos);
-         Intrinsics.checkNotNullExpressionValue(var10000, "getBlockState(...)");
-         BlockState state = var10000;
+         BlockState state = chunk.getBlockState(mutableBlockPos);
+         Intrinsics.checkNotNullExpressionValue(state, "getBlockState(...)");
          if (!state.isAir()) {
             return Intrinsics.areEqual(state.getBlock(), Blocks.GOLD_BLOCK) ? y - 1 : y;
          }
@@ -336,52 +284,45 @@ public final class RoomScanner {
       StringBuilder sb = new StringBuilder(150);
       int clampedHeight = RangesKt.coerceIn(roomHeight, new IntRange(11, 140));
       int bedrock = 0;
-      int y = 140 - clampedHeight;
-      char[] block = new char[y];
-      StringBuilder var14 = sb;
+      int paddingSize = 140 - clampedHeight;
+      char[] padding = new char[paddingSize];
 
-      while (bedrock < y) {
-         int var10 = bedrock;
-         block[var10] = '0';
+      while (bedrock < paddingSize) {
+         padding[bedrock] = '0';
          bedrock++;
       }
 
-      var14.append(block);
+      sb.append(padding);
       bedrock = 0;
 
-      for (int yx = clampedHeight; 11 < yx; yx--) {
-         mutableBlockPos.set(x, yx, z);
-         Block var10000 = chunk.getBlockState(mutableBlockPos).getBlock();
-         Intrinsics.checkNotNullExpressionValue(var10000, "getBlock(...)");
-         Block blockx = var10000;
-         if (Intrinsics.areEqual(blockx, Blocks.AIR) && bedrock >= 2 && yx < 69) {
-            int var18 = 0;
-            int var11 = yx - 11;
-            char[] var12 = new char[var11];
-            var14 = sb;
+      for (int y = clampedHeight; 11 < y; y--) {
+         mutableBlockPos.set(x, y, z);
+         Block block = chunk.getBlockState(mutableBlockPos).getBlock();
+         Intrinsics.checkNotNullExpressionValue(block, "getBlock(...)");
+         if (Intrinsics.areEqual(block, Blocks.AIR) && bedrock >= 2 && y < 69) {
+            int remaining = y - 11;
+            char[] tail = new char[remaining];
 
-            while (var18 < var11) {
-               int var13 = var18;
-               var12[var13] = '0';
-               var18++;
+            for (int i = 0; i < remaining; i++) {
+               tail[i] = '0';
             }
 
-            var14.append(var12);
+            sb.append(tail);
             break;
          }
 
-         if (Intrinsics.areEqual(blockx, Blocks.BEDROCK)) {
+         if (Intrinsics.areEqual(block, Blocks.BEDROCK)) {
             bedrock++;
          } else {
             bedrock = 0;
-            if (Intrinsics.areEqual(blockx, Blocks.OAK_PLANKS)
-               || Intrinsics.areEqual(blockx, Blocks.TRAPPED_CHEST)
-               || Intrinsics.areEqual(blockx, Blocks.CHEST)) {
+            if (Intrinsics.areEqual(block, Blocks.OAK_PLANKS)
+               || Intrinsics.areEqual(block, Blocks.TRAPPED_CHEST)
+               || Intrinsics.areEqual(block, Blocks.CHEST)) {
                continue;
             }
          }
 
-         sb.append(blockx);
+         sb.append(block);
       }
 
       return sb.toString().hashCode();
@@ -394,26 +335,24 @@ public final class RoomScanner {
 
       visited.add(center);
 
-      LevelChunk var9;
+      LevelChunk chunk;
       try {
-         var9 = level.getChunk(center.getX() >> 4, center.getZ() >> 4);
-      } catch (Exception var13/* $VF was: <unused var> */) {
+         chunk = level.getChunk(center.getX() >> 4, center.getZ() >> 4);
+      } catch (Exception ignored) {
          return tiles;
       }
 
-      LevelChunk core = var9;
-      Intrinsics.checkNotNull(core);
-      LevelChunk chunk = core;
-      int corex = this.getCoreAtHeight(center.getX(), center.getZ(), roomHeight, chunk);
-      if (!cores.contains(corex)) {
+      Intrinsics.checkNotNull(chunk);
+      int core = this.getCoreAtHeight(center.getX(), center.getZ(), roomHeight, chunk);
+      if (!cores.contains(core)) {
          return tiles;
       }
 
       tiles.add(center);
 
       for (Direction dir : horizontals) {
-         int nx = center.getX() + ((dir.getAxis() == Axis.X ? dir.getStepX() : 0) << 5);
-         int nz = center.getZ() + ((dir.getAxis() == Axis.Z ? dir.getStepZ() : 0) << 5);
+         int nx = center.getX() + ((dir.getAxis() == Axis.X ? dir.getStepX() : 0) << ROOM_SIZE_SHIFT);
+         int nz = center.getZ() + ((dir.getAxis() == Axis.Z ? dir.getStepZ() : 0) << ROOM_SIZE_SHIFT);
          this.findComponentsRecursive(new Vec2i(nx, nz), cores, roomHeight, level, visited, tiles);
       }
 
@@ -422,11 +361,9 @@ public final class RoomScanner {
 
    private final void findRotation(ScannedRoom room, int roomHeight, ClientLevel level) {
       if (Intrinsics.areEqual(room.getData().getName(), "Fairy")) {
-         Vec2i var10000 = CollectionsKt.firstOrNull(room.getComponents());
-         if (var10000 != null) {
-            Vec2i it = var10000;
-            int var15/* $VF was: $i$a$-let-RoomScanner$findRotation$1 */ = 0;
-            room.setClayPos(new BlockPos(it.getX() - 15, roomHeight, it.getZ() - 15));
+         Vec2i first = CollectionsKt.firstOrNull(room.getComponents());
+         if (first != null) {
+            room.setClayPos(new BlockPos(first.getX() - 15, roomHeight, first.getZ() - 15));
             room.setRotation(Rotation.SOUTH);
          }
       } else {
@@ -435,17 +372,16 @@ public final class RoomScanner {
                for (Vec2i component : room.getComponents()) {
                   BlockPos testPos = new BlockPos(component.getX() + rotation.getX(), roomHeight, component.getZ() + rotation.getZ());
 
-                  BlockState var11;
+                  BlockState state;
                   try {
-                     var11 = level.getBlockState(testPos);
-                  } catch (Exception var13/* $VF was: <unused var> */) {
+                     state = level.getBlockState(testPos);
+                  } catch (Exception ignored) {
                      continue;
                   }
 
-                  BlockState var10 = var11;
-                  Intrinsics.checkNotNull(var10);
-                  BlockState state = var10;
-                  if (Intrinsics.areEqual(state.getBlock(), Blocks.DYED_TERRACOTTA.blue()) && (room.getComponents().size() == 1 || this.validateClay(testPos, level))) {
+                  Intrinsics.checkNotNull(state);
+                  if (Intrinsics.areEqual(state.getBlock(), Blocks.DYED_TERRACOTTA.blue())
+                     && (room.getComponents().size() == 1 || this.validateClay(testPos, level))) {
                      room.setClayPos(testPos);
                      room.setRotation(rotation);
                      return;
@@ -458,20 +394,17 @@ public final class RoomScanner {
 
    private final boolean validateClay(BlockPos pos, ClientLevel level) {
       for (Direction dir : horizontals) {
-         BlockPos var10000 = pos.offset(dir.getAxis() == Axis.X ? dir.getStepX() : 0, 0, dir.getAxis() == Axis.Z ? dir.getStepZ() : 0);
-         Intrinsics.checkNotNullExpressionValue(var10000, "offset(...)");
-         BlockPos neighbor = var10000;
+         BlockPos neighbor = pos.offset(dir.getAxis() == Axis.X ? dir.getStepX() : 0, 0, dir.getAxis() == Axis.Z ? dir.getStepZ() : 0);
+         Intrinsics.checkNotNullExpressionValue(neighbor, "offset(...)");
 
-         Block var8;
+         Block block;
          try {
-            var8 = level.getBlockState(neighbor).getBlock();
-         } catch (Exception var10/* $VF was: <unused var> */) {
+            block = level.getBlockState(neighbor).getBlock();
+         } catch (Exception ignored) {
             return false;
          }
 
-         Block var7 = var8;
-         Intrinsics.checkNotNull(var7);
-         Block block = var7;
+         Intrinsics.checkNotNull(block);
          if (!Intrinsics.areEqual(block, Blocks.AIR) && !Intrinsics.areEqual(block, Blocks.DYED_TERRACOTTA.blue())) {
             return false;
          }
@@ -499,16 +432,14 @@ public final class RoomScanner {
       for (int y = 140; 11 < y; y--) {
          mutableBlockPos.set(worldX, y, worldZ);
 
-         BlockState var8;
+         BlockState state;
          try {
-            var8 = level.getBlockState(mutableBlockPos);
-         } catch (Exception var11/* $VF was: <unused var> */) {
+            state = level.getBlockState(mutableBlockPos);
+         } catch (Exception ignored) {
             return null;
          }
 
-         BlockState var7 = var8;
-         Intrinsics.checkNotNull(var7);
-         BlockState state = var7;
+         Intrinsics.checkNotNull(state);
          if (!state.isAir()) {
             height = y;
             break;
@@ -521,25 +452,22 @@ public final class RoomScanner {
 
       mutableBlockPos.set(worldX, 69, worldZ);
 
-      Block var15;
+      Block block;
       try {
-         var15 = level.getBlockState(mutableBlockPos).getBlock();
-      } catch (Exception var10/* $VF was: <unused var> */) {
+         block = level.getBlockState(mutableBlockPos).getBlock();
+      } catch (Exception ignored) {
          return null;
       }
 
-      Block var13 = var15;
-      Intrinsics.checkNotNull(var13);
-      Block block = var13;
-      var13 = block;
-      return Intrinsics.areEqual(var13, Blocks.COAL_BLOCK)
+      Intrinsics.checkNotNull(block);
+      return Intrinsics.areEqual(block, Blocks.COAL_BLOCK)
          ? "wither"
-         : (Intrinsics.areEqual(var13, Blocks.DYED_TERRACOTTA.red()) ? "blood" : (Intrinsics.areEqual(var13, Blocks.AIR) ? "normal" : null));
+         : (Intrinsics.areEqual(block, Blocks.DYED_TERRACOTTA.red()) ? "blood" : (Intrinsics.areEqual(block, Blocks.AIR) ? "normal" : null));
    }
 
    static {
-      Direction[] var0 = new Direction[]{Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
-      horizontals = CollectionsKt.listOf(var0);
+      Direction[] directions = new Direction[]{Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
+      horizontals = CollectionsKt.listOf(directions);
    }
 
    @Metadata(
@@ -728,20 +656,20 @@ public final class RoomScanner {
       public boolean equals(@Nullable Object other) {
          if (this == other) {
             return true;
-         } else if (!(other instanceof RoomScanner.RoomJsonEntry var2)) {
+         } else if (!(other instanceof RoomScanner.RoomJsonEntry that)) {
             return false;
-         } else if (!Intrinsics.areEqual(this.name, var2.name)) {
+         } else if (!Intrinsics.areEqual(this.name, that.name)) {
             return false;
-         } else if (!Intrinsics.areEqual(this.type, var2.type)) {
+         } else if (!Intrinsics.areEqual(this.type, that.type)) {
             return false;
-         } else if (!Intrinsics.areEqual(this.cores, var2.cores)) {
+         } else if (!Intrinsics.areEqual(this.cores, that.cores)) {
             return false;
-         } else if (this.secrets != var2.secrets) {
+         } else if (this.secrets != that.secrets) {
             return false;
-         } else if (this.crypts != var2.crypts) {
+         } else if (this.crypts != that.crypts) {
             return false;
          } else {
-            return this.trappedChests != var2.trappedChests ? false : Intrinsics.areEqual(this.shape, var2.shape);
+            return this.trappedChests != that.trappedChests ? false : Intrinsics.areEqual(this.shape, that.shape);
          }
       }
 

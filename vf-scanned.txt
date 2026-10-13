@@ -1,0 +1,298 @@
+﻿Compiled from "RoomData.kt"
+public final class com.cb.dungeon.ScannedRoom {
+  private final com.cb.dungeon.RoomInfo data;
+
+  private com.cb.dungeon.Rotation rotation;
+
+  private net.minecraft.core.BlockPos clayPos;
+
+  private final java.util.Set<com.cb.dungeon.Vec2i> components;
+
+  public com.cb.dungeon.ScannedRoom(com.cb.dungeon.RoomInfo, com.cb.dungeon.Rotation, net.minecraft.core.BlockPos, java.util.Set<com.cb.dungeon.Vec2i>);
+    Code:
+         0: aload_1
+         1: ldc           #10                 // String data
+         3: invokestatic  #16                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+         6: aload_2
+         7: ldc           #18                 // String rotation
+         9: invokestatic  #16                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+        12: aload_3
+        13: ldc           #20                 // String clayPos
+        15: invokestatic  #16                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+        18: aload         4
+        20: ldc           #22                 // String components
+        22: invokestatic  #16                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+        25: aload_0
+        26: invokespecial #25                 // Method java/lang/Object."<init>":()V
+        29: aload_0
+        30: aload_1
+        31: putfield      #28                 // Field data:Lcom/cb/dungeon/RoomInfo;
+        34: aload_0
+        35: aload_2
+        36: putfield      #31                 // Field rotation:Lcom/cb/dungeon/Rotation;
+        39: aload_0
+        40: aload_3
+        41: putfield      #34                 // Field clayPos:Lnet/minecraft/core/BlockPos;
+        44: aload_0
+        45: aload         4
+        47: putfield      #37                 // Field components:Ljava/util/Set;
+        50: return
+
+  public com.cb.dungeon.ScannedRoom(com.cb.dungeon.RoomInfo, com.cb.dungeon.Rotation, net.minecraft.core.BlockPos, java.util.Set, int, kotlin.jvm.internal.DefaultConstructorMarker);
+    Code:
+         0: iload         5
+         2: iconst_2
+         3: iand
+         4: ifeq          11
+         7: getstatic     #45                 // Field com/cb/dungeon/Rotation.NONE:Lcom/cb/dungeon/Rotation;
+        10: astore_2
+        11: iload         5
+        13: iconst_4
+        14: iand
+        15: ifeq          28
+        18: getstatic     #50                 // Field net/minecraft/core/BlockPos.ZERO:Lnet/minecraft/core/BlockPos;
+        21: dup
+        22: ldc           #51                 // String ZERO
+        24: invokestatic  #54                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullExpressionValue:(Ljava/lang/Object;Ljava/lang/String;)V
+        27: astore_3
+        28: iload         5
+        30: bipush        8
+        32: iand
+        33: ifeq          48
+        36: new           #56                 // class java/util/LinkedHashSet
+        39: dup
+        40: invokespecial #57                 // Method java/util/LinkedHashSet."<init>":()V
+        43: checkcast     #59                 // class java/util/Set
+        46: astore        4
+        48: aload_0
+        49: aload_1
+        50: aload_2
+        51: aload_3
+        52: aload         4
+        54: invokespecial #61                 // Method "<init>":(Lcom/cb/dungeon/RoomInfo;Lcom/cb/dungeon/Rotation;Lnet/minecraft/core/BlockPos;Ljava/util/Set;)V
+        57: return
+
+  public final com.cb.dungeon.RoomInfo getData();
+    Code:
+         0: aload_0
+         1: getfield      #28                 // Field data:Lcom/cb/dungeon/RoomInfo;
+         4: areturn
+
+  public final com.cb.dungeon.Rotation getRotation();
+    Code:
+         0: aload_0
+         1: getfield      #31                 // Field rotation:Lcom/cb/dungeon/Rotation;
+         4: areturn
+
+  public final void setRotation(com.cb.dungeon.Rotation);
+    Code:
+         0: aload_1
+         1: ldc           #69                 // String <set-?>
+         3: invokestatic  #16                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+         6: aload_0
+         7: aload_1
+         8: putfield      #31                 // Field rotation:Lcom/cb/dungeon/Rotation;
+        11: return
+
+  public final net.minecraft.core.BlockPos getClayPos();
+    Code:
+         0: aload_0
+         1: getfield      #34                 // Field clayPos:Lnet/minecraft/core/BlockPos;
+         4: areturn
+
+  public final void setClayPos(net.minecraft.core.BlockPos);
+    Code:
+         0: aload_1
+         1: ldc           #69                 // String <set-?>
+         3: invokestatic  #16                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+         6: aload_0
+         7: aload_1
+         8: putfield      #34                 // Field clayPos:Lnet/minecraft/core/BlockPos;
+        11: return
+
+  public final java.util.Set<com.cb.dungeon.Vec2i> getComponents();
+    Code:
+         0: aload_0
+         1: getfield      #37                 // Field components:Ljava/util/Set;
+         4: areturn
+
+  public final com.cb.dungeon.RoomInfo component1();
+    Code:
+         0: aload_0
+         1: getfield      #28                 // Field data:Lcom/cb/dungeon/RoomInfo;
+         4: areturn
+
+  public final com.cb.dungeon.Rotation component2();
+    Code:
+         0: aload_0
+         1: getfield      #31                 // Field rotation:Lcom/cb/dungeon/Rotation;
+         4: areturn
+
+  public final net.minecraft.core.BlockPos component3();
+    Code:
+         0: aload_0
+         1: getfield      #34                 // Field clayPos:Lnet/minecraft/core/BlockPos;
+         4: areturn
+
+  public final java.util.Set<com.cb.dungeon.Vec2i> component4();
+    Code:
+         0: aload_0
+         1: getfield      #37                 // Field components:Ljava/util/Set;
+         4: areturn
+
+  public final com.cb.dungeon.ScannedRoom copy(com.cb.dungeon.RoomInfo, com.cb.dungeon.Rotation, net.minecraft.core.BlockPos, java.util.Set<com.cb.dungeon.Vec2i>);
+    Code:
+         0: aload_1
+         1: ldc           #10                 // String data
+         3: invokestatic  #16                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+         6: aload_2
+         7: ldc           #18                 // String rotation
+         9: invokestatic  #16                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+        12: aload_3
+        13: ldc           #20                 // String clayPos
+        15: invokestatic  #16                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+        18: aload         4
+        20: ldc           #22                 // String components
+        22: invokestatic  #16                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+        25: new           #2                  // class com/cb/dungeon/ScannedRoom
+        28: dup
+        29: aload_1
+        30: aload_2
+        31: aload_3
+        32: aload         4
+        34: invokespecial #61                 // Method "<init>":(Lcom/cb/dungeon/RoomInfo;Lcom/cb/dungeon/Rotation;Lnet/minecraft/core/BlockPos;Ljava/util/Set;)V
+        37: areturn
+
+  public static com.cb.dungeon.ScannedRoom copy$default(com.cb.dungeon.ScannedRoom, com.cb.dungeon.RoomInfo, com.cb.dungeon.Rotation, net.minecraft.core.BlockPos, java.util.Set, int, java.lang.Object);
+    Code:
+         0: iload         5
+         2: iconst_1
+         3: iand
+         4: ifeq          12
+         7: aload_0
+         8: getfield      #28                 // Field data:Lcom/cb/dungeon/RoomInfo;
+        11: astore_1
+        12: iload         5
+        14: iconst_2
+        15: iand
+        16: ifeq          24
+        19: aload_0
+        20: getfield      #31                 // Field rotation:Lcom/cb/dungeon/Rotation;
+        23: astore_2
+        24: iload         5
+        26: iconst_4
+        27: iand
+        28: ifeq          36
+        31: aload_0
+        32: getfield      #34                 // Field clayPos:Lnet/minecraft/core/BlockPos;
+        35: astore_3
+        36: iload         5
+        38: bipush        8
+        40: iand
+        41: ifeq          50
+        44: aload_0
+        45: getfield      #37                 // Field components:Ljava/util/Set;
+        48: astore        4
+        50: aload_0
+        51: aload_1
+        52: aload_2
+        53: aload_3
+        54: aload         4
+        56: invokevirtual #87                 // Method copy:(Lcom/cb/dungeon/RoomInfo;Lcom/cb/dungeon/Rotation;Lnet/minecraft/core/BlockPos;Ljava/util/Set;)Lcom/cb/dungeon/ScannedRoom;
+        59: areturn
+
+  public java.lang.String toString();
+    Code:
+         0: aload_0
+         1: getfield      #28                 // Field data:Lcom/cb/dungeon/RoomInfo;
+         4: aload_0
+         5: getfield      #31                 // Field rotation:Lcom/cb/dungeon/Rotation;
+         8: aload_0
+         9: getfield      #34                 // Field clayPos:Lnet/minecraft/core/BlockPos;
+        12: aload_0
+        13: getfield      #37                 // Field components:Ljava/util/Set;
+        16: invokedynamic #101,  0            // InvokeDynamic #0:makeConcatWithConstants:(Lcom/cb/dungeon/RoomInfo;Lcom/cb/dungeon/Rotation;Lnet/minecraft/core/BlockPos;Ljava/util/Set;)Ljava/lang/String;
+        21: areturn
+
+  public int hashCode();
+    Code:
+         0: aload_0
+         1: getfield      #28                 // Field data:Lcom/cb/dungeon/RoomInfo;
+         4: invokevirtual #107                // Method com/cb/dungeon/RoomInfo.hashCode:()I
+         7: istore_1
+         8: iload_1
+         9: bipush        31
+        11: imul
+        12: aload_0
+        13: getfield      #31                 // Field rotation:Lcom/cb/dungeon/Rotation;
+        16: invokevirtual #108                // Method com/cb/dungeon/Rotation.hashCode:()I
+        19: iadd
+        20: istore_1
+        21: iload_1
+        22: bipush        31
+        24: imul
+        25: aload_0
+        26: getfield      #34                 // Field clayPos:Lnet/minecraft/core/BlockPos;
+        29: invokevirtual #109                // Method net/minecraft/core/BlockPos.hashCode:()I
+        32: iadd
+        33: istore_1
+        34: iload_1
+        35: bipush        31
+        37: imul
+        38: aload_0
+        39: getfield      #37                 // Field components:Ljava/util/Set;
+        42: invokevirtual #110                // Method java/lang/Object.hashCode:()I
+        45: iadd
+        46: istore_1
+        47: iload_1
+        48: ireturn
+
+  public boolean equals(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: if_acmpne     7
+         5: iconst_1
+         6: ireturn
+         7: aload_1
+         8: instanceof    #2                  // class com/cb/dungeon/ScannedRoom
+        11: ifne          16
+        14: iconst_0
+        15: ireturn
+        16: aload_1
+        17: checkcast     #2                  // class com/cb/dungeon/ScannedRoom
+        20: astore_2
+        21: aload_0
+        22: getfield      #28                 // Field data:Lcom/cb/dungeon/RoomInfo;
+        25: aload_2
+        26: getfield      #28                 // Field data:Lcom/cb/dungeon/RoomInfo;
+        29: invokestatic  #119                // Method kotlin/jvm/internal/Intrinsics.areEqual:(Ljava/lang/Object;Ljava/lang/Object;)Z
+        32: ifne          37
+        35: iconst_0
+        36: ireturn
+        37: aload_0
+        38: getfield      #31                 // Field rotation:Lcom/cb/dungeon/Rotation;
+        41: aload_2
+        42: getfield      #31                 // Field rotation:Lcom/cb/dungeon/Rotation;
+        45: if_acmpeq     50
+        48: iconst_0
+        49: ireturn
+        50: aload_0
+        51: getfield      #34                 // Field clayPos:Lnet/minecraft/core/BlockPos;
+        54: aload_2
+        55: getfield      #34                 // Field clayPos:Lnet/minecraft/core/BlockPos;
+        58: invokestatic  #119                // Method kotlin/jvm/internal/Intrinsics.areEqual:(Ljava/lang/Object;Ljava/lang/Object;)Z
+        61: ifne          66
+        64: iconst_0
+        65: ireturn
+        66: aload_0
+        67: getfield      #37                 // Field components:Ljava/util/Set;
+        70: aload_2
+        71: getfield      #37                 // Field components:Ljava/util/Set;
+        74: invokestatic  #119                // Method kotlin/jvm/internal/Intrinsics.areEqual:(Ljava/lang/Object;Ljava/lang/Object;)Z
+        77: ifne          82
+        80: iconst_0
+        81: ireturn
+        82: iconst_1
+        83: ireturn
+}

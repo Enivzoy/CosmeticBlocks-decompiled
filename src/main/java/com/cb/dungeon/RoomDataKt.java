@@ -26,93 +26,93 @@ import org.jetbrains.annotations.NotNull;
 )
 public final class RoomDataKt {
    @NotNull
-   public static final BlockPos rotateToNorth(@NotNull BlockPos $this$rotateToNorth, @NotNull Rotation rotation) {
-      Intrinsics.checkNotNullParameter($this$rotateToNorth, "<this>");
+   public static final BlockPos rotateToNorth(@NotNull BlockPos pos, @NotNull Rotation rotation) {
+      Intrinsics.checkNotNullParameter(pos, "<this>");
       Intrinsics.checkNotNullParameter(rotation, "rotation");
 
       return switch (rotation) {
-         case NORTH -> new BlockPos(-$this$rotateToNorth.getX(), $this$rotateToNorth.getY(), -$this$rotateToNorth.getZ());
-         case WEST -> new BlockPos($this$rotateToNorth.getZ(), $this$rotateToNorth.getY(), -$this$rotateToNorth.getX());
-         case SOUTH -> new BlockPos($this$rotateToNorth.getX(), $this$rotateToNorth.getY(), $this$rotateToNorth.getZ());
-         case EAST -> new BlockPos(-$this$rotateToNorth.getZ(), $this$rotateToNorth.getY(), $this$rotateToNorth.getX());
-         case NONE -> $this$rotateToNorth;
+         case NORTH -> new BlockPos(-pos.getX(), pos.getY(), -pos.getZ());
+         case WEST -> new BlockPos(pos.getZ(), pos.getY(), -pos.getX());
+         case SOUTH -> new BlockPos(pos.getX(), pos.getY(), pos.getZ());
+         case EAST -> new BlockPos(-pos.getZ(), pos.getY(), pos.getX());
+         case NONE -> pos;
          default -> throw new NoWhenBranchMatchedException();
       };
    }
 
    @NotNull
-   public static final BlockPos rotateAroundNorth(@NotNull BlockPos $this$rotateAroundNorth, @NotNull Rotation rotation) {
-      Intrinsics.checkNotNullParameter($this$rotateAroundNorth, "<this>");
+   public static final BlockPos rotateAroundNorth(@NotNull BlockPos pos, @NotNull Rotation rotation) {
+      Intrinsics.checkNotNullParameter(pos, "<this>");
       Intrinsics.checkNotNullParameter(rotation, "rotation");
 
       return switch (rotation) {
-         case NORTH -> new BlockPos(-$this$rotateAroundNorth.getX(), $this$rotateAroundNorth.getY(), -$this$rotateAroundNorth.getZ());
-         case WEST -> new BlockPos(-$this$rotateAroundNorth.getZ(), $this$rotateAroundNorth.getY(), $this$rotateAroundNorth.getX());
-         case SOUTH -> new BlockPos($this$rotateAroundNorth.getX(), $this$rotateAroundNorth.getY(), $this$rotateAroundNorth.getZ());
-         case EAST -> new BlockPos($this$rotateAroundNorth.getZ(), $this$rotateAroundNorth.getY(), -$this$rotateAroundNorth.getX());
-         case NONE -> $this$rotateAroundNorth;
+         case NORTH -> new BlockPos(-pos.getX(), pos.getY(), -pos.getZ());
+         case WEST -> new BlockPos(-pos.getZ(), pos.getY(), pos.getX());
+         case SOUTH -> new BlockPos(pos.getX(), pos.getY(), pos.getZ());
+         case EAST -> new BlockPos(pos.getZ(), pos.getY(), -pos.getX());
+         case NONE -> pos;
          default -> throw new NoWhenBranchMatchedException();
       };
    }
 
    @NotNull
-   public static final Direction rotateToNorth(@NotNull Direction $this$rotateToNorth, @NotNull Rotation rotation) {
-      Intrinsics.checkNotNullParameter($this$rotateToNorth, "<this>");
+   public static final Direction rotateToNorth(@NotNull Direction direction, @NotNull Rotation rotation) {
+      Intrinsics.checkNotNullParameter(direction, "<this>");
       Intrinsics.checkNotNullParameter(rotation, "rotation");
-      if ($this$rotateToNorth != Direction.UP && $this$rotateToNorth != Direction.DOWN) {
-         BlockPos rotated = rotateToNorth(new BlockPos($this$rotateToNorth.getStepX(), 0, $this$rotateToNorth.getStepZ()), rotation);
-         Direction var10000 = Direction.getNearest(rotated.getX(), 0, rotated.getZ(), $this$rotateToNorth);
-         if (var10000 == null) {
-            var10000 = $this$rotateToNorth;
+      if (direction != Direction.UP && direction != Direction.DOWN) {
+         BlockPos rotated = rotateToNorth(new BlockPos(direction.getStepX(), 0, direction.getStepZ()), rotation);
+         Direction result = Direction.getNearest(rotated.getX(), 0, rotated.getZ(), direction);
+         if (result == null) {
+            result = direction;
          }
 
-         return var10000;
+         return result;
       } else {
-         return $this$rotateToNorth;
+         return direction;
       }
    }
 
    @NotNull
-   public static final Direction rotateAroundNorth(@NotNull Direction $this$rotateAroundNorth, @NotNull Rotation rotation) {
-      Intrinsics.checkNotNullParameter($this$rotateAroundNorth, "<this>");
+   public static final Direction rotateAroundNorth(@NotNull Direction direction, @NotNull Rotation rotation) {
+      Intrinsics.checkNotNullParameter(direction, "<this>");
       Intrinsics.checkNotNullParameter(rotation, "rotation");
-      if ($this$rotateAroundNorth != Direction.UP && $this$rotateAroundNorth != Direction.DOWN) {
-         BlockPos rotated = rotateAroundNorth(new BlockPos($this$rotateAroundNorth.getStepX(), 0, $this$rotateAroundNorth.getStepZ()), rotation);
-         Direction var10000 = Direction.getNearest(rotated.getX(), 0, rotated.getZ(), $this$rotateAroundNorth);
-         if (var10000 == null) {
-            var10000 = $this$rotateAroundNorth;
+      if (direction != Direction.UP && direction != Direction.DOWN) {
+         BlockPos rotated = rotateAroundNorth(new BlockPos(direction.getStepX(), 0, direction.getStepZ()), rotation);
+         Direction result = Direction.getNearest(rotated.getX(), 0, rotated.getZ(), direction);
+         if (result == null) {
+            result = direction;
          }
 
-         return var10000;
+         return result;
       } else {
-         return $this$rotateAroundNorth;
+         return direction;
       }
    }
 
    @NotNull
-   public static final Axis rotateToNorth(@NotNull Axis $this$rotateToNorth, @NotNull Rotation rotation) {
-      Intrinsics.checkNotNullParameter($this$rotateToNorth, "<this>");
+   public static final Axis rotateToNorth(@NotNull Axis axis, @NotNull Rotation rotation) {
+      Intrinsics.checkNotNullParameter(axis, "<this>");
       Intrinsics.checkNotNullParameter(rotation, "rotation");
 
       return switch (rotation) {
          case WEST, EAST -> {
-            switch ($this$rotateToNorth) {
+            switch (axis) {
                case X:
                   yield Axis.Z;
                case Z:
                   yield Axis.X;
                default:
-                  yield $this$rotateToNorth;
+                  yield axis;
             }
          }
-         default -> $this$rotateToNorth;
+         default -> axis;
       };
    }
 
    @NotNull
-   public static final Axis rotateAroundNorth(@NotNull Axis $this$rotateAroundNorth, @NotNull Rotation rotation) {
-      Intrinsics.checkNotNullParameter($this$rotateAroundNorth, "<this>");
+   public static final Axis rotateAroundNorth(@NotNull Axis axis, @NotNull Rotation rotation) {
+      Intrinsics.checkNotNullParameter(axis, "<this>");
       Intrinsics.checkNotNullParameter(rotation, "rotation");
-      return rotateToNorth($this$rotateAroundNorth, rotation);
+      return rotateToNorth(axis, rotation);
    }
 }
