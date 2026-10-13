@@ -633,7 +633,7 @@ public final class CosmeticBlocks {
         if ((hit = CosmeticBlocks.INSTANCE.getMc().hitResult) instanceof BlockHitResult && ((BlockHitResult)hit).getType() == HitResult.Type.BLOCK) {
             lastLookBlockPos = ((BlockHitResult)hit).getBlockPos();
         }
-        if ((window = GLFW.glfwGetCurrentContext()) != 0L && CosmeticBlocks.INSTANCE.getMc().gui.screen() == null && ((Number)CosmeticBlocksTab.INSTANCE.getEditModeKeybind().getValue()).intValue() != -1) {
+        if ((window = Minecraft.getInstance().getWindow().handle()) != 0L && CosmeticBlocks.INSTANCE.getMc().gui.screen() == null && ((Number)CosmeticBlocksTab.INSTANCE.getEditModeKeybind().getValue()).intValue() != -1) {
             boolean bl = pressed = GLFW.glfwGetKey((long)window, (int)((Number)CosmeticBlocksTab.INSTANCE.getEditModeKeybind().getValue()).intValue()) == 1;
             if (pressed && !editModeKeyWasPressed) {
                 INSTANCE.toggleEditMode();

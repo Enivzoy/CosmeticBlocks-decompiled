@@ -22,7 +22,6 @@ dependencies {
     implementation "net.fabricmc:fabric-loader:${loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
     implementation "net.fabricmc:fabric-language-kotlin:${fabric_kotlin_version}"
-    implementation files('src/main/resources/META-INF/jars/lwjgl-nanovg-3.4.1.jar')
 }
 
 java {

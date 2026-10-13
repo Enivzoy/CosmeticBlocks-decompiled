@@ -18,7 +18,7 @@
         "MinecraftPickBlockMixin",
         "MouseHandlerMixin",
         "RenderSectionRegionMixin",
-        "FramePresentMixin",
+        "ScreenRenderMixin",
         "SodiumBlockOcclusionMixin",
         "SodiumLevelSliceMixin"
     ],

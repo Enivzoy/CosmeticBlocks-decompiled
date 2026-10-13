@@ -25,6 +25,10 @@
     {
       "config": "cb.client.mixins.json",
       "environment": "client"
+    },
+    {
+      "config": "renderkit.mixins.json",
+      "environment": "client"
     }
   ],
   "depends": {
@@ -33,22 +37,5 @@
     "java": ">=25",
     "fabric-api": "*",
     "fabric-language-kotlin": "*"
-  },
-  "jars": [
-    {
-      "file": "META-INF/jars/lwjgl-nanovg-3.4.1-natives-linux.jar"
-    },
-    {
-      "file": "META-INF/jars/lwjgl-nanovg-3.4.1-natives-macos-arm64.jar"
-    },
-    {
-      "file": "META-INF/jars/lwjgl-nanovg-3.4.1-natives-macos.jar"
-    },
-    {
-      "file": "META-INF/jars/lwjgl-nanovg-3.4.1-natives-windows.jar"
-    },
-    {
-      "file": "META-INF/jars/lwjgl-nanovg-3.4.1.jar"
-    }
-  ]
+  }
 }

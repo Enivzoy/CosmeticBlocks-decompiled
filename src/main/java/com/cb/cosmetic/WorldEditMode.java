@@ -683,7 +683,7 @@ public final class WorldEditMode {
             return;
         }
 
-        long window = GLFW.glfwGetCurrentContext();
+        long window = Minecraft.getInstance().getWindow().handle();
         boolean leftPressed = GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_LEFT) == 1;
         boolean rightPressed = GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_RIGHT) == 1;
 

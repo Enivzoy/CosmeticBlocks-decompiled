@@ -28,6 +28,7 @@ import com.cb.gui.screens.BlockSelectorScreen;
 import com.cb.gui.screens.CliEngine;
 import com.cb.gui.screens.CliScreen;
 import com.cb.gui.screens.RadialBlockScreen;
+import com.cb.render.PulsiveRenderBootstrap;
 import com.cb.utils.Scheduler;
 import java.io.File;
 import java.util.HashMap;
@@ -60,6 +61,7 @@ implements ClientModInitializer {
         if (!configDir.exists()) {
             configDir.mkdirs();
         }
+        PulsiveRenderBootstrap.register();
         EventDispatcher.INSTANCE.init();
         HudRenderer.INSTANCE.register();
         CosmeticBlocks.INSTANCE.register();
@@ -74,7 +76,7 @@ implements ClientModInitializer {
         if (key == -1) {
             return;
         }
-        long window = GLFW.glfwGetCurrentContext();
+        long window = Minecraft.getInstance().getWindow().handle();
         boolean down = GLFW.glfwGetKey((long)window, (int)key) == 1;
         if (down && !Intrinsics.areEqual((Object)keyWasDown.get(key), (Object)true)) {
             client.gui.setScreen((Screen)screen.invoke());

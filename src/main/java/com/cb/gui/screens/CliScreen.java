@@ -196,7 +196,7 @@ public final class CliScreen extends Screen implements NvgScreen {
       switch (event.key()) {
          case 86:
             if ((event.modifiers() & 2) != 0) {
-               String clip = GLFW.glfwGetClipboardString(GLFW.glfwGetCurrentContext());
+               String clip = GLFW.glfwGetClipboardString(Minecraft.getInstance().getWindow().handle());
                if (clip != null) {
                   String before = this.input.substring(0, this.caret);
                   Intrinsics.checkNotNullExpressionValue(before, "substring(...)");

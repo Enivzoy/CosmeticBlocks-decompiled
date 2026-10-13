@@ -1,0 +1,11 @@
+{
+    "required": true,
+    "package": "renderkit.mixin",
+    "compatibilityLevel": "JAVA_25",
+    "client": [
+        "GuiGraphicsExtractorAccessor"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}

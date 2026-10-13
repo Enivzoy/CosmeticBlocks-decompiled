@@ -380,7 +380,7 @@ public final class EditMode {
 
    public final void tickEditMode$cb_client() {
       if (this.getMc().gui.screen() == null) {
-         long window = GLFW.glfwGetCurrentContext();
+         long window = Minecraft.getInstance().getWindow().handle();
          boolean leftPressed = GLFW.glfwGetMouseButton(window, 0) == 1;
          boolean rightPressed = GLFW.glfwGetMouseButton(window, 1) == 1;
          boolean middlePressed = GLFW.glfwGetMouseButton(window, 2) == 1;

@@ -66,7 +66,7 @@ public final class Ruler {
             }
             return;
         }
-        long window = GLFW.glfwGetCurrentContext();
+        long window = Minecraft.getInstance().getWindow().handle();
         if (window == 0L) {
             return;
         }

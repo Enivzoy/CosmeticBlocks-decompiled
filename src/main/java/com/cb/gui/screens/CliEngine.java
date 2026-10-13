@@ -964,7 +964,7 @@ public final class CliEngine {
                                     output = "No notes to export";
                                  } else {
                                     String export = CollectionsKt.joinToString(notes, "\n", "", "", -1, "...", null);
-                                    GLFW.glfwSetClipboardString(GLFW.glfwGetCurrentContext(), export);
+                                    GLFW.glfwSetClipboardString(Minecraft.getInstance().getWindow().handle(), export);
                                     output = "Exported " + notes.size() + " notes to clipboard";
                                  }
 
@@ -1389,7 +1389,7 @@ public final class CliEngine {
                               }
 
                               String formatted = output;
-                              GLFW.glfwSetClipboardString(GLFW.glfwGetCurrentContext(), formatted);
+                              GLFW.glfwSetClipboardString(Minecraft.getInstance().getWindow().handle(), formatted);
                               output = arg + " = " + formatted + " (copied)";
                            } else {
                               output = "Invalid expression";
@@ -2175,7 +2175,7 @@ public final class CliEngine {
             }
          }
 
-         GLFW.glfwSetClipboardString(GLFW.glfwGetCurrentContext(), builder.toString());
+         GLFW.glfwSetClipboardString(Minecraft.getInstance().getWindow().handle(), builder.toString());
          success = true;
       } catch (Exception e) {
          e.printStackTrace();
@@ -2188,7 +2188,7 @@ public final class CliEngine {
    private final boolean importFromClipboard() {
       boolean data;
       try {
-         String clipboard = GLFW.glfwGetClipboardString(GLFW.glfwGetCurrentContext());
+         String clipboard = GLFW.glfwGetClipboardString(Minecraft.getInstance().getWindow().handle());
          if (clipboard == null) {
             return false;
          }
