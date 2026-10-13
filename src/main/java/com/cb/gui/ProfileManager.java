@@ -87,75 +87,71 @@ public final class ProfileManager {
 
    @NotNull
    public final List<ProfileManager.ProfileInfo> listProfiles() {
-      Path var10000 = profilesDir;
-      LinkOption[] var10001 = new LinkOption[0];
-      if (!Files.exists(var10000, Arrays.copyOf(var10001, var10001.length))) {
+      Path dir = profilesDir;
+      LinkOption[] linkOptions = new LinkOption[0];
+      if (!Files.exists(dir, Arrays.copyOf(linkOptions, linkOptions.length))) {
          return CollectionsKt.emptyList();
       }
 
-      Iterable $this$sortedByDescending$iv;
+      Iterable entries;
       try {
-         $this$sortedByDescending$iv = PathsKt.listDirectoryEntries(profilesDir, "*.profile");
+         entries = PathsKt.listDirectoryEntries(profilesDir, "*.profile");
       } catch (IOException e) {
          throw new UncheckedIOException(e);
       }
-      int $i$f$map = 0;
-      Iterable $this$mapTo$iv$iv = $this$sortedByDescending$iv;
-      var destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault($this$sortedByDescending$iv, 10));
-      int $i$f$mapTo = 0;
+      Iterable mapSource = entries;
+      var destination = new ArrayList(CollectionsKt.collectionSizeOrDefault(entries, 10));
 
-      for (Object item$iv$iv : $this$mapTo$iv$iv) {
-         Path path = (Path)item$iv$iv;
-         Collection var18 = destination$iv$iv;
-         int var9/* $VF was: $i$a$-map-ProfileManager$listProfiles$1 */ = 0;
+      for (Object item : mapSource) {
+         Path path = (Path)item;
+         Collection output = destination;
+         int mapLambda = 0;
 
-         int $this$count$iv;
+         int countedSettings;
          try {
-            List var23 = Files.readAllLines(path);
-            Intrinsics.checkNotNullExpressionValue(var23, "readAllLines(...)");
-            var $this$count$ivx = var23;
-            int $i$f$count = 0;
-            int var24;
-            if ($this$count$ivx instanceof Collection && ((Collection)$this$count$ivx).isEmpty()) {
-               var24 = 0;
+            List lines = Files.readAllLines(path);
+            Intrinsics.checkNotNullExpressionValue(lines, "readAllLines(...)");
+            var profileLines = lines;
+            int countResult;
+            if (profileLines instanceof Collection && ((Collection)profileLines).isEmpty()) {
+               countResult = 0;
             } else {
-               int count$iv = 0;
+               int count = 0;
 
-               for (Object element$iv : $this$count$ivx) {
-                  String it = (String)element$iv;
-                  int var16/* $VF was: $i$a$-count-ProfileManager$listProfiles$1$settingCount$1 */ = 0;
+               for (Object element : profileLines) {
+                  String it = (String)element;
+                  int countLambda = 0;
                   Intrinsics.checkNotNull(it);
                   if (StringsKt.contains(it, ":", false)) {
-                     if (++count$iv < 0) {
+                     if (++count < 0) {
                         CollectionsKt.throwCountOverflow();
                      }
                   }
                }
 
-               var24 = count$iv;
+               countResult = count;
             }
 
-            $this$count$iv = var24;
+            countedSettings = countResult;
          } catch (Exception e) {
-            $this$count$iv = 0;
+            countedSettings = 0;
          }
 
-         int settingCount = $this$count$iv;
-         String var10002 = PathsKt.getNameWithoutExtension(path);
-         LinkOption[] var10005 = new LinkOption[0];
-         FileTime var10004;
+         int settingCount = countedSettings;
+         String profileName = PathsKt.getNameWithoutExtension(path);
+         LinkOption[] lastModifiedLinkOptions = new LinkOption[0];
+         FileTime lastModified;
          try {
-            var10004 = Files.getLastModifiedTime(path, Arrays.copyOf(var10005, var10005.length));
+            lastModified = Files.getLastModifiedTime(path, Arrays.copyOf(lastModifiedLinkOptions, lastModifiedLinkOptions.length));
          } catch (IOException e) {
             throw new UncheckedIOException(e);
          }
-         Intrinsics.checkNotNullExpressionValue(var10004, "getLastModifiedTime(...)");
-         var18.add(new ProfileManager.ProfileInfo(var10002, path, var10004.toMillis(), settingCount));
+         Intrinsics.checkNotNullExpressionValue(lastModified, "getLastModifiedTime(...)");
+         output.add(new ProfileManager.ProfileInfo(profileName, path, lastModified.toMillis(), settingCount));
       }
 
-      $this$sortedByDescending$iv = (Iterable & List)destination$iv$iv;
-      $i$f$map = 0;
-      return CollectionsKt.sortedWith($this$sortedByDescending$iv, new ProfileManager$listProfiles$$inlined$sortedByDescending$1<>());
+      entries = (Iterable & List)destination;
+      return CollectionsKt.sortedWith(entries, new ProfileManager$listProfiles$$inlined$sortedByDescending$1<>());
    }
 
    public final boolean saveProfile(@NotNull String name) {
@@ -164,45 +160,42 @@ public final class ProfileManager {
       boolean sanitizedName;
       try {
          CharSequence e = name;
-         Regex var4 = new Regex("[^a-zA-Z0-9_-]");
-         String var5 = "_";
-         String sanitizedNamex = var4.replace(e, var5);
+         Regex sanitizePattern = new Regex("[^a-zA-Z0-9_-]");
+         String replacement = "_";
+         String sanitizedNamex = sanitizePattern.replace(e, replacement);
          Path profileFile = profilesDir.resolve(sanitizedNamex + ".profile");
-         Path var10000 = profilesDir;
-         LinkOption[] var10001 = new LinkOption[0];
-         if (!Files.exists(var10000, Arrays.copyOf(var10001, var10001.length))) {
-            var10000 = profilesDir;
-            FileAttribute[] var35 = new FileAttribute[0];
-            Intrinsics.checkNotNullExpressionValue(Files.createDirectories(var10000, Arrays.copyOf(var35, var35.length)), "createDirectories(...)");
+         Path dir = profilesDir;
+         LinkOption[] linkOptions = new LinkOption[0];
+         if (!Files.exists(dir, Arrays.copyOf(linkOptions, linkOptions.length))) {
+            dir = profilesDir;
+            FileAttribute[] fileAttributes = new FileAttribute[0];
+            Intrinsics.checkNotNullExpressionValue(Files.createDirectories(dir, Arrays.copyOf(fileAttributes, fileAttributes.length)), "createDirectories(...)");
          }
 
-         var var30 = Files.newBufferedWriter(profileFile);
-         Throwable var31 = null;
+         var bufferedWriter = Files.newBufferedWriter(profileFile);
+         Throwable throwable = null;
 
          try {
-            BufferedWriter writer = var30;
-            int var7/* $VF was: $i$a$-use-ProfileManager$saveProfile$1 */ = 0;
+            BufferedWriter writer = bufferedWriter;
+            int useLambda = 0;
             writer.write("# CB Profile: " + name + "\n");
             writer.write("# Created: " + Instant.now() + "\n");
             writer.write("\n");
-            Iterable $this$forEach$iv = Tabs.INSTANCE.getAll();
-            int $i$f$forEach = 0;
+            Iterable tabs = Tabs.INSTANCE.getAll();
 
-            for (Object element$iv : $this$forEach$iv) {
-               SettingsTab tab = (SettingsTab)element$iv;
-               int var13/* $VF was: $i$a$-forEach-ProfileManager$saveProfile$1$1 */ = 0;
+            for (Object tabElement : tabs) {
+               SettingsTab tab = (SettingsTab)tabElement;
+               int forEachLambda = 0;
                writer.write("## " + tab.getName() + "\n");
-               Iterable $this$forEach$ivx = tab.getSettings();
-               int $i$f$forEachx = 0;
+               Iterable settings = tab.getSettings();
 
-               for (Object element$ivx : $this$forEach$ivx) {
-                  Setting setting = (Setting)element$ivx;
-                  int var19/* $VF was: $i$a$-forEach-ProfileManager$saveProfile$1$1$1 */ = 0;
+               for (Object settingElement : settings) {
+                  Setting setting = (Setting)settingElement;
+                  int forEachLambdaInner = 0;
                   JsonObject obj = new JsonObject();
                   setting.writeJson(obj);
-                  JsonElement var34 = obj.get(setting.getName());
-                  if (var34 != null) {
-                     JsonElement element = var34;
+                  JsonElement element = obj.get(setting.getName());
+                  if (element != null) {
                      writer.write(tab.getName() + "." + setting.getName() + ":" + element + "\n");
                   }
                }
@@ -210,12 +203,12 @@ public final class ProfileManager {
                writer.write("\n");
             }
 
-            Unit var32 = Unit.INSTANCE;
-         } catch (Throwable var25) {
-            var31 = var25;
-            throw var25;
+            Unit unit = Unit.INSTANCE;
+         } catch (Throwable cause) {
+            throwable = cause;
+            throw cause;
          } finally {
-            CloseableKt.closeFinally(var30, var31);
+            CloseableKt.closeFinally(bufferedWriter, throwable);
          }
 
          sanitizedName = true;
@@ -234,61 +227,56 @@ public final class ProfileManager {
       try {
          CharSequence e = name;
          Regex settingsMap = new Regex("[^a-zA-Z0-9_-]");
-         String $this$forEach$iv = "_";
-         String sanitizedNamex = settingsMap.replace(e, $this$forEach$iv);
+         String replacement = "_";
+         String sanitizedNamex = settingsMap.replace(e, replacement);
          Path profileFile = profilesDir.resolve(sanitizedNamex + ".profile");
          Intrinsics.checkNotNull(profileFile);
-         LinkOption[] var10001 = new LinkOption[0];
-         if (!Files.exists(profileFile, Arrays.copyOf(var10001, var10001.length))) {
+         LinkOption[] linkOptions = new LinkOption[0];
+         if (!Files.exists(profileFile, Arrays.copyOf(linkOptions, linkOptions.length))) {
             return false;
          }
 
          Map settingsMapx = new LinkedHashMap();
-         List var10000 = Files.readAllLines(profileFile);
-         Intrinsics.checkNotNullExpressionValue(var10000, "readAllLines(...)");
-         Iterable $this$forEach$ivx = var10000;
-         int $i$f$forEach = 0;
+         List lines = Files.readAllLines(profileFile);
+         Intrinsics.checkNotNullExpressionValue(lines, "readAllLines(...)");
+         Iterable fileLines = lines;
 
-         for (Object element$iv : $this$forEach$ivx) {
-            String line = (String)element$iv;
-            int var10/* $VF was: $i$a$-forEach-ProfileManager$loadProfile$1 */ = 0;
+         for (Object element : fileLines) {
+            String line = (String)element;
+            int forEachLambda = 0;
             Intrinsics.checkNotNull(line);
             if (!StringsKt.startsWith(line, "#", false) && !StringsKt.isBlank(line)) {
                int colonIndex = StringsKt.indexOf(line, ':', 0, false);
                if (colonIndex > 0) {
-                  String var35 = line.substring(0, colonIndex);
-                  Intrinsics.checkNotNullExpressionValue(var35, "substring(...)");
-                  String key = var35;
-                  String var36 = line.substring(colonIndex + 1);
-                  Intrinsics.checkNotNullExpressionValue(var36, "substring(...)");
-                  String value = var36;
+                  String keyPart = line.substring(0, colonIndex);
+                  Intrinsics.checkNotNullExpressionValue(keyPart, "substring(...)");
+                  String key = keyPart;
+                  String valuePart = line.substring(colonIndex + 1);
+                  Intrinsics.checkNotNullExpressionValue(valuePart, "substring(...)");
+                  String value = valuePart;
                   settingsMapx.put(key, value);
                }
             }
          }
 
-         Iterable $this$forEach$ivxx = Tabs.INSTANCE.getAll();
-         $i$f$forEach = 0;
+         Iterable tabs = Tabs.INSTANCE.getAll();
 
-         for (Object element$iv : $this$forEach$ivxx) {
-            SettingsTab tab = (SettingsTab)element$iv;
-            int var31/* $VF was: $i$a$-forEach-ProfileManager$loadProfile$2 */ = 0;
-            Iterable $this$forEach$ivxxx = tab.getSettings();
-            int $i$f$forEachx = 0;
+         for (Object tabElement : tabs) {
+            SettingsTab tab = (SettingsTab)tabElement;
+            int forEachLambda2 = 0;
+            Iterable settings = tab.getSettings();
 
-            for (Object element$ivx : $this$forEach$ivxxx) {
-               Setting setting = (Setting)element$ivx;
-               int var16/* $VF was: $i$a$-forEach-ProfileManager$loadProfile$2$1 */ = 0;
+            for (Object settingElement : settings) {
+               Setting setting = (Setting)settingElement;
+               int forEachLambda3 = 0;
                String key = tab.getName() + "." + setting.getName();
-               String var37 = (String)settingsMapx.get(key);
-               if (var37 != null) {
-                  String valueStr = var37;
-
+               String valueStr = (String)settingsMapx.get(key);
+               if (valueStr != null) {
                   try {
                      JsonObject obj = new JsonObject();
                      obj.add(setting.getName(), JsonParser.parseString(valueStr));
                      setting.readJson(obj);
-                  } catch (Exception var20) {
+                  } catch (Exception ignored) {
                   }
                }
             }
@@ -310,21 +298,21 @@ public final class ProfileManager {
       boolean sanitizedName;
       try {
          CharSequence e = name;
-         Regex var4 = new Regex("[^a-zA-Z0-9_-]");
-         String var5 = "_";
-         String sanitizedNamex = var4.replace(e, var5);
+         Regex sanitizePattern = new Regex("[^a-zA-Z0-9_-]");
+         String replacement = "_";
+         String sanitizedNamex = sanitizePattern.replace(e, replacement);
          Path profileFile = profilesDir.resolve(sanitizedNamex + ".profile");
          Intrinsics.checkNotNull(profileFile);
-         LinkOption[] var10001 = new LinkOption[0];
-         boolean var10000;
-         if (Files.exists(profileFile, Arrays.copyOf(var10001, var10001.length))) {
+         LinkOption[] linkOptions = new LinkOption[0];
+         boolean deleted;
+         if (Files.exists(profileFile, Arrays.copyOf(linkOptions, linkOptions.length))) {
             Files.delete(profileFile);
-            var10000 = true;
+            deleted = true;
          } else {
-            var10000 = false;
+            deleted = false;
          }
 
-         sanitizedName = var10000;
+         sanitizedName = deleted;
       } catch (Exception e) {
          e.printStackTrace();
          sanitizedName = false;
@@ -342,18 +330,18 @@ public final class ProfileManager {
          Regex oldFile = new Regex("[^a-zA-Z0-9_-]");
          String newFile = "_";
          String sanitizedOld = oldFile.replace(sanitizedNew, newFile);
-         CharSequence var12 = newName;
-         Regex var14 = new Regex("[^a-zA-Z0-9_-]");
+         CharSequence newNameCharSeq = newName;
+         Regex sanitizePattern = new Regex("[^a-zA-Z0-9_-]");
          String content = "_";
-         sanitizedNew = var14.replace(var12, content);
+         sanitizedNew = sanitizePattern.replace(newNameCharSeq, content);
          Path oldFilex = profilesDir.resolve(sanitizedOld + ".profile");
          Path newFilex = profilesDir.resolve(sanitizedNew + ".profile");
          Intrinsics.checkNotNull(oldFilex);
-         LinkOption[] var10001 = new LinkOption[0];
-         if (Files.exists(oldFilex, Arrays.copyOf(var10001, var10001.length))) {
+         LinkOption[] linkOptions = new LinkOption[0];
+         if (Files.exists(oldFilex, Arrays.copyOf(linkOptions, linkOptions.length))) {
             Intrinsics.checkNotNull(newFilex);
-            var10001 = new LinkOption[0];
-            if (!Files.exists(newFilex, Arrays.copyOf(var10001, var10001.length))) {
+            linkOptions = new LinkOption[0];
+            if (!Files.exists(newFilex, Arrays.copyOf(linkOptions, linkOptions.length))) {
                content = Files.readString(oldFilex);
                Intrinsics.checkNotNull(content);
                String updatedContent = StringsKt.replaceFirst(content, "# CB Profile: " + oldName, "# CB Profile: " + newName, false);
@@ -379,18 +367,18 @@ public final class ProfileManager {
          Regex sourceFile = new Regex("[^a-zA-Z0-9_-]");
          String newFile = "_";
          String sanitizedSource = sourceFile.replace(sanitizedNew, newFile);
-         CharSequence var12 = newName;
-         Regex var14 = new Regex("[^a-zA-Z0-9_-]");
+         CharSequence newNameCharSeq = newName;
+         Regex sanitizePattern = new Regex("[^a-zA-Z0-9_-]");
          String content = "_";
-         sanitizedNew = var14.replace(var12, content);
+         sanitizedNew = sanitizePattern.replace(newNameCharSeq, content);
          Path sourceFilex = profilesDir.resolve(sanitizedSource + ".profile");
          Path newFilex = profilesDir.resolve(sanitizedNew + ".profile");
          Intrinsics.checkNotNull(sourceFilex);
-         LinkOption[] var10001 = new LinkOption[0];
-         if (Files.exists(sourceFilex, Arrays.copyOf(var10001, var10001.length))) {
+         LinkOption[] linkOptions = new LinkOption[0];
+         if (Files.exists(sourceFilex, Arrays.copyOf(linkOptions, linkOptions.length))) {
             Intrinsics.checkNotNull(newFilex);
-            var10001 = new LinkOption[0];
-            if (!Files.exists(newFilex, Arrays.copyOf(var10001, var10001.length))) {
+            linkOptions = new LinkOption[0];
+            if (!Files.exists(newFilex, Arrays.copyOf(linkOptions, linkOptions.length))) {
                content = Files.readString(sourceFilex);
                Intrinsics.checkNotNull(content);
                String updatedContent = StringsKt.replaceFirst(content, "# CB Profile: " + sourceName, "# CB Profile: " + newName, false);
@@ -413,13 +401,13 @@ public final class ProfileManager {
       String sanitizedName;
       try {
          CharSequence e = name;
-         Regex var4 = new Regex("[^a-zA-Z0-9_-]");
-         String var5 = "_";
-         sanitizedName = var4.replace(e, var5);
+         Regex sanitizePattern = new Regex("[^a-zA-Z0-9_-]");
+         String replacement = "_";
+         sanitizedName = sanitizePattern.replace(e, replacement);
          Path profileFile = profilesDir.resolve(sanitizedName + ".profile");
          Intrinsics.checkNotNull(profileFile);
-         LinkOption[] var10001 = new LinkOption[0];
-         if (!Files.exists(profileFile, Arrays.copyOf(var10001, var10001.length))) {
+         LinkOption[] linkOptions = new LinkOption[0];
+         if (!Files.exists(profileFile, Arrays.copyOf(linkOptions, linkOptions.length))) {
             return null;
          }
 
@@ -439,16 +427,16 @@ public final class ProfileManager {
       boolean sanitizedName;
       try {
          CharSequence e = name;
-         Regex var5 = new Regex("[^a-zA-Z0-9_-]");
-         String var6 = "_";
-         String sanitizedNamex = var5.replace(e, var6);
+         Regex sanitizePattern = new Regex("[^a-zA-Z0-9_-]");
+         String replacement = "_";
+         String sanitizedNamex = sanitizePattern.replace(e, replacement);
          Path profileFile = profilesDir.resolve(sanitizedNamex + ".profile");
-         Path var10000 = profilesDir;
-         LinkOption[] var10001 = new LinkOption[0];
-         if (!Files.exists(var10000, Arrays.copyOf(var10001, var10001.length))) {
-            var10000 = profilesDir;
-            FileAttribute[] var11 = new FileAttribute[0];
-            Intrinsics.checkNotNullExpressionValue(Files.createDirectories(var10000, Arrays.copyOf(var11, var11.length)), "createDirectories(...)");
+         Path dir = profilesDir;
+         LinkOption[] linkOptions = new LinkOption[0];
+         if (!Files.exists(dir, Arrays.copyOf(linkOptions, linkOptions.length))) {
+            dir = profilesDir;
+            FileAttribute[] fileAttributes = new FileAttribute[0];
+            Intrinsics.checkNotNullExpressionValue(Files.createDirectories(dir, Arrays.copyOf(fileAttributes, fileAttributes.length)), "createDirectories(...)");
          }
 
          Files.writeString(profileFile, content);
@@ -465,22 +453,22 @@ public final class ProfileManager {
    public final String formatTimestamp(long millis) {
       Instant instant = Instant.ofEpochMilli(millis);
       DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy HH:mm").withZone(ZoneId.systemDefault());
-      String var10000 = formatter.format(instant);
-      Intrinsics.checkNotNullExpressionValue(var10000, "format(...)");
-      return var10000;
+      String timestamp = formatter.format(instant);
+      Intrinsics.checkNotNullExpressionValue(timestamp, "format(...)");
+      return timestamp;
    }
 
    static {
-      Path var10000 = FabricLoader.getInstance().getConfigDir().resolve("cb/profiles");
-      Intrinsics.checkNotNullExpressionValue(var10000, "resolve(...)");
-      profilesDir = var10000;
-      var10000 = profilesDir;
-      LinkOption[] var10001 = new LinkOption[0];
-      if (!Files.exists(var10000, Arrays.copyOf(var10001, var10001.length))) {
-         var10000 = profilesDir;
-         FileAttribute[] var2 = new FileAttribute[0];
+      Path dir = FabricLoader.getInstance().getConfigDir().resolve("cb/profiles");
+      Intrinsics.checkNotNullExpressionValue(dir, "resolve(...)");
+      profilesDir = dir;
+      dir = profilesDir;
+      LinkOption[] linkOptions = new LinkOption[0];
+      if (!Files.exists(dir, Arrays.copyOf(linkOptions, linkOptions.length))) {
+         dir = profilesDir;
+         FileAttribute[] fileAttributes = new FileAttribute[0];
          try {
-            Intrinsics.checkNotNullExpressionValue(Files.createDirectories(var10000, Arrays.copyOf(var2, var2.length)), "createDirectories(...)");
+            Intrinsics.checkNotNullExpressionValue(Files.createDirectories(dir, Arrays.copyOf(fileAttributes, fileAttributes.length)), "createDirectories(...)");
          } catch (IOException e) {
             throw new UncheckedIOException(e);
          }
@@ -605,14 +593,14 @@ public final class ProfileManager {
       public boolean equals(@Nullable Object other) {
          if (this == other) {
             return true;
-         } else if (!(other instanceof ProfileManager.ProfileInfo var2)) {
+         } else if (!(other instanceof ProfileManager.ProfileInfo that)) {
             return false;
-         } else if (!Intrinsics.areEqual(this.name, var2.name)) {
+         } else if (!Intrinsics.areEqual(this.name, that.name)) {
             return false;
-         } else if (!Intrinsics.areEqual(this.path, var2.path)) {
+         } else if (!Intrinsics.areEqual(this.path, that.path)) {
             return false;
          } else {
-            return this.lastModified != var2.lastModified ? false : this.settingCount == var2.settingCount;
+            return this.lastModified != that.lastModified ? false : this.settingCount == that.settingCount;
          }
       }
    }

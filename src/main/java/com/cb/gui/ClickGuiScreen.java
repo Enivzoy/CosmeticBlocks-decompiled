@@ -7,7 +7,6 @@ import com.cb.config.tabs.GuiTab;
 import com.cb.render.NVGRenderer;
 import com.mojang.blaze3d.platform.Window;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import kotlin.Metadata;
 import kotlin.collections.CollectionsKt;
@@ -112,28 +111,24 @@ public final class ClickGuiScreen extends Screen implements NvgScreen {
 
    public ClickGuiScreen() {
       super(Component.literal("Cosmetic Blocks"));
-      Iterable $this$mapIndexed$iv = Tabs.INSTANCE.getAll();
-      ClickGuiScreen var13 = this;
-      int $i$f$mapIndexed = 0;
-      Iterable $this$mapIndexedTo$iv$iv = $this$mapIndexed$iv;
-      var destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault($this$mapIndexed$iv, 10));
-      int $i$f$mapIndexedTo = 0;
-      int index$iv$iv = 0;
+      Iterable tabs = Tabs.INSTANCE.getAll();
+      ClickGuiScreen screen = this;
+      Iterable tabsToMap = tabs;
+      var panels = new ArrayList(CollectionsKt.collectionSizeOrDefault(tabs, 10));
+      int index = 0;
 
-      for (Object item$iv$iv : $this$mapIndexedTo$iv$iv) {
-         int var9 = index$iv$iv++;
-         if (var9 < 0) {
+      for (Object item : tabsToMap) {
+         int currentIndex = index++;
+         if (currentIndex < 0) {
             CollectionsKt.throwIndexOverflow();
          }
 
-         SettingsTab tab = (SettingsTab)item$iv$iv;
-         int index = var9;
-         Collection var14 = destination$iv$iv;
-         int var12/* $VF was: $i$a$-mapIndexed-ClickGuiScreen$panels$1 */ = 0;
-         var14.add(new SettingsPanel(this, tab, 16.0F + index * 254.0F, 16.0F));
+         SettingsTab tab = (SettingsTab)item;
+         int panelIndex = currentIndex;
+         panels.add(new SettingsPanel(this, tab, 16.0F + panelIndex * 254.0F, 16.0F));
       }
 
-      this.panels = CollectionsKt.toMutableList(destination$iv$iv);
+      this.panels = CollectionsKt.toMutableList(panels);
       this.openedAtNanos = System.nanoTime();
    }
 
@@ -151,12 +146,10 @@ public final class ClickGuiScreen extends Screen implements NvgScreen {
 
    @Override
    public void renderOverlay(float delta) {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      Minecraft minecraft = var10000;
-      Window var20 = minecraft.getWindow();
-      Intrinsics.checkNotNullExpressionValue(var20, "getWindow(...)");
-      Window window = var20;
+      Minecraft minecraft = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(minecraft, "getInstance(...)");
+      Window window = minecraft.getWindow();
+      Intrinsics.checkNotNullExpressionValue(window, "getWindow(...)");
       int fbWidth = window.getWidth();
       int fbHeight = window.getHeight();
       if (fbWidth > 0 && fbHeight > 0) {
@@ -171,18 +164,14 @@ public final class ClickGuiScreen extends Screen implements NvgScreen {
          float mouseY = (float)minecraft.mouseHandler.ypos() * fbScaleY / this.uiScale;
          if (NVGRenderer.INSTANCE.beginFrame(fbWidth, fbHeight, this.uiScale)) {
             try {
-               this.tooltipRequest = null;
-               NVGRenderer.INSTANCE.rect(0.0F, 0.0F, this.uiWidth, this.uiHeight, 1711276032, 0.0F);
-               Iterable $this$forEach$iv = this.panels;
-               int $i$f$forEach = 0;
+                this.tooltipRequest = null;
+                NVGRenderer.INSTANCE.rect(0.0F, 0.0F, this.uiWidth, this.uiHeight, 1711276032, 0.0F);
 
-               for (Object element$iv : $this$forEach$iv) {
-                  SettingsPanel it = (SettingsPanel)element$iv;
-                  int var17/* $VF was: $i$a$-forEach-ClickGuiScreen$renderOverlay$1 */ = 0;
-                  it.render(mouseX, mouseY, delta);
-               }
+                for (SettingsPanel panel : this.panels) {
+                   panel.render(mouseX, mouseY, delta);
+                }
 
-               this.renderTooltip(mouseX, mouseY, delta);
+                this.renderTooltip(mouseX, mouseY, delta);
             } finally {
                NVGRenderer.INSTANCE.endFrame();
             }
@@ -231,13 +220,8 @@ public final class ClickGuiScreen extends Screen implements NvgScreen {
 
    @Override
    public void onClose() {
-      Iterable $this$forEach$iv = this.panels;
-      int $i$f$forEach = 0;
-
-      for (Object element$iv : $this$forEach$iv) {
-         SettingsPanel it = (SettingsPanel)element$iv;
-         int var6/* $VF was: $i$a$-forEach-ClickGuiScreen$onClose$1 */ = 0;
-         it.persistState();
+      for (SettingsPanel panel : this.panels) {
+         panel.persistState();
       }
 
       Config.INSTANCE.save();
@@ -245,9 +229,8 @@ public final class ClickGuiScreen extends Screen implements NvgScreen {
    }
 
    private final float toUi(double scaled) {
-      Window var10000 = Minecraft.getInstance().getWindow();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getWindow(...)");
-      Window window = var10000;
+      Window window = Minecraft.getInstance().getWindow();
+      Intrinsics.checkNotNullExpressionValue(window, "getWindow(...)");
       return (float)(scaled * window.getGuiScale() / this.uiScale);
    }
 
@@ -271,13 +254,9 @@ public final class ClickGuiScreen extends Screen implements NvgScreen {
    @Override
    public boolean mouseReleased(@NotNull MouseButtonEvent event) {
       Intrinsics.checkNotNullParameter(event, "event");
-      Iterable $this$forEach$iv = this.panels;
-      int $i$f$forEach = 0;
 
-      for (Object element$iv : $this$forEach$iv) {
-         SettingsPanel it = (SettingsPanel)element$iv;
-         int var7/* $VF was: $i$a$-forEach-ClickGuiScreen$mouseReleased$1 */ = 0;
-         it.mouseReleased(event.button());
+      for (SettingsPanel panel : this.panels) {
+         panel.mouseReleased(event.button());
       }
 
       return true;
@@ -288,13 +267,9 @@ public final class ClickGuiScreen extends Screen implements NvgScreen {
       Intrinsics.checkNotNullParameter(event, "event");
       float mouseX = this.toUi(event.x());
       float mouseY = this.toUi(event.y());
-      Iterable $this$forEach$iv = this.panels;
-      int $i$f$forEach = 0;
 
-      for (Object element$iv : $this$forEach$iv) {
-         SettingsPanel it = (SettingsPanel)element$iv;
-         int var13/* $VF was: $i$a$-forEach-ClickGuiScreen$mouseDragged$1 */ = 0;
-         it.mouseDragged(mouseX, mouseY);
+      for (SettingsPanel panel : this.panels) {
+         panel.mouseDragged(mouseX, mouseY);
       }
 
       return true;
@@ -344,9 +319,8 @@ public final class ClickGuiScreen extends Screen implements NvgScreen {
    @Override
    public boolean charTyped(@NotNull CharacterEvent event) {
       Intrinsics.checkNotNullParameter(event, "event");
-      String var10000 = event.codepointAsString();
-      Intrinsics.checkNotNullExpressionValue(var10000, "codepointAsString(...)");
-      String text = var10000;
+      String text = event.codepointAsString();
+      Intrinsics.checkNotNullExpressionValue(text, "codepointAsString(...)");
 
       for (SettingsPanel panel : CollectionsKt.asReversedMutable(this.panels)) {
          if (panel.charTyped(text)) {

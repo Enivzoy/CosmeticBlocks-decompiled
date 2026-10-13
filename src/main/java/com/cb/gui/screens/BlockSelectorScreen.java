@@ -6,13 +6,10 @@ import com.cb.render.NVGRenderer;
 import com.cb.render.Theme;
 import com.mojang.blaze3d.platform.Window;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import kotlin.Metadata;
-import kotlin.Result;
-import kotlin.ResultKt;
 import kotlin.Triple;
 import kotlin.collections.CollectionsKt;
 import kotlin.jvm.internal.Intrinsics;
@@ -148,58 +145,42 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
 
    private final void ensureBlocks() {
       if (this.allBlocks.isEmpty()) {
-         Set var10001 = BuiltInRegistries.BLOCK.keySet();
-         Intrinsics.checkNotNullExpressionValue(var10001, "keySet(...)");
-         Iterable $this$map$iv = var10001;
-         BlockSelectorScreen var10 = this;
-         int $i$f$map = 0;
-         Iterable $this$mapTo$iv$iv = $this$map$iv;
-         var destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault($this$map$iv, 10));
-         int $i$f$mapTo = 0;
+         Set blockKeys = BuiltInRegistries.BLOCK.keySet();
+         Intrinsics.checkNotNullExpressionValue(blockKeys, "keySet(...)");
+         var mapped = new ArrayList(CollectionsKt.collectionSizeOrDefault(blockKeys, 10));
 
-         for (Object item$iv$iv : $this$mapTo$iv$iv) {
-            Identifier it = (Identifier)item$iv$iv;
-            Collection var11 = destination$iv$iv;
-            int var9/* $VF was: $i$a$-map-BlockSelectorScreen$ensureBlocks$1 */ = 0;
-            var11.add(it.toString());
+         for (Object item : blockKeys) {
+            Identifier it = (Identifier)item;
+            mapped.add(it.toString());
          }
 
-         var10.allBlocks = CollectionsKt.sorted(destination$iv$iv);
+         this.allBlocks = CollectionsKt.sorted(mapped);
          this.applyFilter(true);
       }
    }
 
    private final void applyFilter(boolean force) {
-      String var10000 = StringsKt.trim(this.search).toString().toLowerCase(Locale.ROOT);
-      Intrinsics.checkNotNullExpressionValue(var10000, "toLowerCase(...)");
-      String q = var10000;
+      String q = StringsKt.trim(this.search).toString().toLowerCase(Locale.ROOT);
+      Intrinsics.checkNotNullExpressionValue(q, "toLowerCase(...)");
       if (force || !Intrinsics.areEqual(q, this.lastFilterKey)) {
          this.lastFilterKey = q;
-         BlockSelectorScreen var13 = this;
-         List var10001;
+         List result;
          if (q.length() == 0) {
-            var10001 = this.allBlocks;
+            result = this.allBlocks;
          } else {
-            Iterable $this$filter$iv = this.allBlocks;
-            BlockSelectorScreen var12 = this;
-            int $i$f$filter = 0;
-            Iterable $this$filterTo$iv$iv = $this$filter$iv;
-            var destination$iv$iv = new ArrayList();
-            int $i$f$filterTo = 0;
+            var matches = new ArrayList();
 
-            for (Object element$iv$iv : $this$filterTo$iv$iv) {
-               String it = (String)element$iv$iv;
-               int var11/* $VF was: $i$a$-filter-BlockSelectorScreen$applyFilter$1 */ = 0;
+            for (Object element : this.allBlocks) {
+               String it = (String)element;
                if (StringsKt.contains(it, q, false)) {
-                  destination$iv$iv.add(element$iv$iv);
+                  matches.add(element);
                }
             }
 
-            var10001 = (List)destination$iv$iv;
-            var13 = var12;
+            result = (List)matches;
          }
 
-         var13.filtered = var10001;
+         this.filtered = result;
          this.highlightIdx = RangesKt.coerceIn(this.highlightIdx, 0, RangesKt.coerceAtLeast(this.filtered.size() - 1, 0));
       }
    }
@@ -209,12 +190,10 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
       this.ensureBlocks();
       this.applyFilter(false);
       this.blink += delta;
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      Minecraft minecraft = var10000;
-      Window var47 = minecraft.getWindow();
-      Intrinsics.checkNotNullExpressionValue(var47, "getWindow(...)");
-      Window window = var47;
+      Minecraft minecraft = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(minecraft, "getInstance(...)");
+      Window window = minecraft.getWindow();
+      Intrinsics.checkNotNullExpressionValue(window, "getWindow(...)");
       int fbWidth = window.getWidth();
       int fbHeight = window.getHeight();
       if (fbWidth > 0 && fbHeight > 0) {
@@ -244,18 +223,17 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
                float searchH = 22.0F;
                NVGRenderer.INSTANCE.rect(this.px + 10.0F, cy, w - 20.0F, searchH, 1711276032, 5.0F);
                NVGRenderer.INSTANCE.rectOutline(this.px + 10.0F, cy, w - 20.0F, searchH, 352321535, 5.0F, 0.0F);
-               CharSequence searchColor = this.search;
-               CharSequence var48;
-               if (searchColor.length() == 0) {
-                  int var16/* $VF was: $i$a$-ifEmpty-BlockSelectorScreen$renderOverlay$searchText$1 */ = 0;
-                  var48 = "type to filter...";
+               CharSequence searchChars = this.search;
+               CharSequence searchShown;
+               if (searchChars.length() == 0) {
+                  searchShown = "type to filter...";
                } else {
-                  var48 = searchColor;
+                  searchShown = searchChars;
                }
 
-               String searchText = (String)var48;
-               int searchColorx = this.search.length() == 0 ? -10724260 : -1184275;
-               NVGRenderer.INSTANCE.text(searchText, this.px + 10.0F + 8.0F, cy + searchH / 2.0F, 13.0F, searchColorx, null);
+               String searchText = (String)searchShown;
+               int searchTextColor = this.search.length() == 0 ? -10724260 : -1184275;
+               NVGRenderer.INSTANCE.text(searchText, this.px + 10.0F + 8.0F, cy + searchH / 2.0F, 13.0F, searchTextColor, null);
                if (this.blink % 1.0F < 0.55F) {
                   float caretX = this.px + 10.0F + 8.0F + NVGRenderer.INSTANCE.textWidth(this.search, 13.0F, null);
                   NVGRenderer.INSTANCE.rect(caretX + 1.0F, cy + searchH / 2.0F - 6.0F, 1.2F, 12.0F, -1750963, 0.0F);
@@ -265,7 +243,7 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
                List<String> favs;
                try {
                   favs = CosmeticBlocks.INSTANCE.getFavorites();
-               } catch (Throwable var30) {
+               } catch (Throwable ignored) {
                   favs = CollectionsKt.emptyList();
                }
 
@@ -273,7 +251,7 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
                if (!favs.isEmpty()) {
                   NVGRenderer.INSTANCE.text("FAVORITES", this.px + 10.0F, cy + 6.0F, 12.0F, -10724260, null);
                   cy += 14.0F;
-                  List chipsx = new ArrayList();
+                  List chips = new ArrayList();
                   float chipX = this.px + 10.0F;
                   float chipH = 18.0F;
                   float maxX = this.px + w - 10.0F;
@@ -285,30 +263,28 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
                         break;
                      }
 
-                     boolean var49;
+                     boolean hovered;
                      label167: {
-                        float var26 = chipX + cw;
-                        float var27 = this.mouseX;
-                        if (chipX <= var27 ? var27 <= var26 : false) {
-                           var26 = cy + chipH;
-                           var27 = this.mouseY;
-                           if (cy <= var27 ? var27 <= var26 : false) {
-                              var49 = true;
+                        float edge = chipX + cw;
+                        float mouse = this.mouseX;
+                        if (chipX <= mouse ? mouse <= edge : false) {
+                           edge = cy + chipH;
+                           mouse = this.mouseY;
+                           if (cy <= mouse ? mouse <= edge : false) {
+                              hovered = true;
                               break label167;
                            }
                         }
 
-                        var49 = false;
+                        hovered = false;
                      }
-
-                     boolean hovered = var49;
                      NVGRenderer.INSTANCE.rect(chipX, cy, cw, chipH, hovered ? 318767103 : -14935012, 4.0F);
                      NVGRenderer.INSTANCE.text(label, chipX + 7.0F, cy + chipH / 2.0F, 12.0F, -1750963, null);
-                     chipsx.add(new Triple<>(id, chipX, cw));
+                     chips.add(new Triple<>(id, chipX, cw));
                      chipX += cw + 6.0F;
                   }
 
-                  this.favRects = chipsx;
+                  this.favRects = chips;
                   cy += chipH + 8.0F;
                }
 
@@ -344,17 +320,15 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
          this.scroll = RangesKt.coerceIn(this.scroll, 0.0F, maxScroll);
       }
 
-      NVGRenderer var26 = NVGRenderer.INSTANCE;
-      float x$iv = this.px;
-      float y$iv = this.listTop;
-      float w$iv = w;
-      float h$iv = viewH;
-      int $i$f$scissor = 0;
-      var26.save();
-      var26.intersectScissor(x$iv, y$iv, w$iv, h$iv);
+      NVGRenderer renderer = NVGRenderer.INSTANCE;
+      float x = this.px;
+      float y = this.listTop;
+      float scissorW = w;
+      float scissorH = viewH;
+      renderer.save();
+      renderer.intersectScissor(x, y, scissorW, scissorH);
 
       try {
-         int var12/* $VF was: $i$a$-scissor-BlockSelectorScreen$renderList$1 */ = 0;
          int first = RangesKt.coerceAtLeast((int)(this.scroll / this.rowH), 0);
          int last = RangesKt.coerceAtMost((int)((this.scroll + viewH) / this.rowH), this.filtered.size() - 1);
          int i = first;
@@ -363,27 +337,25 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
                String id;
                float ry;
                boolean isHighlight;
-               boolean var10000;
+               boolean hovered;
                label116: {
                   id = this.filtered.get(i);
                   ry = this.listTop + i * this.rowH - this.scroll;
                   isHighlight = i == this.highlightIdx;
                   float isCurrent = this.px;
                   float isFav = this.px + w;
-                  float var21 = this.mouseX;
-                  if (isCurrent <= var21 ? var21 <= isFav : false) {
+                  float mouse = this.mouseX;
+                  if (isCurrent <= mouse ? mouse <= isFav : false) {
                      isCurrent = ry + this.rowH;
                      isFav = this.mouseY;
                      if (ry <= isFav ? isFav <= isCurrent : false) {
-                        var10000 = true;
+                        hovered = true;
                         break label116;
                      }
                   }
 
-                  var10000 = false;
+                  hovered = false;
                }
-
-               boolean hovered = var10000;
                if (isHighlight) {
                   NVGRenderer.INSTANCE.rect(this.px + 2.0F, ry, w - 4.0F, this.rowH, Theme.INSTANCE.withAlpha(-1750963, 0.28F), 4.0F);
                } else if (hovered) {
@@ -407,7 +379,7 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
             }
          }
       } finally {
-         var26.restore();
+         renderer.restore();
       }
 
       if (this.filtered.isEmpty()) {
@@ -432,37 +404,37 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
       float my = this.toUi(event.y());
       int button = event.button();
 
-      for (Triple id : this.favRects) {
-         String idx = (String)id.component1();
-         float fx = ((Number)id.component2()).floatValue();
-         float fw = ((Number)id.component3()).floatValue();
+      for (Triple favRect : this.favRects) {
+         String favId = (String)favRect.component1();
+         float fx = ((Number)favRect.component2()).floatValue();
+         float fw = ((Number)favRect.component3()).floatValue();
          if (fx <= mx ? mx <= fx + fw : false) {
-            float var11 = this.favStripBottom - 26.0F;
-            if ((my <= this.favStripBottom ? var11 <= my : false) && button == 0) {
-               CosmeticBlocks.INSTANCE.setBlock(idx);
+            float favStripTop = this.favStripBottom - 26.0F;
+            if ((my <= this.favStripBottom ? favStripTop <= my : false) && button == 0) {
+               CosmeticBlocks.INSTANCE.setBlock(favId);
                this.onClose();
                return true;
             }
          }
       }
 
-      float var12 = this.px;
-      if (mx <= this.px + this.getPanelW() ? var12 <= mx : false) {
-         var12 = this.listTop;
-         if (my <= this.listBottom ? var12 <= my : false) {
-            int idx = (int)((my - this.listTop + this.scroll) / this.rowH);
-            if (0 <= idx ? idx < this.filtered.size() : false) {
-               String id = this.filtered.get(idx);
+      float minX = this.px;
+      if (mx <= this.px + this.getPanelW() ? minX <= mx : false) {
+         minX = this.listTop;
+         if (my <= this.listBottom ? minX <= my : false) {
+            int index = (int)((my - this.listTop + this.scroll) / this.rowH);
+            if (0 <= index ? index < this.filtered.size() : false) {
+               String blockId = this.filtered.get(index);
                switch (button) {
                   case 0:
-                     CosmeticBlocks.INSTANCE.setBlock(id);
+                     CosmeticBlocks.INSTANCE.setBlock(blockId);
                      this.onClose();
                      return true;
                   case 1:
-                     if (CosmeticBlocks.INSTANCE.isFavorite(id)) {
-                        CosmeticBlocks.INSTANCE.removeFavorite(id);
+                     if (CosmeticBlocks.INSTANCE.isFavorite(blockId)) {
+                        CosmeticBlocks.INSTANCE.removeFavorite(blockId);
                      } else {
-                        CosmeticBlocks.INSTANCE.addFavorite(id);
+                        CosmeticBlocks.INSTANCE.addFavorite(blockId);
                      }
 
                      return true;
@@ -521,29 +493,25 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
    @Override
    public boolean charTyped(@NotNull CharacterEvent event) {
       Intrinsics.checkNotNullParameter(event, "event");
-      String var10000 = event.codepointAsString();
-      Intrinsics.checkNotNullExpressionValue(var10000, "codepointAsString(...)");
-      String s = var10000;
+      String s = event.codepointAsString();
+      Intrinsics.checkNotNullExpressionValue(s, "codepointAsString(...)");
       if (s.length() > 0) {
-         CharSequence $this$all$iv = s;
-         int $i$f$all = 0;
+         CharSequence chars = s;
 
-         boolean var9;
+         boolean printable;
          label31: {
-            for (int var5 = 0; var5 < $this$all$iv.length(); var5++) {
-               char element$iv = $this$all$iv.charAt(var5);
-               char it = element$iv;
-               int var8/* $VF was: $i$a$-all-BlockSelectorScreen$charTyped$1 */ = 0;
+            for (int index = 0; index < chars.length(); index++) {
+               char it = chars.charAt(index);
                if (it < ' ') {
-                  var9 = false;
+                  printable = false;
                   break label31;
                }
             }
 
-            var9 = true;
+            printable = true;
          }
 
-         if (var9) {
+         if (printable) {
             this.search = this.search + s;
             this.applyFilter(false);
             return true;
@@ -554,9 +522,8 @@ public final class BlockSelectorScreen extends Screen implements NvgScreen {
    }
 
    private final float toUi(double scaled) {
-      Window var10000 = Minecraft.getInstance().getWindow();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getWindow(...)");
-      Window window = var10000;
+      Window window = Minecraft.getInstance().getWindow();
+      Intrinsics.checkNotNullExpressionValue(window, "getWindow(...)");
       return (float)(scaled * window.getGuiScale() / this.uiScale);
    }
 

@@ -77,10 +77,9 @@ public final class CbCommand {
    }
 
    private final void open(Function0<? extends Screen> screen) {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      Minecraft mc = var10000;
-      mc.execute(() -> CbCommand.open$lambda$0(mc, screen));
+      Minecraft mc = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(mc, "getInstance(...)");
+      mc.execute(() -> CbCommand.openScreen(mc, screen));
    }
 
    private final void openGui() {
@@ -88,7 +87,7 @@ public final class CbCommand {
    }
 
    public final void register() {
-      ClientCommandRegistrationCallback.EVENT.register(CbCommand::register$lambda$0);
+      ClientCommandRegistrationCallback.EVENT.register(CbCommand::onRegisterCommands);
    }
 
    private final SuggestionsBuilder suggestBlockIds(SuggestionsBuilder builder) {
@@ -102,9 +101,8 @@ public final class CbCommand {
          Identifier loc = Identifier.tryParse(blockId);
          Block block;
          if (loc != null) {
-            Identifier it = loc;
-            int var11/* $VF was: $i$a$-let-CbCommand$suggestBlockIds$block$1 */ = 0;
-            block = BuiltInRegistries.BLOCK.getOptional(it).orElse(null);
+            Identifier parsedId = loc;
+            block = BuiltInRegistries.BLOCK.getOptional(parsedId).orElse(null);
          } else {
             block = null;
          }
@@ -134,42 +132,35 @@ public final class CbCommand {
                setPropsStr = "";
             }
 
-            Set var64;
+            Set setProps;
             if (setPropsStr.length() == 0) {
-               var64 = SetsKt.emptySet();
+               setProps = SetsKt.emptySet();
             } else {
-               String[] propName = new String[]{","};
-               Iterable $this$filter$iv = StringsKt.split(setPropsStr, propName, false, 0);
-               int $i$f$filter = 0;
-               Iterable propPrefix = $this$filter$iv;
-               var destination$iv$iv = new ArrayList();
-               int $i$f$filterTo = 0;
+               String[] separators = new String[]{","};
+               Iterable propSplit = StringsKt.split(setPropsStr, separators, false, 0);
+               Iterable propTokens = propSplit;
+               var filteredProps = new ArrayList();
 
-               for (Object element$iv$iv : propPrefix) {
-                  String it = (String)element$iv$iv;
-                  int var24/* $VF was: $i$a$-filter-CbCommand$suggestBlockIds$setProps$1 */ = 0;
-                  if (StringsKt.contains(it, '=', false)) {
-                     destination$iv$iv.add(element$iv$iv);
+               for (Object propToken : propTokens) {
+                  String token = (String)propToken;
+                  if (StringsKt.contains(token, '=', false)) {
+                     filteredProps.add(propToken);
                   }
                }
 
-               var var37 = (Iterable & List)destination$iv$iv;
-               $i$f$filter = 0;
-               propPrefix = var37;
-               destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault(var37, 10));
-               $i$f$filterTo = 0;
+               var filtered = (Iterable & List)filteredProps;
+               propTokens = filtered;
+               filteredProps = new ArrayList(CollectionsKt.collectionSizeOrDefault(filtered, 10));
 
-               for (Object item$iv$iv : propPrefix) {
-                  String var53 = (String)item$iv$iv;
-                  Collection var30 = destination$iv$iv;
-                  int var55/* $VF was: $i$a$-map-CbCommand$suggestBlockIds$setProps$2 */ = 0;
-                  var30.add(StringsKt.substringBefore(var53, '=', var53));
+               for (Object propToken : propTokens) {
+                  String token = (String)propToken;
+                  Collection mappedProps = filteredProps;
+                  mappedProps.add(StringsKt.substringBefore(token, '=', token));
                }
 
-               var64 = CollectionsKt.toSet((Iterable & List)destination$iv$iv);
+               setProps = CollectionsKt.toSet((Iterable & List)filteredProps);
             }
 
-            Set setProps = var64;
             if (StringsKt.contains(lastEntry, '=', false)) {
                String propName = StringsKt.substringBefore(lastEntry, '=', lastEntry);
                Property prop = block.getStateDefinition().getProperty(propName);
@@ -180,30 +171,28 @@ public final class CbCommand {
                      Intrinsics.checkNotNullExpressionValue(possibleValue, "next(...)");
                      String valueName = (String)prop.getName((Comparable)possibleValue);
                      builder.suggest(propPrefix + valueName + "]");
-                     Collection var67 = block.getStateDefinition().getProperties();
-                     Intrinsics.checkNotNullExpressionValue(var67, "getProperties(...)");
-                     var $this$count$iv = var67;
-                     int $i$f$count = 0;
-                     int var68;
-                     if (((Collection)$this$count$iv).isEmpty()) {
-                        var68 = 0;
+                     Collection properties = block.getStateDefinition().getProperties();
+                     Intrinsics.checkNotNullExpressionValue(properties, "getProperties(...)");
+                     var allProperties = properties;
+                     int propertyCount;
+                     if (((Collection)allProperties).isEmpty()) {
+                        propertyCount = 0;
                      } else {
-                        int count$iv = 0;
+                        int count = 0;
 
-                        for (Object element$iv : $this$count$iv) {
-                           Property it = (Property)element$iv;
-                           int var29/* $VF was: $i$a$-count-CbCommand$suggestBlockIds$remaining$1 */ = 0;
-                           if (!setProps.contains(it.getName()) && !Intrinsics.areEqual(it.getName(), propName)) {
-                              if (++count$iv < 0) {
+                        for (Object propertyElement : allProperties) {
+                           Property candidate = (Property)propertyElement;
+                           if (!setProps.contains(candidate.getName()) && !Intrinsics.areEqual(candidate.getName(), propName)) {
+                              if (++count < 0) {
                                  CollectionsKt.throwCountOverflow();
                               }
                            }
                         }
 
-                        var68 = count$iv;
+                        propertyCount = count;
                      }
 
-                     int remaining = var68;
+                     int remaining = propertyCount;
                      if (remaining > 0) {
                         builder.suggest(propPrefix + valueName + ",");
                      }
@@ -215,11 +204,11 @@ public final class CbCommand {
                   Property prop = (Property)propertyElement;
                   if (!setProps.contains(prop.getName())) {
                      String propertyName = prop.getName();
-                     String var71 = propertyName.toLowerCase(Locale.ROOT);
-                     Intrinsics.checkNotNullExpressionValue(var71, "toLowerCase(...)");
-                     String var10001 = lastEntry.toLowerCase(Locale.ROOT);
-                     Intrinsics.checkNotNullExpressionValue(var10001, "toLowerCase(...)");
-                     if (StringsKt.startsWith(var71, var10001, false)) {
+                     String propNameLower = propertyName.toLowerCase(Locale.ROOT);
+                     Intrinsics.checkNotNullExpressionValue(propNameLower, "toLowerCase(...)");
+                     String lastEntryLower = lastEntry.toLowerCase(Locale.ROOT);
+                     Intrinsics.checkNotNullExpressionValue(lastEntryLower, "toLowerCase(...)");
+                     if (StringsKt.startsWith(propNameLower, lastEntryLower, false)) {
                         builder.suggest(prefix + prop.getName() + "=");
                      }
                   }
@@ -227,16 +216,16 @@ public final class CbCommand {
             }
          }
       } else {
-         for (Object var72 : BuiltInRegistries.BLOCK.keySet()) {
-            Intrinsics.checkNotNullExpressionValue(var72, "next(...)");
-            Identifier key = (Identifier)var72;
-            String var73 = key.toString();
-            Intrinsics.checkNotNullExpressionValue(var73, "toString(...)");
-            String id = var73;
+         for (Object blockKey : BuiltInRegistries.BLOCK.keySet()) {
+            Intrinsics.checkNotNullExpressionValue(blockKey, "next(...)");
+            Identifier key = (Identifier)blockKey;
+            String idString = key.toString();
+            Intrinsics.checkNotNullExpressionValue(idString, "toString(...)");
+            String id = idString;
             if (!StringsKt.startsWith(id, inputLower, false)) {
-               String var74 = key.getPath();
-               Intrinsics.checkNotNullExpressionValue(var74, "getPath(...)");
-               if (!StringsKt.startsWith(var74, inputLower, false)) {
+               String path = key.getPath();
+               Intrinsics.checkNotNullExpressionValue(path, "getPath(...)");
+               if (!StringsKt.startsWith(path, inputLower, false)) {
                   continue;
                }
             }
@@ -257,100 +246,98 @@ public final class CbCommand {
       return this.suggestBlockIds(wordBuilder);
    }
 
-   private static final void open$lambda$0(Minecraft $mc, Function0 $screen) {
-      $mc.setScreenAndShow((Screen)$screen.invoke());
+   private static final void openScreen(Minecraft mc, Function0 screen) {
+      mc.setScreenAndShow((Screen)screen.invoke());
    }
 
-   private static final CharSequence register$lambda$0$30$0(String it) {
+   private static final CharSequence stripMinecraftPrefix(String it) {
       Intrinsics.checkNotNullParameter(it, "it");
       return StringsKt.removePrefix(it, "minecraft:");
    }
 
-   private static final CharSequence register$lambda$0$35$0(String it) {
+   private static final CharSequence stripMinecraftPrefixAlt(String it) {
       Intrinsics.checkNotNullParameter(it, "it");
       return StringsKt.removePrefix(it, "minecraft:");
    }
 
-   private static final int register$lambda$0$0(CommandContext it) {
+   private static final int onGuiCommand(CommandContext it) {
       INSTANCE.openGui();
       return 1;
    }
 
-   private static final int register$lambda$0$1(CommandContext it) {
+   private static final int onProfilesCommand(CommandContext it) {
       INSTANCE.open(ProfileScreen::new);
       return 1;
    }
 
-   private static final int register$lambda$0$2(CommandContext it) {
+   private static final int onKeybindsCommand(CommandContext it) {
       INSTANCE.open(KeybindEditorScreen::new);
       return 1;
    }
 
-   private static final int register$lambda$0$3(CommandContext it) {
+   private static final int onHudCommand(CommandContext it) {
       INSTANCE.open(HudEditorScreen::new);
       return 1;
    }
 
-   private static final int register$lambda$0$4(CommandContext it) {
+   private static final int onToggleEditModeCommand(CommandContext it) {
       CosmeticBlocks.INSTANCE.toggleEditMode();
       return 1;
    }
 
-   private static final int register$lambda$0$5(CommandContext it) {
+   private static final int onToggleFillModeCommand(CommandContext it) {
       CosmeticBlocks.INSTANCE.toggleFillMode();
       return 1;
    }
 
-   private static final CompletableFuture register$lambda$0$6(CommandContext var0, SuggestionsBuilder builder) {
-      CbCommand var10000 = INSTANCE;
+   private static final CompletableFuture onBlockSuggestions(CommandContext context, SuggestionsBuilder builder) {
+      CbCommand command = INSTANCE;
       Intrinsics.checkNotNull(builder);
-      return var10000.suggestBlockIds(builder).buildFuture();
+      return command.suggestBlockIds(builder).buildFuture();
    }
 
-   private static final int register$lambda$0$7(CommandContext it) {
+   private static final int onBlockCommand(CommandContext it) {
       String blockId = StringArgumentType.getString(it, "block");
-      CosmeticBlocks var10000 = CosmeticBlocks.INSTANCE;
+      CosmeticBlocks blocks = CosmeticBlocks.INSTANCE;
       Intrinsics.checkNotNull(blockId);
-      var10000.setBlock(blockId);
+      blocks.setBlock(blockId);
       return 1;
    }
 
-   private static final int register$lambda$0$8(CommandContext it) {
+   private static final int onRemoveCommand(CommandContext it) {
       ChatUtil.INSTANCE.send(CosmeticBlocks.INSTANCE.removeInRegion(null));
       return 1;
    }
 
-   private static final CompletableFuture register$lambda$0$9(CommandContext var0, SuggestionsBuilder builder) {
-      CbCommand var10000 = INSTANCE;
+   private static final CompletableFuture onRemoveSuggestions(CommandContext context, SuggestionsBuilder builder) {
+      CbCommand command = INSTANCE;
       Intrinsics.checkNotNull(builder);
-      return var10000.suggestBlockIds(builder).buildFuture();
+      return command.suggestBlockIds(builder).buildFuture();
    }
 
-   private static final int register$lambda$0$10(CommandContext it) {
+   private static final int onRemoveBlockCommand(CommandContext it) {
       String block = StringArgumentType.getString(it, "block");
       ChatUtil.INSTANCE.send(CosmeticBlocks.INSTANCE.removeInRegion(block));
       return 1;
    }
 
-   private static final int register$lambda$0$11(CommandContext it) {
+   private static final int onClearCommand(CommandContext it) {
       int count = CosmeticBlocks.INSTANCE.clearDimension();
       ChatUtil.INSTANCE.send("Cleared " + count + " replacements in current dimension");
       return 1;
    }
 
-   private static final int register$lambda$0$12(CommandContext it) {
+   private static final int onListCommand(CommandContext it) {
       List list = CosmeticBlocks.INSTANCE.listReplacements();
       if (list.isEmpty()) {
          ChatUtil.INSTANCE.send("No replacements");
       } else {
          ChatUtil.INSTANCE.send("--- Replacements (" + list.size() + ") ---");
-         Iterable $this$forEach$iv = CollectionsKt.take(list, 20);
-         int $i$f$forEach = 0;
+         Iterable recentReplacements = CollectionsKt.take(list, 20);
 
-         for (Object element$iv : $this$forEach$iv) {
-            String itx = (String)element$iv;
-            int var7/* $VF was: $i$a$-forEach-CbCommand$register$1$13$1 */ = 0;
-            ChatUtil.INSTANCE.send("  " + itx);
+         for (Object replacement : recentReplacements) {
+            String item = (String)replacement;
+            ChatUtil.INSTANCE.send("  " + item);
          }
 
          if (list.size() > 20) {
@@ -361,23 +348,23 @@ public final class CbCommand {
       return 1;
    }
 
-   private static final int register$lambda$0$13(CommandContext it) {
+   private static final int onSaveCommand(CommandContext it) {
       CosmeticBlocks.INSTANCE.save();
       ChatUtil.INSTANCE.send("Data saved");
       return 1;
    }
 
-   private static final int register$lambda$0$14(CommandContext it) {
+   private static final int onReloadCommand(CommandContext it) {
       CosmeticBlocks.INSTANCE.load();
       ChatUtil.INSTANCE.send("Data reloaded (" + CosmeticBlocks.INSTANCE.getReplacementCount() + " in current dimension)");
       return 1;
    }
 
-   private static final int register$lambda$0$15(CommandContext it) {
+   private static final int onCreateCommand(CommandContext it) {
       String name = StringArgumentType.getString(it, "name");
-      CosmeticBlocks var10000 = CosmeticBlocks.INSTANCE;
+      CosmeticBlocks blocks = CosmeticBlocks.INSTANCE;
       Intrinsics.checkNotNull(name);
-      if (var10000.createConfig(name)) {
+      if (blocks.createConfig(name)) {
          ChatUtil.INSTANCE.send("Created config '" + name + "'");
       } else {
          ChatUtil.INSTANCE.send("Config '" + name + "' already exists");
@@ -386,11 +373,11 @@ public final class CbCommand {
       return 1;
    }
 
-   private static final int register$lambda$0$16(CommandContext it) {
+   private static final int onLoadCommand(CommandContext it) {
       String name = StringArgumentType.getString(it, "name");
-      CosmeticBlocks var10000 = CosmeticBlocks.INSTANCE;
+      CosmeticBlocks blocks = CosmeticBlocks.INSTANCE;
       Intrinsics.checkNotNull(name);
-      if (var10000.loadConfigByName(name)) {
+      if (blocks.loadConfigByName(name)) {
          ChatUtil.INSTANCE.send("Loaded config '" + name + "'");
       } else {
          ChatUtil.INSTANCE.send("Config '" + name + "' not found");
@@ -399,11 +386,11 @@ public final class CbCommand {
       return 1;
    }
 
-   private static final int register$lambda$0$17(CommandContext it) {
+   private static final int onDeleteCommand(CommandContext it) {
       String name = StringArgumentType.getString(it, "name");
-      CosmeticBlocks var10000 = CosmeticBlocks.INSTANCE;
+      CosmeticBlocks blocks = CosmeticBlocks.INSTANCE;
       Intrinsics.checkNotNull(name);
-      if (var10000.deleteConfig(name)) {
+      if (blocks.deleteConfig(name)) {
          ChatUtil.INSTANCE.send("Deleted config '" + name + "'");
       } else {
          ChatUtil.INSTANCE.send("Cannot delete '" + name + "'");
@@ -412,7 +399,7 @@ public final class CbCommand {
       return 1;
    }
 
-   private static final int register$lambda$0$18(CommandContext it) {
+   private static final int onConfigsCommand(CommandContext it) {
       List configs = CosmeticBlocks.INSTANCE.listConfigs();
       ChatUtil.INSTANCE
          .send(
@@ -425,16 +412,15 @@ public final class CbCommand {
       return 1;
    }
 
-   private static final int register$lambda$0$19(CommandContext it) {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      Minecraft mc = var10000;
+   private static final int onPos1Command(CommandContext it) {
+      Minecraft mc = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(mc, "getInstance(...)");
       HitResult hit = mc.hitResult;
       if (hit instanceof BlockHitResult && ((BlockHitResult)hit).getType() == Type.BLOCK) {
-         CosmeticBlocks var3 = CosmeticBlocks.INSTANCE;
-         BlockPos var10001 = ((BlockHitResult)hit).getBlockPos();
-         Intrinsics.checkNotNullExpressionValue(var10001, "getBlockPos(...)");
-         var3.setPos1(var10001);
+         CosmeticBlocks blocks = CosmeticBlocks.INSTANCE;
+         BlockPos pos = ((BlockHitResult)hit).getBlockPos();
+         Intrinsics.checkNotNullExpressionValue(pos, "getBlockPos(...)");
+         blocks.setPos1(pos);
       } else {
          ChatUtil.INSTANCE.send("Look at a block or: cb pos1 <x> <y> <z>");
       }
@@ -442,10 +428,10 @@ public final class CbCommand {
       return 1;
    }
 
-   private static final int register$lambda$0$20(CommandContext it) {
-      String var10000 = StringArgumentType.getString(it, "coords");
-      Intrinsics.checkNotNullExpressionValue(var10000, "getString(...)");
-      CharSequence x = StringsKt.trim(var10000).toString();
+   private static final int onPos1CoordsCommand(CommandContext it) {
+      String coordsArg = StringArgumentType.getString(it, "coords");
+      Intrinsics.checkNotNullExpressionValue(coordsArg, "getString(...)");
+      CharSequence x = StringsKt.trim(coordsArg).toString();
       Regex y = new Regex("\\s+");
       byte z = 0;
       List parts = y.split(x, z);
@@ -465,16 +451,15 @@ public final class CbCommand {
       return 1;
    }
 
-   private static final int register$lambda$0$21(CommandContext it) {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      Minecraft mc = var10000;
+   private static final int onPos2Command(CommandContext it) {
+      Minecraft mc = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(mc, "getInstance(...)");
       HitResult hit = mc.hitResult;
       if (hit instanceof BlockHitResult && ((BlockHitResult)hit).getType() == Type.BLOCK) {
-         CosmeticBlocks var3 = CosmeticBlocks.INSTANCE;
-         BlockPos var10001 = ((BlockHitResult)hit).getBlockPos();
-         Intrinsics.checkNotNullExpressionValue(var10001, "getBlockPos(...)");
-         var3.setPos2(var10001);
+         CosmeticBlocks blocks = CosmeticBlocks.INSTANCE;
+         BlockPos pos = ((BlockHitResult)hit).getBlockPos();
+         Intrinsics.checkNotNullExpressionValue(pos, "getBlockPos(...)");
+         blocks.setPos2(pos);
       } else {
          ChatUtil.INSTANCE.send("Look at a block or: cb pos2 <x> <y> <z>");
       }
@@ -482,10 +467,10 @@ public final class CbCommand {
       return 1;
    }
 
-   private static final int register$lambda$0$22(CommandContext it) {
-      String var10000 = StringArgumentType.getString(it, "coords");
-      Intrinsics.checkNotNullExpressionValue(var10000, "getString(...)");
-      CharSequence x = StringsKt.trim(var10000).toString();
+   private static final int onPos2CoordsCommand(CommandContext it) {
+      String coordsArg = StringArgumentType.getString(it, "coords");
+      Intrinsics.checkNotNullExpressionValue(coordsArg, "getString(...)");
+      CharSequence x = StringsKt.trim(coordsArg).toString();
       Regex y = new Regex("\\s+");
       byte z = 0;
       List parts = y.split(x, z);
@@ -505,44 +490,44 @@ public final class CbCommand {
       return 1;
    }
 
-   private static final int register$lambda$0$23(CommandContext it) {
+   private static final int onSelectionInfoCommand(CommandContext it) {
       ChatUtil.INSTANCE.send(CosmeticBlocks.INSTANCE.getSelectionInfo());
       return 1;
    }
 
-   private static final int register$lambda$0$24(CommandContext it) {
+   private static final int onClearSelectionCommand(CommandContext it) {
       CosmeticBlocks.INSTANCE.clearSelection();
       return 1;
    }
 
-   private static final CompletableFuture register$lambda$0$25(CommandContext var0, SuggestionsBuilder builder) {
-      CbCommand var10000 = INSTANCE;
+   private static final CompletableFuture onFillSuggestions(CommandContext context, SuggestionsBuilder builder) {
+      CbCommand command = INSTANCE;
       Intrinsics.checkNotNull(builder);
-      return var10000.suggestBlockIdsGreedy(builder).buildFuture();
+      return command.suggestBlockIdsGreedy(builder).buildFuture();
    }
 
-   private static final int register$lambda$0$26(CommandContext it) {
+   private static final int onFillCommand(CommandContext it) {
       String blocks = StringArgumentType.getString(it, "blocks");
-      ChatUtil var10000 = ChatUtil.INSTANCE;
-      CosmeticBlocks var10001 = CosmeticBlocks.INSTANCE;
+      ChatUtil chat = ChatUtil.INSTANCE;
+      CosmeticBlocks cosmeticBlocks = CosmeticBlocks.INSTANCE;
       Intrinsics.checkNotNull(blocks);
-      var10000.send(var10001.fillRegion(blocks));
+      chat.send(cosmeticBlocks.fillRegion(blocks));
       return 1;
    }
 
-   private static final CompletableFuture register$lambda$0$27(CommandContext var0, SuggestionsBuilder builder) {
-      CbCommand var10000 = INSTANCE;
+   private static final CompletableFuture onReplaceSuggestions(CommandContext context, SuggestionsBuilder builder) {
+      CbCommand command = INSTANCE;
       Intrinsics.checkNotNull(builder);
-      return var10000.suggestBlockIdsGreedy(builder).buildFuture();
+      return command.suggestBlockIdsGreedy(builder).buildFuture();
    }
 
-   private static final int register$lambda$0$28(CommandContext it) {
-      String var10000 = StringArgumentType.getString(it, "args");
-      Intrinsics.checkNotNullExpressionValue(var10000, "getString(...)");
-      String fromBlock = StringsKt.trim(var10000).toString();
+   private static final int onReplaceCommand(CommandContext it) {
+      String argsArg = StringArgumentType.getString(it, "args");
+      Intrinsics.checkNotNullExpressionValue(argsArg, "getString(...)");
+      String fromBlock = StringsKt.trim(argsArg).toString();
       Regex toSpecs = new Regex("\\s+");
-      byte var4 = 0;
-      List args = toSpecs.split(fromBlock, var4);
+      byte limit = 0;
+      List args = toSpecs.split(fromBlock, limit);
       if (args.size() >= 2) {
          fromBlock = (String)args.get(0);
          String toSpecsx = CollectionsKt.joinToString(CollectionsKt.drop(args, 1), " ", "", "", -1, "...", null);
@@ -554,34 +539,34 @@ public final class CbCommand {
       return 1;
    }
 
-   private static final int register$lambda$0$29(CommandContext it) {
+   private static final int onUndoCommand(CommandContext it) {
       ChatUtil.INSTANCE.send(CosmeticBlocks.INSTANCE.undoLastOperation());
       return 1;
    }
 
-   private static final int register$lambda$0$30(CommandContext it) {
+   private static final int onFavoritesCommand(CommandContext it) {
       List favs = CosmeticBlocks.INSTANCE.getFavorites();
       if (favs.isEmpty()) {
          ChatUtil.INSTANCE.send("No favorites yet. Use /cb fav add <block>");
       } else {
          ChatUtil.INSTANCE
-            .send("Favorites: " + CollectionsKt.joinToString(favs, ", ", "", "", -1, "...", CbCommand::register$lambda$0$30$0));
+            .send("Favorites: " + CollectionsKt.joinToString(favs, ", ", "", "", -1, "...", CbCommand::stripMinecraftPrefix));
       }
 
       return 1;
    }
 
-   private static final CompletableFuture register$lambda$0$31(CommandContext var0, SuggestionsBuilder builder) {
-      CbCommand var10000 = INSTANCE;
+   private static final CompletableFuture onFavoriteAddSuggestions(CommandContext context, SuggestionsBuilder builder) {
+      CbCommand command = INSTANCE;
       Intrinsics.checkNotNull(builder);
-      return var10000.suggestBlockIds(builder).buildFuture();
+      return command.suggestBlockIds(builder).buildFuture();
    }
 
-   private static final int register$lambda$0$32(CommandContext it) {
+   private static final int onFavoriteAddCommand(CommandContext it) {
       String block = StringArgumentType.getString(it, "block");
-      CosmeticBlocks var10000 = CosmeticBlocks.INSTANCE;
+      CosmeticBlocks blocks = CosmeticBlocks.INSTANCE;
       Intrinsics.checkNotNull(block);
-      if (var10000.addFavorite(block)) {
+      if (blocks.addFavorite(block)) {
          ChatUtil.INSTANCE.send("Added " + StringsKt.removePrefix(block, "minecraft:") + " to favorites");
       } else {
          ChatUtil.INSTANCE.send("Already in favorites or invalid block");
@@ -590,7 +575,7 @@ public final class CbCommand {
       return 1;
    }
 
-   private static final int register$lambda$0$33(CommandContext it) {
+   private static final int onFavoriteAddSelectedCommand(CommandContext it) {
       if (CosmeticBlocks.INSTANCE.addFavorite(CosmeticBlocks.INSTANCE.getSelectedBlock())) {
          ChatUtil.INSTANCE.send("Added " + StringsKt.removePrefix(CosmeticBlocks.INSTANCE.getSelectedBlock(), "minecraft:") + " to favorites");
       } else {
@@ -600,11 +585,11 @@ public final class CbCommand {
       return 1;
    }
 
-   private static final int register$lambda$0$34(CommandContext it) {
+   private static final int onFavoriteRemoveCommand(CommandContext it) {
       String block = StringArgumentType.getString(it, "block");
-      CosmeticBlocks var10000 = CosmeticBlocks.INSTANCE;
+      CosmeticBlocks blocks = CosmeticBlocks.INSTANCE;
       Intrinsics.checkNotNull(block);
-      if (var10000.removeFavorite(block)) {
+      if (blocks.removeFavorite(block)) {
          ChatUtil.INSTANCE.send("Removed " + StringsKt.removePrefix(block, "minecraft:") + " from favorites");
       } else {
          ChatUtil.INSTANCE.send("Not in favorites");
@@ -613,58 +598,57 @@ public final class CbCommand {
       return 1;
    }
 
-   private static final int register$lambda$0$35(CommandContext it) {
+   private static final int onFavoriteListCommand(CommandContext it) {
       List favs = CosmeticBlocks.INSTANCE.getFavorites();
       if (favs.isEmpty()) {
          ChatUtil.INSTANCE.send("No favorites");
       } else {
          ChatUtil.INSTANCE
-            .send("Favorites: " + CollectionsKt.joinToString(favs, ", ", "", "", -1, "...", CbCommand::register$lambda$0$35$0));
+            .send("Favorites: " + CollectionsKt.joinToString(favs, ", ", "", "", -1, "...", CbCommand::stripMinecraftPrefixAlt));
       }
 
       return 1;
    }
 
-   private static final int register$lambda$0$36(CommandContext it) {
+   private static final int onBackupCommand(CommandContext it) {
       String result = ConfigBackup.INSTANCE.backup();
       ChatUtil.INSTANCE.send(result);
       return 1;
    }
 
-   private static final int register$lambda$0$37(CommandContext it) {
+   private static final int onPropsCommand(CommandContext it) {
       CosmeticBlocks.INSTANCE.listBlockProperties();
       return 1;
    }
 
-   private static final CompletableFuture register$lambda$0$38(CommandContext var0, SuggestionsBuilder builder) {
+   private static final CompletableFuture onStatePropertySuggestions(CommandContext context, SuggestionsBuilder builder) {
       String brush = CosmeticBlocks.INSTANCE.getSelectedBlock();
       String baseId = StringsKt.contains(brush, '[', false) ? StringsKt.substringBefore(brush, '[', brush) : brush;
       Identifier loc = Identifier.tryParse(baseId);
-      Block var10000;
+      Block resolvedBlock;
       if (loc != null) {
-         Identifier it = loc;
-         int var8/* $VF was: $i$a$-let-CbCommand$register$1$39$block$1 */ = 0;
-         var10000 = BuiltInRegistries.BLOCK.getOptional(it).orElse(null);
+         Identifier parsedId = loc;
+         resolvedBlock = BuiltInRegistries.BLOCK.getOptional(parsedId).orElse(null);
       } else {
-         var10000 = null;
+         resolvedBlock = null;
       }
 
-      Block block = var10000;
+      Block block = resolvedBlock;
       if (block != null) {
-         String var11 = builder.getRemaining();
-         Intrinsics.checkNotNullExpressionValue(var11, "getRemaining(...)");
-         String var12 = var11.toLowerCase(Locale.ROOT);
-         Intrinsics.checkNotNullExpressionValue(var12, "toLowerCase(...)");
-         String input = var12;
+         String remaining = builder.getRemaining();
+         Intrinsics.checkNotNullExpressionValue(remaining, "getRemaining(...)");
+         String remainingLower = remaining.toLowerCase(Locale.ROOT);
+         Intrinsics.checkNotNullExpressionValue(remainingLower, "toLowerCase(...)");
+         String input = remainingLower;
 
-         for (Object var13 : block.getStateDefinition().getProperties()) {
-            Intrinsics.checkNotNullExpressionValue(var13, "next(...)");
-            Property prop = (Property)var13;
-            String var14 = prop.getName();
-            Intrinsics.checkNotNullExpressionValue(var14, "getName(...)");
-            String var15 = var14.toLowerCase(Locale.ROOT);
-            Intrinsics.checkNotNullExpressionValue(var15, "toLowerCase(...)");
-            if (StringsKt.startsWith(var15, input, false)) {
+         for (Object propertyElement : block.getStateDefinition().getProperties()) {
+            Intrinsics.checkNotNullExpressionValue(propertyElement, "next(...)");
+            Property prop = (Property)propertyElement;
+            String propName = prop.getName();
+            Intrinsics.checkNotNullExpressionValue(propName, "getName(...)");
+            String propNameLower = propName.toLowerCase(Locale.ROOT);
+            Intrinsics.checkNotNullExpressionValue(propNameLower, "toLowerCase(...)");
+            if (StringsKt.startsWith(propNameLower, input, false)) {
                builder.suggest(prop.getName());
             }
          }
@@ -673,39 +657,38 @@ public final class CbCommand {
       return builder.buildFuture();
    }
 
-   private static final CompletableFuture register$lambda$0$39(CommandContext context, SuggestionsBuilder builder) {
+   private static final CompletableFuture onStateValueSuggestions(CommandContext context, SuggestionsBuilder builder) {
       String propName = StringArgumentType.getString(context, "property");
       String brush = CosmeticBlocks.INSTANCE.getSelectedBlock();
       String baseId = StringsKt.contains(brush, '[', false) ? StringsKt.substringBefore(brush, '[', brush) : brush;
       Identifier loc = Identifier.tryParse(baseId);
-      Block var10000;
+      Block resolvedBlock;
       if (loc != null) {
-         Identifier it = loc;
-         int var9/* $VF was: $i$a$-let-CbCommand$register$1$40$block$1 */ = 0;
-         var10000 = BuiltInRegistries.BLOCK.getOptional(it).orElse(null);
+         Identifier parsedId = loc;
+         resolvedBlock = BuiltInRegistries.BLOCK.getOptional(parsedId).orElse(null);
       } else {
-         var10000 = null;
+         resolvedBlock = null;
       }
 
-      Block block = var10000;
+      Block block = resolvedBlock;
       if (block != null) {
          Property prop = block.getStateDefinition().getProperty(propName);
          if (prop != null) {
-            String var14 = builder.getRemaining();
-            Intrinsics.checkNotNullExpressionValue(var14, "getRemaining(...)");
-            String var15 = var14.toLowerCase(Locale.ROOT);
-            Intrinsics.checkNotNullExpressionValue(var15, "toLowerCase(...)");
-            String input = var15;
+            String remaining = builder.getRemaining();
+            Intrinsics.checkNotNullExpressionValue(remaining, "getRemaining(...)");
+            String remainingLower = remaining.toLowerCase(Locale.ROOT);
+            Intrinsics.checkNotNullExpressionValue(remainingLower, "toLowerCase(...)");
+            String input = remainingLower;
 
-            for (Object var16 : prop.getPossibleValues()) {
-               Intrinsics.checkNotNullExpressionValue(var16, "next(...)");
-               Comparable value = (Comparable)var16;
-               String var17 = prop.getName(value);
-               Intrinsics.checkNotNullExpressionValue(var17, "getName(...)");
-               String valueName = var17;
-               String var18 = valueName.toLowerCase(Locale.ROOT);
-               Intrinsics.checkNotNullExpressionValue(var18, "toLowerCase(...)");
-               if (StringsKt.startsWith(var18, input, false)) {
+            for (Object possibleValue : prop.getPossibleValues()) {
+               Intrinsics.checkNotNullExpressionValue(possibleValue, "next(...)");
+               Comparable value = (Comparable)possibleValue;
+               String nameString = prop.getName(value);
+               Intrinsics.checkNotNullExpressionValue(nameString, "getName(...)");
+               String valueName = nameString;
+               String valueNameLower = valueName.toLowerCase(Locale.ROOT);
+               Intrinsics.checkNotNullExpressionValue(valueNameLower, "toLowerCase(...)");
+               if (StringsKt.startsWith(valueNameLower, input, false)) {
                   builder.suggest(valueName);
                }
             }
@@ -715,119 +698,119 @@ public final class CbCommand {
       return builder.buildFuture();
    }
 
-   private static final int register$lambda$0$40(CommandContext it) {
+   private static final int onStateCommand(CommandContext it) {
       String property = StringArgumentType.getString(it, "property");
       String value = StringArgumentType.getString(it, "value");
-      CosmeticBlocks var10000 = CosmeticBlocks.INSTANCE;
+      CosmeticBlocks blocks = CosmeticBlocks.INSTANCE;
       Intrinsics.checkNotNull(property);
       Intrinsics.checkNotNull(value);
-      var10000.setBlockProperty(property, value);
+      blocks.setBlockProperty(property, value);
       return 1;
    }
 
-   private static final int register$lambda$0$41(CommandContext it) {
+   private static final int onDefaultCommand(CommandContext it) {
       INSTANCE.openGui();
       return 1;
    }
 
-   private static final void register$lambda$0(CommandDispatcher dispatcher, CommandBuildContext var1) {
+   private static final void onRegisterCommands(CommandDispatcher dispatcher, CommandBuildContext ignored) {
       Intrinsics.checkNotNullParameter(dispatcher, "dispatcher");
-      Intrinsics.checkNotNullParameter(var1, "<unused var>");
+      Intrinsics.checkNotNullParameter(ignored, "<unused var>");
       dispatcher.register(
          (LiteralArgumentBuilder)ClientCommands.literal("cb")
-            .then(ClientCommands.literal("gui").executes(CbCommand::register$lambda$0$0))
-            .then(ClientCommands.literal("profiles").executes(CbCommand::register$lambda$0$1))
-            .then(ClientCommands.literal("keybinds").executes(CbCommand::register$lambda$0$2))
-            .then(ClientCommands.literal("hud").executes(CbCommand::register$lambda$0$3))
-            .then(ClientCommands.literal("em").executes(CbCommand::register$lambda$0$4))
-            .then(ClientCommands.literal("fillmode").executes(CbCommand::register$lambda$0$5))
+            .then(ClientCommands.literal("gui").executes(CbCommand::onGuiCommand))
+            .then(ClientCommands.literal("profiles").executes(CbCommand::onProfilesCommand))
+            .then(ClientCommands.literal("keybinds").executes(CbCommand::onKeybindsCommand))
+            .then(ClientCommands.literal("hud").executes(CbCommand::onHudCommand))
+            .then(ClientCommands.literal("em").executes(CbCommand::onToggleEditModeCommand))
+            .then(ClientCommands.literal("fillmode").executes(CbCommand::onToggleFillModeCommand))
             .then(
                ClientCommands.literal("block")
                   .then(
                      ClientCommands.argument("block", StringArgumentType.greedyString())
-                        .suggests(CbCommand::register$lambda$0$6)
-                        .executes(CbCommand::register$lambda$0$7)
+                        .suggests(CbCommand::onBlockSuggestions)
+                        .executes(CbCommand::onBlockCommand)
                   )
             )
             .then(
                ClientCommands.literal("remove")
-                  .executes(CbCommand::register$lambda$0$8)
+                  .executes(CbCommand::onRemoveCommand)
                   .then(
                      ClientCommands.argument("block", StringArgumentType.string())
-                        .suggests(CbCommand::register$lambda$0$9)
-                        .executes(CbCommand::register$lambda$0$10)
+                        .suggests(CbCommand::onRemoveSuggestions)
+                        .executes(CbCommand::onRemoveBlockCommand)
                   )
             )
-            .then(ClientCommands.literal("clear").executes(CbCommand::register$lambda$0$11))
-            .then(ClientCommands.literal("list").executes(CbCommand::register$lambda$0$12))
-            .then(ClientCommands.literal("save").executes(CbCommand::register$lambda$0$13))
-            .then(ClientCommands.literal("reload").executes(CbCommand::register$lambda$0$14))
-            .then(ClientCommands.literal("create").then(ClientCommands.argument("name", StringArgumentType.string()).executes(CbCommand::register$lambda$0$15)))
-            .then(ClientCommands.literal("load").then(ClientCommands.argument("name", StringArgumentType.string()).executes(CbCommand::register$lambda$0$16)))
-            .then(ClientCommands.literal("delete").then(ClientCommands.argument("name", StringArgumentType.string()).executes(CbCommand::register$lambda$0$17)))
-            .then(ClientCommands.literal("configs").executes(CbCommand::register$lambda$0$18))
+            .then(ClientCommands.literal("clear").executes(CbCommand::onClearCommand))
+            .then(ClientCommands.literal("list").executes(CbCommand::onListCommand))
+            .then(ClientCommands.literal("save").executes(CbCommand::onSaveCommand))
+            .then(ClientCommands.literal("reload").executes(CbCommand::onReloadCommand))
+            .then(ClientCommands.literal("create").then(ClientCommands.argument("name", StringArgumentType.string()).executes(CbCommand::onCreateCommand)))
+            .then(ClientCommands.literal("load").then(ClientCommands.argument("name", StringArgumentType.string()).executes(CbCommand::onLoadCommand)))
+            .then(ClientCommands.literal("delete").then(ClientCommands.argument("name", StringArgumentType.string()).executes(CbCommand::onDeleteCommand)))
+            .then(ClientCommands.literal("configs").executes(CbCommand::onConfigsCommand))
             .then(
                ClientCommands.literal("pos1")
-                  .executes(CbCommand::register$lambda$0$19)
-                  .then(ClientCommands.argument("coords", StringArgumentType.greedyString()).executes(CbCommand::register$lambda$0$20))
+                  .executes(CbCommand::onPos1Command)
+                  .then(ClientCommands.argument("coords", StringArgumentType.greedyString()).executes(CbCommand::onPos1CoordsCommand))
             )
             .then(
                ClientCommands.literal("pos2")
-                  .executes(CbCommand::register$lambda$0$21)
-                  .then(ClientCommands.argument("coords", StringArgumentType.greedyString()).executes(CbCommand::register$lambda$0$22))
+                  .executes(CbCommand::onPos2Command)
+                  .then(ClientCommands.argument("coords", StringArgumentType.greedyString()).executes(CbCommand::onPos2CoordsCommand))
             )
-            .then(ClientCommands.literal("sel").executes(CbCommand::register$lambda$0$23))
-            .then(ClientCommands.literal("clearselection").executes(CbCommand::register$lambda$0$24))
+            .then(ClientCommands.literal("sel").executes(CbCommand::onSelectionInfoCommand))
+            .then(ClientCommands.literal("clearselection").executes(CbCommand::onClearSelectionCommand))
             .then(
                ClientCommands.literal("fill")
                   .then(
                      ClientCommands.argument("blocks", StringArgumentType.greedyString())
-                        .suggests(CbCommand::register$lambda$0$25)
-                        .executes(CbCommand::register$lambda$0$26)
+                        .suggests(CbCommand::onFillSuggestions)
+                        .executes(CbCommand::onFillCommand)
                   )
             )
             .then(
                ClientCommands.literal("replace")
                   .then(
                      ClientCommands.argument("args", StringArgumentType.greedyString())
-                        .suggests(CbCommand::register$lambda$0$27)
-                        .executes(CbCommand::register$lambda$0$28)
+                        .suggests(CbCommand::onReplaceSuggestions)
+                        .executes(CbCommand::onReplaceCommand)
                   )
             )
-            .then(ClientCommands.literal("undo").executes(CbCommand::register$lambda$0$29))
+            .then(ClientCommands.literal("undo").executes(CbCommand::onUndoCommand))
             .then(
                ClientCommands.literal("fav")
-                  .executes(CbCommand::register$lambda$0$30)
+                  .executes(CbCommand::onFavoritesCommand)
                   .then(
                      ClientCommands.literal("add")
                         .then(
                            ClientCommands.argument("block", StringArgumentType.string())
-                              .suggests(CbCommand::register$lambda$0$31)
-                              .executes(CbCommand::register$lambda$0$32)
+                              .suggests(CbCommand::onFavoriteAddSuggestions)
+                              .executes(CbCommand::onFavoriteAddCommand)
                         )
-                        .executes(CbCommand::register$lambda$0$33)
+                        .executes(CbCommand::onFavoriteAddSelectedCommand)
                   )
                   .then(
                      ClientCommands.literal("remove")
-                        .then(ClientCommands.argument("block", StringArgumentType.string()).executes(CbCommand::register$lambda$0$34))
+                        .then(ClientCommands.argument("block", StringArgumentType.string()).executes(CbCommand::onFavoriteRemoveCommand))
                   )
-                  .then(ClientCommands.literal("list").executes(CbCommand::register$lambda$0$35))
+                  .then(ClientCommands.literal("list").executes(CbCommand::onFavoriteListCommand))
             )
-            .then(ClientCommands.literal("backup").executes(CbCommand::register$lambda$0$36))
-            .then(ClientCommands.literal("props").executes(CbCommand::register$lambda$0$37))
+            .then(ClientCommands.literal("backup").executes(CbCommand::onBackupCommand))
+            .then(ClientCommands.literal("props").executes(CbCommand::onPropsCommand))
             .then(
                ClientCommands.literal("state")
                   .then(
                      ClientCommands.argument("property", StringArgumentType.string())
-                        .suggests(CbCommand::register$lambda$0$38)
+                        .suggests(CbCommand::onStatePropertySuggestions)
                         .then(
                            ClientCommands.argument("value", StringArgumentType.string())
-                              .suggests(CbCommand::register$lambda$0$39)
-                              .executes(CbCommand::register$lambda$0$40)
+                              .suggests(CbCommand::onStateValueSuggestions)
+                              .executes(CbCommand::onStateCommand)
                         )
                   )
             )
-            .executes(CbCommand::register$lambda$0$41)
+            .executes(CbCommand::onDefaultCommand)
       );
    }
 }

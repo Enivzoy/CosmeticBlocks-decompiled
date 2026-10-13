@@ -13,11 +13,8 @@ public final class ProfileManager$listProfiles$$inlined$sortedByDescending$1<T> 
    @Override
    public final int compare(Object a, Object b) {
       ProfileManager.ProfileInfo it = (ProfileManager.ProfileInfo)b;
-      int var4/* $VF was: $i$a$-sortedByDescending-ProfileManager$listProfiles$2 */ = 0;
-      Comparable var10000 = it.getLastModified();
+      Comparable compareValue = it.getLastModified();
       it = (ProfileManager.ProfileInfo)a;
-      Comparable var5 = var10000;
-      var4/* $VF was: $i$a$-sortedByDescending-ProfileManager$listProfiles$2 */ = 0;
-      return ComparisonsKt.compareValues(var5, it.getLastModified());
+      return ComparisonsKt.compareValues(compareValue, it.getLastModified());
    }
 }

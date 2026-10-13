@@ -13,11 +13,8 @@ public final class CliEngine$addReminder$$inlined$sortBy$1<T> implements Compara
    @Override
    public final int compare(Object a, Object b) {
       CliEngine.Reminder it = (CliEngine.Reminder)a;
-      int var4/* $VF was: $i$a$-sortBy-CliEngine$addReminder$1 */ = 0;
-      Comparable var10000 = it.getTriggerTime();
+      Comparable compareValue = it.getTriggerTime();
       it = (CliEngine.Reminder)b;
-      Comparable var5 = var10000;
-      var4/* $VF was: $i$a$-sortBy-CliEngine$addReminder$1 */ = 0;
-      return ComparisonsKt.compareValues(var5, it.getTriggerTime());
+      return ComparisonsKt.compareValues(compareValue, it.getTriggerTime());
    }
 }

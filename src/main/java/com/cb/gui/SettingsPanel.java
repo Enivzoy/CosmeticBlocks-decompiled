@@ -7,8 +7,6 @@ import com.cb.render.Anim;
 import com.cb.render.NVGRenderer;
 import com.cb.setting.Setting;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import kotlin.Metadata;
@@ -141,28 +139,17 @@ public final class SettingsPanel {
       this.gui = gui;
       this.tab = tab;
       Iterable saved = this.tab.getSettings();
-      SettingsPanel var20 = this;
-      int $i$f$mapNotNull = 0;
-      Iterable $this$mapNotNullTo$iv$iv = saved;
-      var destination$iv$iv = new ArrayList();
-      int $i$f$mapNotNullTo = 0;
-      Iterable $this$forEach$iv$iv$iv = $this$mapNotNullTo$iv$iv;
-      int $i$f$forEach = 0;
+      List<SettingComponent<?>> destination = new ArrayList<>();
 
-      for (Object element$iv$iv$iv : $this$forEach$iv$iv$iv) {
-         Object element$iv$iv = element$iv$iv$iv;
-         int var15/* $VF was: $i$a$-forEach-CollectionsKt___CollectionsKt$mapNotNullTo$1$iv$iv */ = 0;
-         Setting it = (Setting)element$iv$iv;
-         int var17/* $VF was: $i$a$-mapNotNull-SettingsPanel$components$1 */ = 0;
-         SettingComponent var10000 = SettingComponent.Companion.create(this.gui, it);
-         if (var10000 != null) {
-            Object it$iv$iv = var10000;
-            int var19/* $VF was: $i$a$-let-CollectionsKt___CollectionsKt$mapNotNullTo$1$1$iv$iv */ = 0;
-            destination$iv$iv.add(it$iv$iv);
+      for (Object element : saved) {
+         Setting setting = (Setting)element;
+         SettingComponent component = SettingComponent.Companion.create(this.gui, setting);
+         if (component != null) {
+            destination.add(component);
          }
       }
 
-      this.components = (List<SettingComponent<?>>)destination$iv$iv;
+      this.components = destination;
       Config.PanelState savedx = Config.INSTANCE.getPanelState().get(this.tab.getName());
       this.x = savedx != null ? savedx.getX() : defaultX;
       this.y = savedx != null ? savedx.getY() : defaultY;
@@ -180,16 +167,16 @@ public final class SettingsPanel {
       return this.x;
    }
 
-   public final void setX(float var1) {
-      this.x = var1/* $VF was: <set-?> */;
+   public final void setX(float value) {
+      this.x = value;
    }
 
    public final float getY() {
       return this.y;
    }
 
-   public final void setY(float var1) {
-      this.y = var1/* $VF was: <set-?> */;
+   public final void setY(float value) {
+      this.y = value;
    }
 
    private final float getWidth() {
@@ -197,16 +184,9 @@ public final class SettingsPanel {
    }
 
    private final float contentHeight() {
-      float h = 0.0F;
-      h = 6.0F;
-      Object lastSub = null;
-      lastSub = "";
-      Iterable $this$forEach$iv = this.components;
-      int $i$f$forEach = 0;
-
-      for (Object element$iv : $this$forEach$iv) {
-         SettingComponent c = (SettingComponent)element$iv;
-         int var8/* $VF was: $i$a$-forEach-SettingsPanel$contentHeight$1 */ = 0;
+      float h = 6.0F;
+      String lastSub = "";
+      for (SettingComponent c : this.components) {
          if (c.getSetting().getVisible()) {
             String sub = c.getSetting().getSubcategory();
             if (sub.length() > 0 && !Intrinsics.areEqual(sub, lastSub)) {
@@ -270,36 +250,25 @@ public final class SettingsPanel {
       this.renderHeader(mouseX, mouseY);
       if (this.shownContent > 0.5F) {
          float clipTop = this.y + 36.0F;
-         NVGRenderer var29 = NVGRenderer.INSTANCE;
-         float x$iv = this.x;
-         float y$iv = clipTop;
-         float w$iv = this.getWidth();
-         float h$iv = this.shownContent;
-         int $i$f$scissor = 0;
-         var29.save();
-         var29.intersectScissor(x$iv, y$iv, w$iv, h$iv);
+         float clipX = this.x;
+         float clipY = clipTop;
+         float clipW = this.getWidth();
+         float clipH = this.shownContent;
+         NVGRenderer.INSTANCE.save();
+         NVGRenderer.INSTANCE.intersectScissor(clipX, clipY, clipW, clipH);
 
          try {
-            int var15/* $VF was: $i$a$-scissor-SettingsPanel$render$1 */ = 0;
-            float offset = 0.0F;
-            offset = clipTop + 3.0F - this.scrollAnim.getValue();
-            Object lastSub = null;
-            lastSub = "";
-            Iterable $this$forEach$iv = this.components;
-            int $i$f$forEach = 0;
-
-            for (Object element$iv : $this$forEach$iv) {
-               SettingComponent component = (SettingComponent)element$iv;
-               int var23/* $VF was: $i$a$-forEach-SettingsPanel$render$1$1 */ = 0;
+            float offset = clipTop + 3.0F - this.scrollAnim.getValue();
+            String lastSub = "";
+            for (SettingComponent component : this.components) {
                if (component.getSetting().getVisible()) {
                   String sub = component.getSetting().getSubcategory();
                   if (sub.length() > 0 && !Intrinsics.areEqual(sub, lastSub)) {
                      lastSub = sub;
                      if (offset + 18.0F >= clipTop && offset <= clipTop + this.shownContent) {
-                        NVGRenderer var10000 = NVGRenderer.INSTANCE;
-                        String var10001 = sub.toUpperCase(Locale.ROOT);
-                        Intrinsics.checkNotNullExpressionValue(var10001, "toUpperCase(...)");
-                        var10000.text(var10001, this.x + 14.0F, offset + 9.0F, 11.0F, -10724260, NVGRenderer.Font.MEDIUM);
+                        String upper = sub.toUpperCase(Locale.ROOT);
+                        Intrinsics.checkNotNullExpressionValue(upper, "toUpperCase(...)");
+                        NVGRenderer.INSTANCE.text(upper, this.x + 14.0F, offset + 9.0F, 11.0F, -10724260, NVGRenderer.Font.MEDIUM);
                      }
 
                      offset += 18.0F;
@@ -316,7 +285,7 @@ public final class SettingsPanel {
                }
             }
          } finally {
-            var29.restore();
+            NVGRenderer.INSTANCE.restore();
          }
       }
 
@@ -377,13 +346,8 @@ public final class SettingsPanel {
             return false;
          }
 
-         Iterable $this$forEach$iv = this.components;
-         int $i$f$forEach = 0;
-
-         for (Object element$iv : $this$forEach$iv) {
-            SettingComponent it = (SettingComponent)element$iv;
-            int var9/* $VF was: $i$a$-forEach-SettingsPanel$mouseClicked$1 */ = 0;
-            if (it.getSetting().getVisible() && it.mouseClicked(mouseX, mouseY, button)) {
+         for (SettingComponent component : this.components) {
+            if (component.getSetting().getVisible() && component.mouseClicked(mouseX, mouseY, button)) {
                return true;
             }
          }
@@ -397,24 +361,14 @@ public final class SettingsPanel {
          this.dragging = false;
       }
 
-      Iterable $this$forEach$iv = this.components;
-      int $i$f$forEach = 0;
-
-      for (Object element$iv : $this$forEach$iv) {
-         SettingComponent it = (SettingComponent)element$iv;
-         int var7/* $VF was: $i$a$-forEach-SettingsPanel$mouseReleased$1 */ = 0;
-         it.mouseReleased(button);
+      for (SettingComponent component : this.components) {
+         component.mouseReleased(button);
       }
    }
 
    public final void mouseDragged(float mouseX, float mouseY) {
-      Iterable $this$forEach$iv = this.components;
-      int $i$f$forEach = 0;
-
-      for (Object element$iv : $this$forEach$iv) {
-         SettingComponent it = (SettingComponent)element$iv;
-         int var8/* $VF was: $i$a$-forEach-SettingsPanel$mouseDragged$1 */ = 0;
-         it.mouseDragged(mouseX, mouseY);
+      for (SettingComponent component : this.components) {
+         component.mouseDragged(mouseX, mouseY);
       }
    }
 
@@ -428,60 +382,24 @@ public final class SettingsPanel {
    }
 
    public final boolean keyPressed(int key, int modifiers) {
-      var $this$any$iv = this.components;
-      int $i$f$any = 0;
-      boolean var10000;
-      if ($this$any$iv instanceof Collection && ((Collection)$this$any$iv).isEmpty()) {
-         var10000 = false;
-      } else {
-         Iterator var5 = $this$any$iv.iterator();
-
-         while (true) {
-            if (!var5.hasNext()) {
-               var10000 = false;
-               break;
-            }
-
-            Object element$iv = var5.next();
-            SettingComponent it = (SettingComponent)element$iv;
-            int var8/* $VF was: $i$a$-any-SettingsPanel$keyPressed$1 */ = 0;
-            if (it.keyPressed(key, modifiers)) {
-               var10000 = true;
-               break;
-            }
+      for (SettingComponent component : this.components) {
+         if (component.keyPressed(key, modifiers)) {
+            return true;
          }
       }
 
-      return var10000;
+      return false;
    }
 
    public final boolean charTyped(@NotNull String text) {
       Intrinsics.checkNotNullParameter(text, "text");
-      var $this$any$iv = this.components;
-      int $i$f$any = 0;
-      boolean var10000;
-      if ($this$any$iv instanceof Collection && ((Collection)$this$any$iv).isEmpty()) {
-         var10000 = false;
-      } else {
-         Iterator var4 = $this$any$iv.iterator();
-
-         while (true) {
-            if (!var4.hasNext()) {
-               var10000 = false;
-               break;
-            }
-
-            Object element$iv = var4.next();
-            SettingComponent it = (SettingComponent)element$iv;
-            int var7/* $VF was: $i$a$-any-SettingsPanel$charTyped$1 */ = 0;
-            if (it.charTyped(text)) {
-               var10000 = true;
-               break;
-            }
+      for (SettingComponent component : this.components) {
+         if (component.charTyped(text)) {
+            return true;
          }
       }
 
-      return var10000;
+      return false;
    }
 
    public final void persistState() {

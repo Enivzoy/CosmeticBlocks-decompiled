@@ -10,5 +10,5 @@ import kotlin.Metadata;
    d2 = {"Lcom/cb/gui/NvgScreen;", "", "renderOverlay", "", "delta", "", "cb_client"}
 )
 public interface NvgScreen {
-   void renderOverlay(float var1);
+   void renderOverlay(float delta);
 }

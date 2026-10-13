@@ -69,31 +69,29 @@ implements ClientModInitializer {
         CosmeticBlocks.INSTANCE.register();
         Scheduler.INSTANCE.register();
         Config.INSTANCE.load();
-        ClientLifecycleEvents.CLIENT_STOPPING.register(CbClient::onInitializeClient$lambda$0);
-        ClientTickEvents.END_CLIENT_TICK.register(CbClient::onInitializeClient$lambda$1);
+        ClientLifecycleEvents.CLIENT_STOPPING.register(CbClient::onClientStopping);
+        ClientTickEvents.END_CLIENT_TICK.register(CbClient::onEndClientTick);
         CbCommand.INSTANCE.register();
     }
 
     private final void pollOpenBind(Minecraft client, int key, Function0<? extends Screen> screen) {
-        boolean down;
-        boolean $i$f$pollOpenBind = false;
         if (key == -1) {
             return;
         }
         long window = GLFW.glfwGetCurrentContext();
-        boolean bl = down = GLFW.glfwGetKey((long)window, (int)key) == 1;
+        boolean down = GLFW.glfwGetKey((long)window, (int)key) == 1;
         if (down && !Intrinsics.areEqual((Object)keyWasDown.get(key), (Object)true)) {
             client.gui.setScreen((Screen)screen.invoke());
         }
         ((Map)keyWasDown).put(key, down);
     }
 
-    private static final void onInitializeClient$lambda$0(Minecraft minecraft) {
+    private static final void onClientStopping(Minecraft minecraft) {
         Intrinsics.checkNotNullParameter((Object)minecraft, (String)"<unused var>");
         CosmeticBlocks.INSTANCE.flushAll();
     }
 
-    private static final void onInitializeClient$lambda$1(Minecraft client) {
+    private static final void onEndClientTick(Minecraft client) {
         Intrinsics.checkNotNullParameter((Object)client, (String)"client");
         if (client.gui.screen() == null) {
             INSTANCE.pollOpenBind(client, ((Number)GuiTab.INSTANCE.getOpenGuiKeybind().getValue()).intValue(), ClickGuiScreen::new);

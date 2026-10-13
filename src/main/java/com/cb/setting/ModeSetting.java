@@ -2,7 +2,6 @@ package com.cb.setting;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import kotlin.Metadata;
@@ -85,7 +84,7 @@ public final class ModeSetting<E extends Enum<E>> extends Setting<E> {
       Intrinsics.checkNotNullExpressionValue(lowercased, "toLowerCase(...)");
       CharSequence sequence = lowercased;
       char[] delimiters = new char[]{'_'};
-      return CollectionsKt.joinToString(StringsKt.split(sequence, delimiters, false, 0), " ", "", "", -1, "...", word -> label$lambda$0((String)word));
+      return CollectionsKt.joinToString(StringsKt.split(sequence, delimiters, false, 0), " ", "", "", -1, "...", word -> capitalizeWord((String)word));
    }
 
    @NotNull
@@ -115,24 +114,13 @@ public final class ModeSetting<E extends Enum<E>> extends Setting<E> {
       if (element != null) {
          if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
             String stored = element.getAsString();
-            Iterable<E> options = this.options;
-            int $i$f$firstOrNull = 0;
-            Iterator<E> iterator = options.iterator();
-            Object found;
+            Object found = null;
 
-            while (true) {
-               if (iterator.hasNext()) {
-                  E item = iterator.next();
-                  if (!Intrinsics.areEqual(item.name(), stored)) {
-                     continue;
-                  }
-
+            for (E item : this.options) {
+               if (Intrinsics.areEqual(item.name(), stored)) {
                   found = item;
                   break;
                }
-
-               found = null;
-               break;
             }
 
             Enum match = (Enum)found;
@@ -143,7 +131,7 @@ public final class ModeSetting<E extends Enum<E>> extends Setting<E> {
       }
    }
 
-   private static final CharSequence label$lambda$0(String word) {
+   private static final CharSequence capitalizeWord(String word) {
       Intrinsics.checkNotNullParameter(word, "word");
       String result;
       if (word.length() > 0) {

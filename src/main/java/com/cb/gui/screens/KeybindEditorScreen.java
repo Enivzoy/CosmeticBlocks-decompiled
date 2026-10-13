@@ -145,46 +145,38 @@ public final class KeybindEditorScreen extends Screen implements NvgScreen {
 
    public KeybindEditorScreen() {
       super(Component.literal("Keybinds"));
-      Iterable $this$flatMap$iv = Tabs.INSTANCE.getAll();
-      KeybindEditorScreen var20 = this;
-      int $i$f$flatMap = 0;
-      Iterable $this$flatMapTo$iv$iv = $this$flatMap$iv;
-      var destination$iv$iv = new ArrayList();
-      int $i$f$flatMapTo = 0;
+      Iterable tabs = Tabs.INSTANCE.getAll();
+      KeybindEditorScreen ignored = this;
+      Iterable source = tabs;
+      var result = new ArrayList();
 
-      for (Object element$iv$iv : $this$flatMapTo$iv$iv) {
-         SettingsTab tab = (SettingsTab)element$iv$iv;
-         int var9/* $VF was: $i$a$-flatMap-KeybindEditorScreen$allRows$1 */ = 0;
-         Iterable $this$filterIsInstance$iv = tab.getSettings();
-         int $i$f$filterIsInstance = 0;
-         Iterable $this$mapTo$iv$iv = $this$filterIsInstance$iv;
-         var destination$iv$ivx = new ArrayList();
-         int $i$f$filterIsInstanceTo = 0;
+      for (Object element : source) {
+         SettingsTab tab = (SettingsTab)element;
+         Iterable settings = tab.getSettings();
+         Iterable instanceSource = settings;
+         var buffer = new ArrayList();
 
-         for (Object element$iv$ivx : $this$mapTo$iv$iv) {
-            if (element$iv$ivx instanceof KeybindSetting) {
-               destination$iv$ivx.add(element$iv$ivx);
+         for (Object candidate : instanceSource) {
+            if (candidate instanceof KeybindSetting) {
+               buffer.add(candidate);
             }
          }
 
-         $this$filterIsInstance$iv = (Iterable & List)destination$iv$ivx;
-         $i$f$filterIsInstance = 0;
-         $this$mapTo$iv$iv = $this$filterIsInstance$iv;
-         destination$iv$ivx = new ArrayList(CollectionsKt.collectionSizeOrDefault($this$filterIsInstance$iv, 10));
-         $i$f$filterIsInstanceTo = 0;
+         settings = (Iterable & List)buffer;
+         instanceSource = settings;
+         buffer = new ArrayList(CollectionsKt.collectionSizeOrDefault(settings, 10));
 
-         for (Object item$iv$iv : $this$mapTo$iv$iv) {
-            KeybindSetting it = (KeybindSetting)item$iv$iv;
-            Collection var18 = destination$iv$ivx;
-            int var19/* $VF was: $i$a$-map-KeybindEditorScreen$allRows$1$1 */ = 0;
-            var18.add(new KeybindEditorScreen.Row(tab.getName(), it));
+         for (Object item : instanceSource) {
+            KeybindSetting it = (KeybindSetting)item;
+            Collection rows = buffer;
+            rows.add(new KeybindEditorScreen.Row(tab.getName(), it));
          }
 
-         var list$iv$iv = (Iterable & List)destination$iv$ivx;
-         CollectionsKt.addAll(destination$iv$iv, list$iv$iv);
+         var list = (Iterable & List)buffer;
+         CollectionsKt.addAll(result, list);
       }
 
-      this.allRows = (List<KeybindEditorScreen.Row>)destination$iv$iv;
+      this.allRows = (List<KeybindEditorScreen.Row>)result;
       this.uiScale = 1.0F;
       this.panelWidth = 440.0F;
       this.panelHeight = 400.0F;
@@ -196,54 +188,48 @@ public final class KeybindEditorScreen extends Screen implements NvgScreen {
    }
 
    private final List<KeybindEditorScreen.Row> filtered() {
-      String var10000 = StringsKt.trim(this.search).toString().toLowerCase(Locale.ROOT);
-      Intrinsics.checkNotNullExpressionValue(var10000, "toLowerCase(...)");
-      String q = var10000;
+      String q = StringsKt.trim(this.search).toString().toLowerCase(Locale.ROOT);
+      Intrinsics.checkNotNullExpressionValue(q, "toLowerCase(...)");
       if (q.length() == 0) {
          return this.allRows;
       }
 
-      Iterable $this$filter$iv = this.allRows;
-      int $i$f$filter = 0;
-      Iterable $this$filterTo$iv$iv = $this$filter$iv;
-      var destination$iv$iv = new ArrayList();
-      int $i$f$filterTo = 0;
+      Iterable allRows = this.allRows;
+      Iterable source = allRows;
+      var result = new ArrayList();
 
-      for (Object element$iv$iv : $this$filterTo$iv$iv) {
-         boolean var13;
+      for (Object element : source) {
+         boolean matches;
          label28: {
-            KeybindEditorScreen.Row it = (KeybindEditorScreen.Row)element$iv$iv;
-            int var10/* $VF was: $i$a$-filter-KeybindEditorScreen$filtered$1 */ = 0;
-            var10000 = it.getTabName().toLowerCase(Locale.ROOT);
-            Intrinsics.checkNotNullExpressionValue(var10000, "toLowerCase(...)");
-            if (!StringsKt.contains(var10000, q, false)) {
-               var10000 = it.getSetting().getName().toLowerCase(Locale.ROOT);
-               Intrinsics.checkNotNullExpressionValue(var10000, "toLowerCase(...)");
-               if (!StringsKt.contains(var10000, q, false)) {
-                  var13 = false;
+            KeybindEditorScreen.Row it = (KeybindEditorScreen.Row)element;
+            String lower = it.getTabName().toLowerCase(Locale.ROOT);
+            Intrinsics.checkNotNullExpressionValue(lower, "toLowerCase(...)");
+            if (!StringsKt.contains(lower, q, false)) {
+               lower = it.getSetting().getName().toLowerCase(Locale.ROOT);
+               Intrinsics.checkNotNullExpressionValue(lower, "toLowerCase(...)");
+               if (!StringsKt.contains(lower, q, false)) {
+                  matches = false;
                   break label28;
                }
             }
 
-            var13 = true;
+            matches = true;
          }
 
-         if (var13) {
-            destination$iv$iv.add(element$iv$iv);
+         if (matches) {
+            result.add(element);
          }
       }
 
-      return (List<KeybindEditorScreen.Row>)destination$iv$iv;
+      return (List<KeybindEditorScreen.Row>)result;
    }
 
    @Override
    public void renderOverlay(float delta) {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      Minecraft minecraft = var10000;
-      Window var15 = minecraft.getWindow();
-      Intrinsics.checkNotNullExpressionValue(var15, "getWindow(...)");
-      Window window = var15;
+      Minecraft minecraft = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(minecraft, "getInstance(...)");
+      Window window = minecraft.getWindow();
+      Intrinsics.checkNotNullExpressionValue(window, "getWindow(...)");
       int fbWidth = window.getWidth();
       int fbHeight = window.getHeight();
       if (fbWidth > 0 && fbHeight > 0) {
@@ -303,17 +289,15 @@ public final class KeybindEditorScreen extends Screen implements NvgScreen {
       float contentHeight = rows.size() * this.rowHeight;
       this.maxScroll = RangesKt.coerceAtLeast(contentHeight - listHeight, 0.0F);
       this.scroll = RangesKt.coerceIn(this.scroll, 0.0F, this.maxScroll);
-      NVGRenderer this_$iv = NVGRenderer.INSTANCE;
-      float x$iv = listX;
-      float y$iv = this.listTop;
-      float w$iv = listWidth;
-      float h$iv = listHeight;
-      int $i$f$scissor = 0;
-      this_$iv.save();
-      this_$iv.intersectScissor(x$iv, y$iv, w$iv, h$iv);
+      NVGRenderer renderer = NVGRenderer.INSTANCE;
+      float scissorX = listX;
+      float scissorY = this.listTop;
+      float scissorW = listWidth;
+      float scissorH = listHeight;
+      renderer.save();
+      renderer.intersectScissor(scissorX, scissorY, scissorW, scissorH);
 
       try {
-         int var27/* $VF was: $i$a$-scissor-KeybindEditorScreen$draw$1 */ = 0;
          if (rows.isEmpty()) {
             NVGRenderer.INSTANCE.textCentered("No matches.", this.panelX + this.panelWidth / 2.0F, this.listTop + 24.0F, 13.0F, -10724260, null);
          } else {
@@ -330,7 +314,7 @@ public final class KeybindEditorScreen extends Screen implements NvgScreen {
             }
          }
       } finally {
-         this_$iv.restore();
+         renderer.restore();
       }
    }
 
@@ -338,20 +322,18 @@ public final class KeybindEditorScreen extends Screen implements NvgScreen {
       String key = row.getTabName() + "/" + row.getSetting().getName();
       boolean hovered = this.inside(mouseX, mouseY, x, y, w, this.rowHeight) && mouseY >= this.listTop && mouseY <= this.listBottom;
       Map label = this.rowHover;
-      Object key$iv = key;
-      int $i$f$getOrPut = 0;
-      Object value$iv = label.get(key$iv);
-      Object var10000;
-      if (value$iv == null) {
-         int var16/* $VF was: $i$a$-getOrPut-KeybindEditorScreen$drawRow$anim$1 */ = 0;
-         Object answer$iv = new Anim(0.0F, 14.0F);
-         label.put(key$iv, answer$iv);
-         var10000 = answer$iv;
+      Object lookupKey = key;
+      Object cached = label.get(lookupKey);
+      Object value;
+      if (cached == null) {
+         Object answer = new Anim(0.0F, 14.0F);
+         label.put(lookupKey, answer);
+         value = answer;
       } else {
-         var10000 = value$iv;
+         value = cached;
       }
 
-      Anim anim = (Anim)var10000;
+      Anim anim = (Anim)value;
       anim.setTarget(hovered ? 1.0F : 0.0F);
       anim.update(delta);
       if (anim.getValue() > 0.001F) {
@@ -373,9 +355,8 @@ public final class KeybindEditorScreen extends Screen implements NvgScreen {
    }
 
    private final float toUi(double scaled) {
-      Window var10000 = Minecraft.getInstance().getWindow();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getWindow(...)");
-      Window window = var10000;
+      Window window = Minecraft.getInstance().getWindow();
+      Intrinsics.checkNotNullExpressionValue(window, "getWindow(...)");
       return (float)(scaled * window.getGuiScale() / this.uiScale);
    }
 
@@ -603,10 +584,10 @@ public final class KeybindEditorScreen extends Screen implements NvgScreen {
       public boolean equals(@Nullable Object other) {
          if (this == other) {
             return true;
-         } else if (!(other instanceof KeybindEditorScreen.Row var2)) {
+         } else if (!(other instanceof KeybindEditorScreen.Row that)) {
             return false;
          } else {
-            return !Intrinsics.areEqual(this.tabName, var2.tabName) ? false : Intrinsics.areEqual(this.setting, var2.setting);
+            return !Intrinsics.areEqual(this.tabName, that.tabName) ? false : Intrinsics.areEqual(this.setting, that.setting);
          }
       }
    }

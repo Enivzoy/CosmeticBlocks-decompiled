@@ -51,7 +51,7 @@ public final class KeyNames {
 
       try {
          printable = GLFW.glfwGetKeyName(key, 0);
-      } catch (Throwable var6) {
+      } catch (Throwable ignored) {
          printable = null;
       }
 

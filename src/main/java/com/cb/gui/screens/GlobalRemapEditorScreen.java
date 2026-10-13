@@ -6,7 +6,6 @@ import com.cb.render.NVGRenderer;
 import com.cb.render.Theme;
 import com.mojang.blaze3d.platform.Window;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -189,12 +188,10 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
 
    @Override
    public void renderOverlay(float delta) {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      Minecraft minecraft = var10000;
-      Window var14 = minecraft.getWindow();
-      Intrinsics.checkNotNullExpressionValue(var14, "getWindow(...)");
-      Window window = var14;
+      Minecraft minecraft = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(minecraft, "getInstance(...)");
+      Window window = minecraft.getWindow();
+      Intrinsics.checkNotNullExpressionValue(window, "getWindow(...)");
       int fbWidth = window.getWidth();
       int fbHeight = window.getHeight();
       if (fbWidth > 0 && fbHeight > 0) {
@@ -239,10 +236,10 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
       NVGRenderer.INSTANCE.textRight(GlobalRemap.INSTANCE.sources().size() + " sources", this.px + w - 10.0F, cy + 7.0F, 12.0F, -6513508, null);
       cy += 24.0F;
       float bx = this.px + 10.0F;
-      bx += this.pillButton("+ Add Remap", bx, cy, true, () -> renderListView$lambda$0(this)) + 6.0F;
-      bx += this.pillButton("Export", bx, cy, false, GlobalRemapEditorScreen::renderListView$lambda$1) + 6.0F;
-      bx += this.pillButton("Import", bx, cy, false, GlobalRemapEditorScreen::renderListView$lambda$2) + 6.0F;
-      this.pillButton("Clear", bx, cy, false, GlobalRemapEditorScreen::renderListView$lambda$3);
+      bx += this.pillButton("+ Add Remap", bx, cy, true, () -> onAddRemap(this)) + 6.0F;
+      bx += this.pillButton("Export", bx, cy, false, GlobalRemapEditorScreen::onExport) + 6.0F;
+      bx += this.pillButton("Import", bx, cy, false, GlobalRemapEditorScreen::onImport) + 6.0F;
+      this.pillButton("Clear", bx, cy, false, GlobalRemapEditorScreen::onClear);
       cy += 24.0F;
       this.listTop = cy;
       this.listBottom = this.py + h - 20.0F;
@@ -256,24 +253,22 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
 
       float maxScroll = RangesKt.coerceAtLeast(totalH - viewH, 0.0F);
       this.listScroll = RangesKt.coerceIn(this.listScroll, 0.0F, maxScroll);
-      NVGRenderer var28 = NVGRenderer.INSTANCE;
-      float x$iv = this.px;
-      float y$iv = this.listTop;
-      float w$iv = w;
-      float h$iv = viewH;
-      int $i$f$scissor = 0;
-      var28.save();
-      var28.intersectScissor(x$iv, y$iv, w$iv, h$iv);
+      NVGRenderer renderer = NVGRenderer.INSTANCE;
+      float scissorX = this.px;
+      float scissorY = this.listTop;
+      float scissorW = w;
+      float scissorH = viewH;
+      renderer.save();
+      renderer.intersectScissor(scissorX, scissorY, scissorW, scissorH);
 
       try {
-         int var15/* $VF was: $i$a$-scissor-GlobalRemapEditorScreen$renderListView$5 */ = 0;
          float ry = this.listTop - this.listScroll;
 
          for (String src : sources) {
             ry = this.renderSourceBlock(src, ry);
          }
       } finally {
-         var28.restore();
+         renderer.restore();
       }
 
       if (sources.isEmpty()) {
@@ -286,34 +281,34 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
    private final float renderSourceBlock(String src, float startY) {
       float w = this.getPanelW();
       float ry = startY;
-      Function1<Float, Boolean> visible = y -> renderSourceBlock$lambda$0(this, y);
+      Function1<Float, Boolean> visible = y -> isRowVisible(this, y);
       if ((Boolean)visible.invoke(ry)) {
          NVGRenderer.INSTANCE.rect(this.px + 4.0F, ry + 1.0F, w - 8.0F, this.rowH - 2.0F, -14935012, 4.0F);
          NVGRenderer.INSTANCE.text(this.prettify(src), this.px + 10.0F, ry + this.rowH / 2.0F, 12.0F, -1184275, NVGRenderer.Font.MEDIUM);
-         float delW = this.iconButton("x", this.px + w - 10.0F - 16.0F, ry + (this.rowH - 14.0F) / 2.0F, () -> renderSourceBlock$lambda$1(src));
+         float delW = this.iconButton("x", this.px + w - 10.0F - 16.0F, ry + (this.rowH - 14.0F) / 2.0F, () -> onRemoveSource(src));
          this.iconButtonLabeled(
-            "+ target", this.px + w - 10.0F - 16.0F - delW - 64.0F, ry + (this.rowH - 14.0F) / 2.0F, 60.0F, () -> renderSourceBlock$lambda$2(this, src)
+            "+ target", this.px + w - 10.0F - 16.0F - delW - 64.0F, ry + (this.rowH - 14.0F) / 2.0F, 60.0F, () -> onAddTarget(this, src)
          );
       }
 
       ry += this.rowH;
       List<GlobalRemap.RemapTarget> targets = GlobalRemap.INSTANCE.targetsOf(src);
-      Iterator var7 = targets.iterator();
-      int var8 = 0;
+      Iterator iterator = targets.iterator();
+      int targetIndex = 0;
 
-      while (var7.hasNext()) {
-         int i = var8++;
-         GlobalRemap.RemapTarget t = (GlobalRemap.RemapTarget)var7.next();
+      while (iterator.hasNext()) {
+         int i = targetIndex++;
+         GlobalRemap.RemapTarget t = (GlobalRemap.RemapTarget)iterator.next();
          if ((Boolean)visible.invoke(ry)) {
             NVGRenderer.INSTANCE.text("> " + this.prettify(t.getId()), this.px + 10.0F + 12.0F, ry + this.rowH / 2.0F, 12.0F, -6513508, null);
             float cx = this.px + w - 10.0F - 16.0F;
-            this.iconButton("x", cx, ry + (this.rowH - 14.0F) / 2.0F, () -> renderSourceBlock$lambda$3(src, i));
+            this.iconButton("x", cx, ry + (this.rowH - 14.0F) / 2.0F, () -> onRemoveTarget(src, i));
             cx -= 22.0F;
-            this.iconButton("+", cx, ry + (this.rowH - 14.0F) / 2.0F, () -> renderSourceBlock$lambda$4(src, i, t));
+            this.iconButton("+", cx, ry + (this.rowH - 14.0F) / 2.0F, () -> onIncreaseWeight(src, i, t));
             cx -= 30.0F;
             NVGRenderer.INSTANCE.textCentered("x" + t.getWeight(), cx + 14.0F, ry + this.rowH / 2.0F, 12.0F, -1184275, null);
             cx -= 18.0F;
-            this.iconButton("-", cx, ry + (this.rowH - 14.0F) / 2.0F, () -> renderSourceBlock$lambda$5(src, i, t));
+            this.iconButton("-", cx, ry + (this.rowH - 14.0F) / 2.0F, () -> onDecreaseWeight(src, i, t));
          }
 
          ry += this.rowH;
@@ -328,33 +323,29 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
       float w = this.getPanelW();
       float h = this.getPanelH();
       float cy = this.py + 10.0F;
-      String var10000;
+      String title;
       if (this.pickPhase == GlobalRemapEditorScreen.PickPhase.SOURCE) {
-         var10000 = "Pick source block";
+         title = "Pick source block";
       } else {
-         String var10001 = this.pendingSource;
+         String source = this.pendingSource;
          if (this.pendingSource == null) {
-            var10001 = "";
+            source = "";
          }
 
-         var10000 = "Pick target for " + this.prettify(var10001);
+         title = "Pick target for " + this.prettify(source);
       }
 
-      String title = var10000;
       NVGRenderer.INSTANCE.text(title, this.px + 10.0F, cy + 7.0F, 14.0F, -1184275, NVGRenderer.Font.BOLD);
       cy += 24.0F;
       float searchH = 22.0F;
       NVGRenderer.INSTANCE.rect(this.px + 10.0F, cy, w - 20.0F, searchH, 1711276032, 5.0F);
       NVGRenderer.INSTANCE.rectOutline(this.px + 10.0F, cy, w - 20.0F, searchH, 352321535, 5.0F, 0.0F);
-      String searchColor = this.search;
-      if (searchColor.length() == 0) {
-         int var8/* $VF was: $i$a$-ifEmpty-GlobalRemapEditorScreen$renderPickView$searchText$1 */ = 0;
-         var10000 = "type to filter...";
+      String searchText;
+      if (this.search.length() == 0) {
+         searchText = "type to filter...";
       } else {
-         var10000 = searchColor;
+         searchText = this.search;
       }
-
-      String searchText = var10000;
       int searchColorx = this.search.length() == 0 ? -10724260 : -1184275;
       NVGRenderer.INSTANCE.text(searchText, this.px + 10.0F + 8.0F, cy + searchH / 2.0F, 13.0F, searchColorx, null);
       if (this.blink % 1.0F < 0.55F) {
@@ -371,17 +362,15 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
       float totalH = this.filtered.size() * this.rowH;
       float maxScroll = RangesKt.coerceAtLeast(totalH - viewH, 0.0F);
       this.pickScroll = RangesKt.coerceIn(this.pickScroll, 0.0F, maxScroll);
-      NVGRenderer this_$iv = NVGRenderer.INSTANCE;
-      float x$iv = this.px;
-      float y$iv = this.pickListTop;
-      float w$iv = w;
-      float h$iv = viewH;
-      int $i$f$scissor = 0;
-      this_$iv.save();
-      this_$iv.intersectScissor(x$iv, y$iv, w$iv, h$iv);
+      NVGRenderer renderer = NVGRenderer.INSTANCE;
+      float scissorX = this.px;
+      float scissorY = this.pickListTop;
+      float scissorW = w;
+      float scissorH = viewH;
+      renderer.save();
+      renderer.intersectScissor(scissorX, scissorY, scissorW, scissorH);
 
       try {
-         int var17/* $VF was: $i$a$-scissor-GlobalRemapEditorScreen$renderPickView$1 */ = 0;
          int first = RangesKt.coerceAtLeast((int)(this.pickScroll / this.rowH), 0);
          int last = RangesKt.coerceAtMost((int)((this.pickScroll + viewH) / this.rowH), this.filtered.size() - 1);
          int i = first;
@@ -389,26 +378,25 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
             while (true) {
                String id;
                float ry;
-               boolean var39;
+               boolean hovered;
                label130: {
                   id = this.filtered.get(i);
                   ry = this.pickListTop + i * this.rowH - this.pickScroll;
-                  float var23 = this.px;
-                  float var24 = this.px + w;
-                  float var25 = this.mouseX;
-                  if (var23 <= var25 ? var25 <= var24 : false) {
-                     var23 = ry + this.rowH;
-                     var24 = this.mouseY;
-                     if (ry <= var24 ? var24 <= var23 : false) {
-                        var39 = true;
+                  float boundA = this.px;
+                  float boundB = this.px + w;
+                  float cursor = this.mouseX;
+                  if (boundA <= cursor ? cursor <= boundB : false) {
+                     boundA = ry + this.rowH;
+                     boundB = this.mouseY;
+                     if (ry <= boundB ? boundB <= boundA : false) {
+                        hovered = true;
                         break label130;
                      }
                   }
 
-                  var39 = false;
+                  hovered = false;
                }
 
-               boolean hovered = var39;
                if (i == this.highlightIdx) {
                   NVGRenderer.INSTANCE.rect(this.px + 2.0F, ry, w - 4.0F, this.rowH, Theme.INSTANCE.withAlpha(-1750963, 0.28F), 4.0F);
                } else if (hovered) {
@@ -424,7 +412,7 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
             }
          }
       } finally {
-         this_$iv.restore();
+         renderer.restore();
       }
 
       NVGRenderer.INSTANCE.textCentered("Enter confirm   |   ESC back", this.px + w / 2.0F, this.py + h - 10.0F, 12.0F, -10724260, null);
@@ -433,25 +421,24 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
    private final float pillButton(String label, float x, float y, boolean accent, Function0<Unit> act) {
       float bw;
       float bh;
-      boolean var10000;
+      boolean hovered;
       label35: {
          bw = NVGRenderer.INSTANCE.textWidth(label, 12.0F, null) + 16.0F;
          bh = 16.0F;
          float bg = x + bw;
-         float var10 = this.mouseX;
-         if (x <= var10 ? var10 <= bg : false) {
+         float cursor = this.mouseX;
+         if (x <= cursor ? cursor <= bg : false) {
             bg = y + bh;
-            var10 = this.mouseY;
-            if (y <= var10 ? var10 <= bg : false) {
-               var10000 = true;
+            cursor = this.mouseY;
+            if (y <= cursor ? cursor <= bg : false) {
+               hovered = true;
                break label35;
             }
          }
 
-         var10000 = false;
+         hovered = false;
       }
 
-      boolean hovered = var10000;
       int bg = accent ? -1750963 : (hovered ? 318767103 : -14013910);
       NVGRenderer.INSTANCE.rect(x, y, bw, bh, bg, 4.0F);
       NVGRenderer.INSTANCE.textCentered(label, x + bw / 2.0F, y + bh / 2.0F, 12.0F, -1184275, null);
@@ -461,24 +448,23 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
 
    private final float iconButton(String glyph, float x, float y, Function0<Unit> act) {
       float s;
-      boolean var10000;
+      boolean hovered;
       label36: {
          s = 14.0F;
-         float var7 = x + s;
-         float var8 = this.mouseX;
-         if (x <= var8 ? var8 <= var7 : false) {
-            var7 = y + s;
-            var8 = this.mouseY;
-            if (y <= var8 ? var8 <= var7 : false) {
-               var10000 = true;
+         float edge = x + s;
+         float cursor = this.mouseX;
+         if (x <= cursor ? cursor <= edge : false) {
+            edge = y + s;
+            cursor = this.mouseY;
+            if (y <= cursor ? cursor <= edge : false) {
+               hovered = true;
                break label36;
             }
          }
 
-         var10000 = false;
+         hovered = false;
       }
 
-      boolean hovered = var10000;
       NVGRenderer.INSTANCE.rect(x, y, s, s, hovered ? -1750963 : -14013910, 3.0F);
       NVGRenderer.INSTANCE.textCentered(glyph, x + s / 2.0F, y + s / 2.0F, 12.0F, -1184275, null);
       if (this.withinList(y)) {
@@ -490,24 +476,23 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
 
    private final void iconButtonLabeled(String label, float x, float y, float wdt, Function0<Unit> act) {
       float s;
-      boolean var10000;
+      boolean hovered;
       label36: {
          s = 14.0F;
-         float var8 = x + wdt;
-         float var9 = this.mouseX;
-         if (x <= var9 ? var9 <= var8 : false) {
-            var8 = y + s;
-            var9 = this.mouseY;
-            if (y <= var9 ? var9 <= var8 : false) {
-               var10000 = true;
+         float edge = x + wdt;
+         float cursor = this.mouseX;
+         if (x <= cursor ? cursor <= edge : false) {
+            edge = y + s;
+            cursor = this.mouseY;
+            if (y <= cursor ? cursor <= edge : false) {
+               hovered = true;
                break label36;
             }
          }
 
-         var10000 = false;
+         hovered = false;
       }
 
-      boolean hovered = var10000;
       NVGRenderer.INSTANCE.rect(x, y, wdt, s, hovered ? 318767103 : -14013910, 3.0F);
       NVGRenderer.INSTANCE.textCentered(label, x + wdt / 2.0F, y + s / 2.0F, 12.0F, -1184275, null);
       if (this.withinList(y)) {
@@ -521,58 +506,45 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
 
    private final void ensureBlocks() {
       if (this.allBlocks.isEmpty()) {
-         Set var10001 = BuiltInRegistries.BLOCK.keySet();
-         Intrinsics.checkNotNullExpressionValue(var10001, "keySet(...)");
-         Iterable $this$map$iv = var10001;
-         GlobalRemapEditorScreen var10 = this;
-         int $i$f$map = 0;
-         Iterable $this$mapTo$iv$iv = $this$map$iv;
-         var destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault($this$map$iv, 10));
-         int $i$f$mapTo = 0;
+         Set keys = BuiltInRegistries.BLOCK.keySet();
+         Intrinsics.checkNotNullExpressionValue(keys, "keySet(...)");
+         GlobalRemapEditorScreen screen = this;
+         Iterable blocksToMap = keys;
+         var mapped = new ArrayList(CollectionsKt.collectionSizeOrDefault(keys, 10));
 
-         for (Object item$iv$iv : $this$mapTo$iv$iv) {
-            Identifier it = (Identifier)item$iv$iv;
-            Collection var11 = destination$iv$iv;
-            int var9/* $VF was: $i$a$-map-GlobalRemapEditorScreen$ensureBlocks$1 */ = 0;
-            var11.add(it.toString());
+         for (Object element : blocksToMap) {
+            Identifier blockId = (Identifier)element;
+            mapped.add(blockId.toString());
          }
 
-         var10.allBlocks = CollectionsKt.sorted(destination$iv$iv);
+         screen.allBlocks = CollectionsKt.sorted(mapped);
          this.applyFilter(true);
       }
    }
 
    private final void applyFilter(boolean force) {
-      String var10000 = StringsKt.trim(this.search).toString().toLowerCase(Locale.ROOT);
-      Intrinsics.checkNotNullExpressionValue(var10000, "toLowerCase(...)");
-      String q = var10000;
+      String q = StringsKt.trim(this.search).toString().toLowerCase(Locale.ROOT);
+      Intrinsics.checkNotNullExpressionValue(q, "toLowerCase(...)");
       if (force || !Intrinsics.areEqual(q, this.lastFilterKey)) {
          this.lastFilterKey = q;
-         GlobalRemapEditorScreen var13 = this;
-         List var10001;
+         List result;
          if (q.length() == 0) {
-            var10001 = this.allBlocks;
+            result = this.allBlocks;
          } else {
-            Iterable $this$filter$iv = this.allBlocks;
-            GlobalRemapEditorScreen var12 = this;
-            int $i$f$filter = 0;
-            Iterable $this$filterTo$iv$iv = $this$filter$iv;
-            var destination$iv$iv = new ArrayList();
-            int $i$f$filterTo = 0;
+            Iterable filterSource = this.allBlocks;
+            var filteredList = new ArrayList();
 
-            for (Object element$iv$iv : $this$filterTo$iv$iv) {
-               String it = (String)element$iv$iv;
-               int var11/* $VF was: $i$a$-filter-GlobalRemapEditorScreen$applyFilter$1 */ = 0;
+            for (Object element : filterSource) {
+               String it = (String)element;
                if (StringsKt.contains(it, q, false)) {
-                  destination$iv$iv.add(element$iv$iv);
+                  filteredList.add(element);
                }
             }
 
-            var10001 = (List)destination$iv$iv;
-            var13 = var12;
+            result = (List)filteredList;
          }
 
-         var13.filtered = var10001;
+         this.filtered = result;
          this.highlightIdx = RangesKt.coerceIn(this.highlightIdx, 0, RangesKt.coerceAtLeast(this.filtered.size() - 1, 0));
       }
    }
@@ -618,14 +590,11 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
       }
 
       if (this.view == GlobalRemapEditorScreen.View.LIST) {
-         Iterator var10 = this.hits.iterator();
-
-         while (var10.hasNext()) {
-            GlobalRemapEditorScreen.Hit hit = (GlobalRemapEditorScreen.Hit)var10.next();
-            float var7 = hit.getX();
-            if (mx <= hit.getX() + hit.getW() ? var7 <= mx : false) {
-               var7 = hit.getY();
-               if (my <= hit.getY() + hit.getH() ? var7 <= my : false) {
+         for (GlobalRemapEditorScreen.Hit hit : this.hits) {
+            float minCoord = hit.getX();
+            if (mx <= hit.getX() + hit.getW() ? minCoord <= mx : false) {
+               minCoord = hit.getY();
+               if (my <= hit.getY() + hit.getH() ? minCoord <= my : false) {
                   hit.getAct().invoke();
                   return true;
                }
@@ -716,29 +685,25 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
          return false;
       }
 
-      String var10000 = event.codepointAsString();
-      Intrinsics.checkNotNullExpressionValue(var10000, "codepointAsString(...)");
-      String s = var10000;
+      String s = event.codepointAsString();
+      Intrinsics.checkNotNullExpressionValue(s, "codepointAsString(...)");
       if (s.length() > 0) {
-         CharSequence $this$all$iv = s;
-         int $i$f$all = 0;
+         CharSequence text = s;
 
-         boolean var9;
+         boolean allPrintable;
          label33: {
-            for (int var5 = 0; var5 < $this$all$iv.length(); var5++) {
-               char element$iv = $this$all$iv.charAt(var5);
-               char it = element$iv;
-               int var8/* $VF was: $i$a$-all-GlobalRemapEditorScreen$charTyped$1 */ = 0;
-               if (it < ' ') {
-                  var9 = false;
+            for (int index = 0; index < text.length(); index++) {
+               char element = text.charAt(index);
+               if (element < ' ') {
+                  allPrintable = false;
                   break label33;
                }
             }
 
-            var9 = true;
+            allPrintable = true;
          }
 
-         if (var9) {
+         if (allPrintable) {
             this.search = this.search + s;
             this.applyFilter(false);
             return true;
@@ -759,9 +724,8 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
    }
 
    private final float toUi(double scaled) {
-      Window var10000 = Minecraft.getInstance().getWindow();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getWindow(...)");
-      Window window = var10000;
+      Window window = Minecraft.getInstance().getWindow();
+      Intrinsics.checkNotNullExpressionValue(window, "getWindow(...)");
       return (float)(scaled * window.getGuiScale() / this.uiScale);
    }
 
@@ -769,55 +733,55 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
       return StringsKt.removePrefix(id, "minecraft:");
    }
 
-   private static final Unit renderListView$lambda$0(GlobalRemapEditorScreen this$0) {
+   private static final Unit onAddRemap(GlobalRemapEditorScreen this$0) {
       this$0.enterPick(GlobalRemapEditorScreen.PickPhase.SOURCE, null);
       return Unit.INSTANCE;
    }
 
-   private static final Unit renderListView$lambda$1() {
+   private static final Unit onExport() {
       Minecraft.getInstance().keyboardHandler.setClipboard(GlobalRemap.INSTANCE.exportJson());
       return Unit.INSTANCE;
    }
 
-   private static final Unit renderListView$lambda$2() {
-      GlobalRemap var10000 = GlobalRemap.INSTANCE;
-      String var10001 = Minecraft.getInstance().keyboardHandler.getClipboard();
-      Intrinsics.checkNotNullExpressionValue(var10001, "getClipboard(...)");
-      var10000.importJson(var10001);
+   private static final Unit onImport() {
+      GlobalRemap remap = GlobalRemap.INSTANCE;
+      String clipboard = Minecraft.getInstance().keyboardHandler.getClipboard();
+      Intrinsics.checkNotNullExpressionValue(clipboard, "getClipboard(...)");
+      remap.importJson(clipboard);
       return Unit.INSTANCE;
    }
 
-   private static final Unit renderListView$lambda$3() {
+   private static final Unit onClear() {
       GlobalRemap.INSTANCE.clear();
       return Unit.INSTANCE;
    }
 
-   private static final boolean renderSourceBlock$lambda$0(GlobalRemapEditorScreen this$0, float y) {
+   private static final boolean isRowVisible(GlobalRemapEditorScreen this$0, float y) {
       return y + this$0.rowH > this$0.listTop && y < this$0.listBottom;
    }
 
-   private static final Unit renderSourceBlock$lambda$1(String $src) {
-      GlobalRemap.INSTANCE.removeSource($src);
+   private static final Unit onRemoveSource(String src) {
+      GlobalRemap.INSTANCE.removeSource(src);
       return Unit.INSTANCE;
    }
 
-   private static final Unit renderSourceBlock$lambda$2(GlobalRemapEditorScreen this$0, String $src) {
-      this$0.enterPick(GlobalRemapEditorScreen.PickPhase.TARGET, $src);
+   private static final Unit onAddTarget(GlobalRemapEditorScreen this$0, String src) {
+      this$0.enterPick(GlobalRemapEditorScreen.PickPhase.TARGET, src);
       return Unit.INSTANCE;
    }
 
-   private static final Unit renderSourceBlock$lambda$3(String $src, int $i) {
-      GlobalRemap.INSTANCE.removeTarget($src, $i);
+   private static final Unit onRemoveTarget(String src, int index) {
+      GlobalRemap.INSTANCE.removeTarget(src, index);
       return Unit.INSTANCE;
    }
 
-   private static final Unit renderSourceBlock$lambda$4(String $src, int $i, GlobalRemap.RemapTarget $t) {
-      GlobalRemap.INSTANCE.setWeight($src, $i, $t.getWeight() + 1);
+   private static final Unit onIncreaseWeight(String src, int index, GlobalRemap.RemapTarget target) {
+      GlobalRemap.INSTANCE.setWeight(src, index, target.getWeight() + 1);
       return Unit.INSTANCE;
    }
 
-   private static final Unit renderSourceBlock$lambda$5(String $src, int $i, GlobalRemap.RemapTarget $t) {
-      GlobalRemap.INSTANCE.setWeight($src, $i, $t.getWeight() - 1);
+   private static final Unit onDecreaseWeight(String src, int index, GlobalRemap.RemapTarget target) {
+      GlobalRemap.INSTANCE.setWeight(src, index, target.getWeight() - 1);
       return Unit.INSTANCE;
    }
 
