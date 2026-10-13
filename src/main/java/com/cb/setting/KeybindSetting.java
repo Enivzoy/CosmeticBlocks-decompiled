@@ -65,9 +65,8 @@ public final class KeybindSetting extends Setting<Integer> {
    @Override
    public void readJson(@NotNull JsonObject json) {
       Intrinsics.checkNotNullParameter(json, "json");
-      JsonElement var10000 = json.get(this.getName());
-      if (var10000 != null) {
-         JsonElement element = var10000;
+      JsonElement element = json.get(this.getName());
+      if (element != null) {
          if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
             this.setValue(element.getAsInt());
          }

@@ -62,17 +62,17 @@ public final class StringSetting extends Setting<String> {
    }
 
    @NotNull
-   protected String coerce(@NotNull String var1) {
-      Intrinsics.checkNotNullParameter(var1, "new");
-      String var10000;
-      if (var1.length() > this.maxLength) {
-         var10000 = var1.substring(0, this.maxLength);
-         Intrinsics.checkNotNullExpressionValue(var10000, "substring(...)");
+   protected String coerce(@NotNull String newValue) {
+      Intrinsics.checkNotNullParameter(newValue, "new");
+      String result;
+      if (newValue.length() > this.maxLength) {
+         result = newValue.substring(0, this.maxLength);
+         Intrinsics.checkNotNullExpressionValue(result, "substring(...)");
       } else {
-         var10000 = var1;
+         result = newValue;
       }
 
-      return var10000;
+      return result;
    }
 
    @Override
@@ -84,13 +84,12 @@ public final class StringSetting extends Setting<String> {
    @Override
    public void readJson(@NotNull JsonObject json) {
       Intrinsics.checkNotNullParameter(json, "json");
-      JsonElement var10000 = json.get(this.getName());
-      if (var10000 != null) {
-         JsonElement element = var10000;
+      JsonElement element = json.get(this.getName());
+      if (element != null) {
          if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
-            String var10001 = element.getAsString();
-            Intrinsics.checkNotNullExpressionValue(var10001, "getAsString(...)");
-            this.setValue(var10001);
+            String value = element.getAsString();
+            Intrinsics.checkNotNullExpressionValue(value, "getAsString(...)");
+            this.setValue(value);
          }
       }
    }

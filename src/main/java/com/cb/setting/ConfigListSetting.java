@@ -63,13 +63,12 @@ public final class ConfigListSetting extends Setting<String> {
    @Override
    public void readJson(@NotNull JsonObject json) {
       Intrinsics.checkNotNullParameter(json, "json");
-      JsonElement var10000 = json.get(this.getName());
-      if (var10000 != null) {
-         JsonElement element = var10000;
+      JsonElement element = json.get(this.getName());
+      if (element != null) {
          if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
-            String var10001 = element.getAsString();
-            Intrinsics.checkNotNullExpressionValue(var10001, "getAsString(...)");
-            this.setValue(var10001);
+            String value = element.getAsString();
+            Intrinsics.checkNotNullExpressionValue(value, "getAsString(...)");
+            this.setValue(value);
          }
       }
    }

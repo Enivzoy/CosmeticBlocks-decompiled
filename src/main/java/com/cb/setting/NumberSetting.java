@@ -77,15 +77,11 @@ public final class NumberSetting extends Setting<Double> {
       this.step = step;
       this.unit = unit;
       if (!(this.min < this.max)) {
-         int var14/* $VF was: $i$a$-require-NumberSetting$1 */ = 0;
-         String var15 = name + ": min (" + this.min + ") must be < max (" + this.max + ")";
-         throw new IllegalArgumentException(var15.toString());
+         throw new IllegalArgumentException(name + ": min (" + this.min + ") must be < max (" + this.max + ")");
       }
 
       if (!(this.step > 0.0)) {
-         int var12/* $VF was: $i$a$-require-NumberSetting$2 */ = 0;
-         String var13 = name + ": step must be positive";
-         throw new IllegalArgumentException(var13.toString());
+         throw new IllegalArgumentException(name + ": step must be positive");
       }
 
       this.decimals = this.step >= 1.0 ? 0 : RangesKt.coerceIn((int)Math.ceil(-Math.log10(this.step)), 1, 6);
@@ -109,8 +105,8 @@ public final class NumberSetting extends Setting<Double> {
    }
 
    @NotNull
-   protected Double coerce(double var1) {
-      double snapped = MathKt.roundToLong(var1 / this.step) * this.step;
+   protected Double coerce(double newValue) {
+      double snapped = MathKt.roundToLong(newValue / this.step) * this.step;
       return RangesKt.coerceIn(snapped, this.min, this.max);
    }
 
@@ -124,19 +120,18 @@ public final class NumberSetting extends Setting<Double> {
 
    @NotNull
    public final String displayValue() {
-      String var10000;
+      String result;
       if (this.decimals == 0) {
-         var10000 = String.valueOf(MathKt.roundToLong(this.getValue().doubleValue()));
+         result = String.valueOf(MathKt.roundToLong(this.getValue().doubleValue()));
       } else {
-         Locale var2 = Locale.ROOT;
-         String var3 = "%." + this.decimals + "f";
-         Object[] var4 = new Object[]{this.getValue()};
-         var4 = var4;
-         var10000 = String.format(var2, var3, Arrays.copyOf(var4, var4.length));
-         Intrinsics.checkNotNullExpressionValue(var10000, "format(...)");
+         Locale locale = Locale.ROOT;
+         String format = "%." + this.decimals + "f";
+         Object[] args = new Object[]{this.getValue()};
+         result = String.format(locale, format, Arrays.copyOf(args, args.length));
+         Intrinsics.checkNotNullExpressionValue(result, "format(...)");
       }
 
-      String number = var10000;
+      String number = result;
       return this.unit.length() == 0 ? number : number + this.unit;
    }
 
@@ -149,9 +144,8 @@ public final class NumberSetting extends Setting<Double> {
    @Override
    public void readJson(@NotNull JsonObject json) {
       Intrinsics.checkNotNullParameter(json, "json");
-      JsonElement var10000 = json.get(this.getName());
-      if (var10000 != null) {
-         JsonElement element = var10000;
+      JsonElement element = json.get(this.getName());
+      if (element != null) {
          if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
             this.setValue(element.getAsDouble());
          }

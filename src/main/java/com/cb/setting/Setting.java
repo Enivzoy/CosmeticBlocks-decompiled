@@ -87,7 +87,7 @@ public abstract class Setting<T> {
       this.name = name;
       this.description = description;
       this.defaultValue = (T)defaultValue;
-      this.visibility = Setting::visibility$lambda$0;
+      this.visibility = Setting::defaultVisibility;
       this.subcategory = "";
       this.value = this.defaultValue;
    }
@@ -111,8 +111,8 @@ public abstract class Setting<T> {
       return (Function1<T, Unit>)this.onChanged;
    }
 
-   public final void setOnChanged(@Nullable Function1<? super T, Unit> var1) {
-      this.onChanged = var1/* $VF was: <set-?> */;
+   public final void setOnChanged(@Nullable Function1<? super T, Unit> onChanged) {
+      this.onChanged = onChanged;
    }
 
    @NotNull
@@ -120,9 +120,9 @@ public abstract class Setting<T> {
       return this.visibility;
    }
 
-   public final void setVisibility(@NotNull Function0<Boolean> var1) {
-      Intrinsics.checkNotNullParameter(var1/* $VF was: <set-?> */, "<set-?>");
-      this.visibility = var1/* $VF was: <set-?> */;
+   public final void setVisibility(@NotNull Function0<Boolean> visibility) {
+      Intrinsics.checkNotNullParameter(visibility, "<set-?>");
+      this.visibility = visibility;
    }
 
    @NotNull
@@ -130,17 +130,17 @@ public abstract class Setting<T> {
       return this.subcategory;
    }
 
-   public final void setSubcategory(@NotNull String var1) {
-      Intrinsics.checkNotNullParameter(var1/* $VF was: <set-?> */, "<set-?>");
-      this.subcategory = var1/* $VF was: <set-?> */;
+   public final void setSubcategory(@NotNull String subcategory) {
+      Intrinsics.checkNotNullParameter(subcategory, "<set-?>");
+      this.subcategory = subcategory;
    }
 
    public final T getValue() {
       return this.value;
    }
 
-   public final void setValue(T var1) {
-      Object coerced = this.coerce((T)var1);
+   public final void setValue(T newValue) {
+      Object coerced = this.coerce(newValue);
       if (!Intrinsics.areEqual(coerced, this.value)) {
          this.value = (T)coerced;
          if (this.onChanged != null) {
@@ -157,15 +157,15 @@ public abstract class Setting<T> {
       this.setValue(this.defaultValue);
    }
 
-   protected T coerce(T var1) {
-      return (T)var1;
+   protected T coerce(T newValue) {
+      return newValue;
    }
 
-   public abstract void writeJson(@NotNull JsonObject var1);
+   public abstract void writeJson(@NotNull JsonObject json);
 
-   public abstract void readJson(@NotNull JsonObject var1);
+   public abstract void readJson(@NotNull JsonObject json);
 
-   private static final boolean visibility$lambda$0() {
+   private static final boolean defaultVisibility() {
       return true;
    }
 }

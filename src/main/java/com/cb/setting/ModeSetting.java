@@ -59,11 +59,11 @@ public final class ModeSetting<E extends Enum<E>> extends Setting<E> {
       Intrinsics.checkNotNullParameter(description, "description");
       Intrinsics.checkNotNullParameter(defaultValue, "defaultValue");
       super(name, description, (E)defaultValue);
-      Class var10001 = defaultValue.getDeclaringClass();
-      Intrinsics.checkNotNullExpressionValue(var10001, "getDeclaringClass(...)");
-      Object[] var4 = var10001.getEnumConstants();
-      Intrinsics.checkNotNullExpressionValue(var4, "getEnumConstants(...)");
-      this.options = ArraysKt.toList((E[])var4);
+      Class<?> declaringClass = defaultValue.getDeclaringClass();
+      Intrinsics.checkNotNullExpressionValue(declaringClass, "getDeclaringClass(...)");
+      Object[] constants = declaringClass.getEnumConstants();
+      Intrinsics.checkNotNullExpressionValue(constants, "getEnumConstants(...)");
+      this.options = ArraysKt.toList((E[])constants);
    }
 
    @NotNull
@@ -78,14 +78,14 @@ public final class ModeSetting<E extends Enum<E>> extends Setting<E> {
    @NotNull
    public final String label(@NotNull Enum<?> option) {
       Intrinsics.checkNotNullParameter(option, "option");
-      String var2 = option.name();
-      Locale var10000 = Locale.ROOT;
+      String lower = option.name();
+      Locale locale = Locale.ROOT;
       Intrinsics.checkNotNullExpressionValue(Locale.ROOT, "ROOT");
-      String var4 = var2.toLowerCase(var10000);
-      Intrinsics.checkNotNullExpressionValue(var4, "toLowerCase(...)");
-      CharSequence var5 = var4;
-      char[] var3 = new char[]{'_'};
-      return CollectionsKt.joinToString(StringsKt.split(var5, var3, false, 0), " ", "", "", -1, "...", ModeSetting::label$lambda$0);
+      String lowercased = lower.toLowerCase(locale);
+      Intrinsics.checkNotNullExpressionValue(lowercased, "toLowerCase(...)");
+      CharSequence sequence = lowercased;
+      char[] delimiters = new char[]{'_'};
+      return CollectionsKt.joinToString(StringsKt.split(sequence, delimiters, false, 0), " ", "", "", -1, "...", word -> label$lambda$0((String)word));
    }
 
    @NotNull
@@ -96,9 +96,7 @@ public final class ModeSetting<E extends Enum<E>> extends Setting<E> {
    public final void select(@NotNull Enum<?> option) {
       Intrinsics.checkNotNullParameter(option, "option");
       if (!CollectionsKt.contains(this.options, (E)option)) {
-         int var2/* $VF was: $i$a$-require-ModeSetting$select$1 */ = 0;
-         String var3 = this.getName() + ": " + option.name() + " is not a valid option";
-         throw new IllegalArgumentException(var3.toString());
+         throw new IllegalArgumentException(this.getName() + ": " + option.name() + " is not a valid option");
       }
 
       this.setValue((E)option);
@@ -113,38 +111,33 @@ public final class ModeSetting<E extends Enum<E>> extends Setting<E> {
    @Override
    public void readJson(@NotNull JsonObject json) {
       Intrinsics.checkNotNullParameter(json, "json");
-      JsonElement var10000 = json.get(this.getName());
-      if (var10000 != null) {
-         JsonElement element = var10000;
+      JsonElement element = json.get(this.getName());
+      if (element != null) {
          if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
             String stored = element.getAsString();
-            Iterable $this$firstOrNull$iv = this.options;
+            Iterable<E> options = this.options;
             int $i$f$firstOrNull = 0;
-            Iterator var6 = $this$firstOrNull$iv.iterator();
-            Object var12;
+            Iterator<E> iterator = options.iterator();
+            Object found;
 
             while (true) {
-               if (var6.hasNext()) {
-                  Object element$iv = var6.next();
-                  Enum it = (Enum)element$iv;
-                  int var9/* $VF was: $i$a$-firstOrNull-ModeSetting$readJson$1 */ = 0;
-                  if (!Intrinsics.areEqual(it.name(), stored)) {
+               if (iterator.hasNext()) {
+                  E item = iterator.next();
+                  if (!Intrinsics.areEqual(item.name(), stored)) {
                      continue;
                   }
 
-                  var12 = element$iv;
+                  found = item;
                   break;
                }
 
-               var12 = null;
+               found = null;
                break;
             }
 
-            Enum var13 = (Enum)var12;
-            if ((Enum)var12 != null) {
-               Enum it = var13;
-               int var11/* $VF was: $i$a$-let-ModeSetting$readJson$2 */ = 0;
-               this.setValue((E)it);
+            Enum match = (Enum)found;
+            if (match != null) {
+               this.setValue((E)match);
             }
          }
       }
@@ -152,25 +145,20 @@ public final class ModeSetting<E extends Enum<E>> extends Setting<E> {
 
    private static final CharSequence label$lambda$0(String word) {
       Intrinsics.checkNotNullParameter(word, "word");
-      String var1 = word;
-      String var8;
-      if (var1.length() > 0) {
-         StringBuilder var10000 = new StringBuilder();
-         char it = var1.charAt(0);
-         StringBuilder var4 = var10000;
-         int var3/* $VF was: $i$a$-replaceFirstCharWithCharSequence-ModeSetting$label$1$1 */ = 0;
-         Locale var10001 = Locale.ROOT;
+      String result;
+      if (word.length() > 0) {
+         StringBuilder builder = new StringBuilder();
+         char first = word.charAt(0);
+         Locale locale = Locale.ROOT;
          Intrinsics.checkNotNullExpressionValue(Locale.ROOT, "ROOT");
-         StringBuilder var7 = var4.append((Object)CharsKt.uppercase(it, var10001));
-         String var5 = var1;
-         byte var6 = 1;
-         String var9 = var5.substring(var6);
-         Intrinsics.checkNotNullExpressionValue(var9, "substring(...)");
-         var8 = var7.append(var9).toString();
+         builder.append((Object)CharsKt.uppercase(first, locale));
+         String rest = word.substring(1);
+         Intrinsics.checkNotNullExpressionValue(rest, "substring(...)");
+         result = builder.append(rest).toString();
       } else {
-         var8 = var1;
+         result = word;
       }
 
-      return var8;
+      return result;
    }
 }

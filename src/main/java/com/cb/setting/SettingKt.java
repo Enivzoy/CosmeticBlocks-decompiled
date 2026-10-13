@@ -31,18 +31,18 @@ import org.jetbrains.annotations.NotNull;
 )
 public final class SettingKt {
    @NotNull
-   public static final <S extends Setting<?>> S visibleWhen(@NotNull S $this$visibleWhen, @NotNull Function0<Boolean> predicate) {
-      Intrinsics.checkNotNullParameter($this$visibleWhen, "<this>");
+   public static final <S extends Setting<?>> S visibleWhen(@NotNull S setting, @NotNull Function0<Boolean> predicate) {
+      Intrinsics.checkNotNullParameter(setting, "<this>");
       Intrinsics.checkNotNullParameter(predicate, "predicate");
-      $this$visibleWhen.setVisibility(predicate);
-      return (S)$this$visibleWhen;
+      setting.setVisibility(predicate);
+      return setting;
    }
 
    @NotNull
-   public static final <T, S extends Setting<T>> S onChange(@NotNull S $this$onChange, @NotNull Function1<? super T, Unit> listener) {
-      Intrinsics.checkNotNullParameter($this$onChange, "<this>");
+   public static final <T, S extends Setting<T>> S onChange(@NotNull S setting, @NotNull Function1<? super T, Unit> listener) {
+      Intrinsics.checkNotNullParameter(setting, "<this>");
       Intrinsics.checkNotNullParameter(listener, "listener");
-      $this$onChange.setOnChanged(listener);
-      return (S)$this$onChange;
+      setting.setOnChanged(listener);
+      return setting;
    }
 }
