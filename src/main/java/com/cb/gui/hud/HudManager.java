@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import kotlin.Metadata;
 import kotlin.io.FilesKt;
@@ -79,28 +78,14 @@ public final class HudManager {
    @Nullable
    public final HudElement getElement(@NotNull String id) {
       Intrinsics.checkNotNullParameter(id, "id");
-      Iterable var2 = hudElements;
-      Iterator var3 = var2.iterator();
 
-      Object var10000;
-      while (true) {
-         if (var3.hasNext()) {
-            Object var4 = var3.next();
-            HudElement it = (HudElement)var4;
-            int var6/* $VF was: $i$a$-find-HudManager$getElement$1 */ = 0;
-            if (!Intrinsics.areEqual(it.getId(), id)) {
-               continue;
-            }
-
-            var10000 = var4;
-            break;
+      for (HudElement element : hudElements) {
+         if (Intrinsics.areEqual(element.getId(), id)) {
+            return element;
          }
-
-         var10000 = null;
-         break;
       }
 
-      return (HudElement)var10000;
+      return null;
    }
 
    public final void render(@NotNull GuiGraphicsExtractor graphics, @NotNull Minecraft mc, float partialTicks) {
@@ -130,10 +115,9 @@ public final class HudManager {
       }
 
       try {
-         File var10000 = configFile;
-         String var10001 = new Gson().toJson(json);
-         Intrinsics.checkNotNullExpressionValue(var10001, "toJson(...)");
-         FilesKt.writeText(var10000, var10001, kotlin.text.Charsets.UTF_8);
+         String content = new Gson().toJson(json);
+         Intrinsics.checkNotNullExpressionValue(content, "toJson(...)");
+         FilesKt.writeText(configFile, content, kotlin.text.Charsets.UTF_8);
       } catch (Exception e) {
          System.out.println((Object)("CB: Failed to save HUD positions: " + e.getMessage()));
       }
@@ -145,17 +129,16 @@ public final class HudManager {
             JsonObject json = JsonParser.parseString(FilesKt.readText(configFile, kotlin.text.Charsets.UTF_8)).getAsJsonObject();
 
             for (HudElement element : hudElements) {
-               JsonObject var10000 = json.getAsJsonObject(element.getId());
-               if (var10000 != null) {
-                  JsonObject elementJson = var10000;
-                  JsonElement var10001 = elementJson.get("x");
-                  element.setX(var10001 != null ? var10001.getAsInt() : element.getX());
-                  var10001 = elementJson.get("y");
-                  element.setY(var10001 != null ? var10001.getAsInt() : element.getY());
-                  var10001 = elementJson.get("width");
-                  element.setWidth(var10001 != null ? var10001.getAsInt() : element.getWidth());
-                  var10001 = elementJson.get("height");
-                  element.setHeight(var10001 != null ? var10001.getAsInt() : element.getHeight());
+               JsonObject elementJson = json.getAsJsonObject(element.getId());
+               if (elementJson != null) {
+                  JsonElement x = elementJson.get("x");
+                  element.setX(x != null ? x.getAsInt() : element.getX());
+                  JsonElement y = elementJson.get("y");
+                  element.setY(y != null ? y.getAsInt() : element.getY());
+                  JsonElement width = elementJson.get("width");
+                  element.setWidth(width != null ? width.getAsInt() : element.getWidth());
+                  JsonElement height = elementJson.get("height");
+                  element.setHeight(height != null ? height.getAsInt() : element.getHeight());
                }
             }
          } catch (Exception e) {

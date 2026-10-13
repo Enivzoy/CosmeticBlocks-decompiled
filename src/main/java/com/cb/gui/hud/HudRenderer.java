@@ -24,15 +24,14 @@ public final class HudRenderer {
    }
 
    public final void register() {
-      HudElementRegistry.addLast(Identifier.fromNamespaceAndPath("cb", "hud"), HudRenderer::register$lambda$0);
+      HudElementRegistry.addLast(Identifier.fromNamespaceAndPath("cb", "hud"), HudRenderer::onRenderHud);
    }
 
-   private static final void register$lambda$0(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
+   private static final void onRenderHud(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
       Intrinsics.checkNotNullParameter(graphics, "graphics");
       Intrinsics.checkNotNullParameter(deltaTracker, "deltaTracker");
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      Minecraft mc = var10000;
+      Minecraft mc = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(mc, "getInstance(...)");
       HudManager.INSTANCE.render(graphics, mc, deltaTracker.getRealtimeDeltaTicks());
    }
 }

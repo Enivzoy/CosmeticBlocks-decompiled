@@ -99,59 +99,59 @@ public abstract class HudElement {
       return this.x;
    }
 
-   public final void setX(int var1) {
-      this.x = var1/* $VF was: <set-?> */;
+   public final void setX(int x) {
+      this.x = x;
    }
 
    public final int getY() {
       return this.y;
    }
 
-   public final void setY(int var1) {
-      this.y = var1/* $VF was: <set-?> */;
+   public final void setY(int y) {
+      this.y = y;
    }
 
    public final int getWidth() {
       return this.width;
    }
 
-   public final void setWidth(int var1) {
-      this.width = var1/* $VF was: <set-?> */;
+   public final void setWidth(int width) {
+      this.width = width;
    }
 
    public final int getHeight() {
       return this.height;
    }
 
-   public final void setHeight(int var1) {
-      this.height = var1/* $VF was: <set-?> */;
+   public final void setHeight(int height) {
+      this.height = height;
    }
 
    public final boolean isDragging() {
       return this.isDragging;
    }
 
-   public final void setDragging(boolean var1) {
-      this.isDragging = var1/* $VF was: <set-?> */;
+   public final void setDragging(boolean dragging) {
+      this.isDragging = dragging;
    }
 
    public final int getDragOffsetX() {
       return this.dragOffsetX;
    }
 
-   public final void setDragOffsetX(int var1) {
-      this.dragOffsetX = var1/* $VF was: <set-?> */;
+   public final void setDragOffsetX(int dragOffsetX) {
+      this.dragOffsetX = dragOffsetX;
    }
 
    public final int getDragOffsetY() {
       return this.dragOffsetY;
    }
 
-   public final void setDragOffsetY(int var1) {
-      this.dragOffsetY = var1/* $VF was: <set-?> */;
+   public final void setDragOffsetY(int dragOffsetY) {
+      this.dragOffsetY = dragOffsetY;
    }
 
-   public abstract void render(@NotNull GuiGraphicsExtractor var1, @NotNull Minecraft var2, float var3);
+   public abstract void render(@NotNull GuiGraphicsExtractor graphics, @NotNull Minecraft mc, float partialTicks);
 
    public void renderInEditMode(@NotNull GuiGraphicsExtractor graphics, @NotNull Minecraft mc) {
       Intrinsics.checkNotNullParameter(graphics, "graphics");
