@@ -16,6 +16,9 @@ run/
 logs/
 *.log
 
+# Build scratch logs
+vfj-*.txt
+
 # OS
 .DS_Store
 Thumbs.db

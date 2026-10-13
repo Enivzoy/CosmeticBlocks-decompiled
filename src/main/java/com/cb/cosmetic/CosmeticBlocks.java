@@ -586,7 +586,7 @@ public final class CosmeticBlocks {
     @JvmOverloads
     @Nullable
     public final BlockState getReplacementAt(int x, int y, int z) {
-        return CosmeticBlocks.getReplacementAt$default(this, x, y, z, false, 8, null);
+        return this.getReplacementAt(x, y, z, false);
     }
 
     private static final void register$lambda$0(Minecraft minecraft) {
