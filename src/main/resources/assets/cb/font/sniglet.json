@@ -1,0 +1,15 @@
+{
+  "providers": [
+    {
+      "type": "reference",
+      "id": "minecraft:include/space"
+    },
+    {
+      "type": "ttf",
+      "file": "cb:sniglet_regular.ttf",
+      "shift": [0.0, 1.0],
+      "size": 10.0,
+      "oversample": 4.0
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "id": "cb",
+  "version": "1.0.0-reconstructed+mc26.2",
+  "name": "CB",
+  "description": "Cosmetic Blocks",
+  "authors": [],
+  "license": "CC0-1.0",
+  "environment": "*",
+  "accessWidener": "cb.accesswidener",
+  "entrypoints": {
+    "main": [
+      {
+        "value": "com.cb.Cb",
+        "adapter": "kotlin"
+      }
+    ],
+    "client": [
+      {
+        "value": "com.cb.CbClient",
+        "adapter": "kotlin"
+      }
+    ]
+  },
+  "mixins": [
+    "cb.mixins.json",
+    {
+      "config": "cb.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~26.2",
+    "java": ">=25",
+    "fabric-api": "*",
+    "fabric-language-kotlin": "*"
+  },
+  "jars": [
+    {
+      "file": "META-INF/jars/lwjgl-nanovg-3.4.1-natives-linux.jar"
+    },
+    {
+      "file": "META-INF/jars/lwjgl-nanovg-3.4.1-natives-macos-arm64.jar"
+    },
+    {
+      "file": "META-INF/jars/lwjgl-nanovg-3.4.1-natives-macos.jar"
+    },
+    {
+      "file": "META-INF/jars/lwjgl-nanovg-3.4.1-natives-windows.jar"
+    },
+    {
+      "file": "META-INF/jars/lwjgl-nanovg-3.4.1.jar"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+    "required": true,
+    "package": "com.cb.mixin.client",
+    "compatibilityLevel": "JAVA_25",
+    "client": [
+        "BiomeColorsMixin",
+        "BlockFaceCullingMixin",
+        "BlockModelShaperMixin",
+        "ClientLevelMixin",
+        "ClientPacketListenerMixin",
+        "EntityStepSoundMixin",
+        "LevelEventHandlerMixin",
+        "MultiPlayerGameModeMixin",
+        "LevelRendererCompatMixin",
+        "RoomScannerCompatMixin",
+        "LevelRendererMixin",
+        "GuiCompatMixin",
+        "MinecraftCompatMixin",
+        "MinecraftPickBlockMixin",
+        "MouseHandlerMixin",
+        "RenderSectionRegionMixin",
+        "FramePresentMixin",
+        "SodiumBlockOcclusionMixin",
+        "SodiumLevelSliceMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}

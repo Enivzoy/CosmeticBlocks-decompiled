@@ -1,0 +1,108 @@
+/*
+ * Decompiled with CFR 0.152.
+ * 
+ * Could not load the following classes:
+ *  kotlin.Metadata
+ *  kotlin.jvm.functions.Function0
+ *  kotlin.jvm.internal.Intrinsics
+ *  kotlin.jvm.internal.SourceDebugExtension
+ *  net.fabricmc.api.ClientModInitializer
+ *  net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
+ *  net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
+ *  net.minecraft.client.Minecraft
+ *  net.minecraft.client.gui.screens.Screen
+ *  org.jetbrains.annotations.NotNull
+ *  org.lwjgl.glfw.GLFW
+ */
+package com.cb;
+
+import com.cb.command.CbCommand;
+import com.cb.config.Config;
+import com.cb.config.tabs.CosmeticBlocksTab;
+import com.cb.config.tabs.GuiTab;
+import com.cb.cosmetic.CosmeticBlocks;
+import com.cb.events.EventDispatcher;
+import com.cb.gui.ClickGuiScreen;
+import com.cb.gui.hud.HudRenderer;
+import com.cb.gui.screens.BlockSelectorScreen;
+import com.cb.gui.screens.CliEngine;
+import com.cb.gui.screens.CliScreen;
+import com.cb.gui.screens.RadialBlockScreen;
+import com.cb.utils.Scheduler;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import kotlin.Metadata;
+import kotlin.jvm.functions.Function0;
+import kotlin.jvm.internal.Intrinsics;
+import kotlin.jvm.internal.SourceDebugExtension;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import org.jetbrains.annotations.NotNull;
+import org.lwjgl.glfw.GLFW;
+
+@Metadata(mv={2, 3, 0}, k=1, xi=48, d1={"\u0000D\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0010\u000e\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0002\u0010\b\n\u0002\u0010\u000b\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u0002\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0000\b\u00c6\u0002\u0018\u00002\u00020\u0001B\t\b\u0002\u00a2\u0006\u0004\b\u0002\u0010\u0003J\b\u0010\r\u001a\u00020\u000eH\u0016J'\u0010\u000f\u001a\u00020\u000e2\u0006\u0010\u0010\u001a\u00020\u00112\u0006\u0010\u0012\u001a\u00020\n2\f\u0010\u0013\u001a\b\u0012\u0004\u0012\u00020\u00150\u0014H\u0082\bR\u000e\u0010\u0004\u001a\u00020\u0005X\u0086T\u00a2\u0006\u0002\n\u0000R\u000e\u0010\u0006\u001a\u00020\u0007X\u0082\u0004\u00a2\u0006\u0002\n\u0000R*\u0010\b\u001a\u001e\u0012\u0004\u0012\u00020\n\u0012\u0004\u0012\u00020\u000b0\tj\u000e\u0012\u0004\u0012\u00020\n\u0012\u0004\u0012\u00020\u000b`\fX\u0082\u0004\u00a2\u0006\u0002\n\u0000\u00a8\u0006\u0016"}, d2={"Lcom/cb/CbClient;", "Lnet/fabricmc/api/ClientModInitializer;", "<init>", "()V", "NAMESPACE", "", "configDir", "Ljava/io/File;", "keyWasDown", "Ljava/util/HashMap;", "", "", "Lkotlin/collections/HashMap;", "onInitializeClient", "", "pollOpenBind", "client", "Lnet/minecraft/client/Minecraft;", "key", "screen", "Lkotlin/Function0;", "Lnet/minecraft/client/gui/screens/Screen;", "cb_client"})
+@SourceDebugExtension(value={"SMAP\nCbClient.kt\nKotlin\n*S Kotlin\n*F\n+ 1 CbClient.kt\ncom/cb/CbClient\n*L\n1#1,67:1\n60#1,6:68\n60#1,6:74\n60#1,6:80\n60#1,6:86\n*S KotlinDebug\n*F\n+ 1 CbClient.kt\ncom/cb/CbClient\n*L\n45#1:68,6\n46#1:74,6\n47#1:80,6\n48#1:86,6\n*E\n"})
+public final class CbClient
+implements ClientModInitializer {
+    @NotNull
+    public static final CbClient INSTANCE = new CbClient();
+    @NotNull
+    public static final String NAMESPACE = "cb";
+    @NotNull
+    private static final File configDir = new File("config/cb");
+    @NotNull
+    private static final HashMap<Integer, Boolean> keyWasDown = new HashMap();
+
+    private CbClient() {
+    }
+
+    public void onInitializeClient() {
+        if (!configDir.exists()) {
+            configDir.mkdirs();
+        }
+        EventDispatcher.INSTANCE.init();
+        HudRenderer.INSTANCE.register();
+        CosmeticBlocks.INSTANCE.register();
+        Scheduler.INSTANCE.register();
+        Config.INSTANCE.load();
+        ClientLifecycleEvents.CLIENT_STOPPING.register(CbClient::onInitializeClient$lambda$0);
+        ClientTickEvents.END_CLIENT_TICK.register(CbClient::onInitializeClient$lambda$1);
+        CbCommand.INSTANCE.register();
+    }
+
+    private final void pollOpenBind(Minecraft client, int key, Function0<? extends Screen> screen) {
+        boolean down;
+        boolean $i$f$pollOpenBind = false;
+        if (key == -1) {
+            return;
+        }
+        long window = GLFW.glfwGetCurrentContext();
+        boolean bl = down = GLFW.glfwGetKey((long)window, (int)key) == 1;
+        if (down && !Intrinsics.areEqual((Object)keyWasDown.get(key), (Object)true)) {
+            client.gui.setScreen((Screen)screen.invoke());
+        }
+        ((Map)keyWasDown).put(key, down);
+    }
+
+    private static final void onInitializeClient$lambda$0(Minecraft minecraft) {
+        Intrinsics.checkNotNullParameter((Object)minecraft, (String)"<unused var>");
+        CosmeticBlocks.INSTANCE.flushAll();
+    }
+
+    private static final void onInitializeClient$lambda$1(Minecraft client) {
+        Intrinsics.checkNotNullParameter((Object)client, (String)"client");
+        if (client.gui.screen() == null) {
+            INSTANCE.pollOpenBind(client, ((Number)GuiTab.INSTANCE.getOpenGuiKeybind().getValue()).intValue(), ClickGuiScreen::new);
+            INSTANCE.pollOpenBind(client, ((Number)GuiTab.INSTANCE.getOpenCliKeybind().getValue()).intValue(), CliScreen::new);
+            INSTANCE.pollOpenBind(client, ((Number)CosmeticBlocksTab.INSTANCE.getBlockSelectorKeybind().getValue()).intValue(), BlockSelectorScreen::new);
+            INSTANCE.pollOpenBind(client, ((Number)CosmeticBlocksTab.INSTANCE.getBlockWheelKeybind().getValue()).intValue(), RadialBlockScreen::new);
+        } else {
+            keyWasDown.clear();
+        }
+        CliEngine.INSTANCE.checkReminders();
+    }
+}

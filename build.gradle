@@ -1,0 +1,86 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+}
+
+version = project.mod_version
+group = project.maven_group
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    maven { url = 'https://maven.fabricmc.net/' }
+    mavenCentral()
+}
+
+loom {
+    accessWidenerPath = file('src/main/resources/cb.accesswidener')
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+    implementation "net.fabricmc:fabric-language-kotlin:${fabric_kotlin_version}"
+    implementation files('src/main/resources/META-INF/jars/lwjgl-nanovg-3.4.1.jar')
+    compileOnly files('libs/cb-1.0.0.jar')
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+    withSourcesJar()
+}
+
+sourceSets {
+    main {
+        java {
+            setSrcDirs(['src/main/java'])
+            include 'com/cb/mixin/client/*.java'
+            include 'com/cb/CbClient.java'
+            include 'com/cb/cosmetic/CosmeticBlocks.java'
+            include 'com/cb/cosmetic/CosmeticRenderer.java'
+            include 'com/cb/cosmetic/Ruler.java'
+            include 'com/cb/cosmetic/WorldEditMode.java'
+            include 'com/cb/render/OverlayRenderer.java'
+        }
+        output.dir(layout.buildDirectory.dir('classes/java/original'), builtBy: 'extractOriginalModClasses')
+    }
+}
+
+tasks.register('extractOriginalModClasses', Sync) {
+    from(zipTree(file('libs/cb-1.0.0.jar'))) {
+        include 'com/cb/**/*.class'
+        exclude 'com/cb/mixin/**/*.class'
+        exclude 'com/cb/CbClient.class'
+        exclude 'com/cb/CbClient$*.class'
+        exclude 'com/cb/cosmetic/CosmeticBlocks.class'
+        exclude 'com/cb/cosmetic/CosmeticBlocks$*.class'
+        exclude 'com/cb/cosmetic/CosmeticRenderer.class'
+        exclude 'com/cb/cosmetic/CosmeticRenderer$*.class'
+        exclude 'com/cb/cosmetic/Ruler.class'
+        exclude 'com/cb/cosmetic/Ruler$*.class'
+        exclude 'com/cb/cosmetic/WorldEditMode.class'
+        exclude 'com/cb/cosmetic/WorldEditMode$*.class'
+        exclude 'com/cb/render/OverlayRenderer.class'
+        exclude 'com/cb/render/OverlayRenderer$*.class'
+    }
+    into(layout.buildDirectory.dir('classes/java/original'))
+}
+
+tasks.named('classes') {
+    dependsOn tasks.named('extractOriginalModClasses')
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 25
+    options.encoding = 'UTF-8'
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version
+    }
+}

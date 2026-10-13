@@ -1,0 +1,25 @@
+# Gradle
+.gradle/
+.gradle-home/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.settings/
+.classpath
+.project
+
+# Fabric / Minecraft run output
+run/
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Java
+hs_err_pid*
+replay_pid*
