@@ -7,8 +7,6 @@ import com.cb.render.Theme;
 import com.mojang.blaze3d.platform.Window;
 import java.util.List;
 import kotlin.Metadata;
-import kotlin.Result;
-import kotlin.ResultKt;
 import kotlin.collections.CollectionsKt;
 import kotlin.jvm.internal.Intrinsics;
 import kotlin.jvm.internal.SourceDebugExtension;
@@ -97,12 +95,10 @@ public final class RadialBlockScreen extends Screen implements NvgScreen {
 
    @Override
    public void renderOverlay(float delta) {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      Minecraft minecraft = var10000;
-      Window var56 = minecraft.getWindow();
-      Intrinsics.checkNotNullExpressionValue(var56, "getWindow(...)");
-      Window window = var56;
+      Minecraft minecraft = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(minecraft, "getInstance(...)");
+      Window window = minecraft.getWindow();
+      Intrinsics.checkNotNullExpressionValue(window, "getWindow(...)");
       int fbWidth = window.getWidth();
       int fbHeight = window.getHeight();
       if (fbWidth > 0 && fbHeight > 0) {
@@ -126,7 +122,7 @@ public final class RadialBlockScreen extends Screen implements NvgScreen {
                List<String> favs;
                try {
                   favs = CosmeticBlocks.INSTANCE.getFavorites();
-               } catch (Throwable var41) {
+                } catch (Throwable ignored) {
                   favs = CollectionsKt.emptyList();
                }
 
@@ -143,15 +139,15 @@ public final class RadialBlockScreen extends Screen implements NvgScreen {
                      this.hoverAnim = new float[n];
                   }
 
-                  int var10001;
+                  int hovered;
                   if (rInner <= dist ? dist <= rOuter + 20.0F : false) {
                      float shifted = (mouseAngle + sliceAngle * 0.5F) % this.twoPi;
-                     var10001 = (int)(shifted / sliceAngle) % n;
+                     hovered = (int)(shifted / sliceAngle) % n;
                   } else {
-                     var10001 = -1;
+                     hovered = -1;
                   }
 
-                  this.hoveredIdx = var10001;
+                  this.hoveredIdx = hovered;
 
                   for (int i = 0; i < n; i++) {
                      float target = i == this.hoveredIdx ? 1.0F : 0.0F;
@@ -270,9 +266,9 @@ public final class RadialBlockScreen extends Screen implements NvgScreen {
       Intrinsics.checkNotNullParameter(event, "event");
       switch (event.button()) {
          case 0:
-            int var3 = this.favs.size();
-            int var4 = this.hoveredIdx;
-            if (0 <= var4 ? var4 < var3 : false) {
+            int count = this.favs.size();
+            int hovered = this.hoveredIdx;
+            if (0 <= hovered ? hovered < count : false) {
                CosmeticBlocks.INSTANCE.setBlock(this.favs.get(this.hoveredIdx));
                this.onClose();
             }
@@ -290,9 +286,9 @@ public final class RadialBlockScreen extends Screen implements NvgScreen {
    public boolean mouseReleased(@NotNull MouseButtonEvent event) {
       Intrinsics.checkNotNullParameter(event, "event");
       if (event.button() == 0) {
-         int var2 = this.favs.size();
-         int var3 = this.hoveredIdx;
-         if (0 <= var3 ? var3 < var2 : false) {
+         int count = this.favs.size();
+         int hovered = this.hoveredIdx;
+         if (0 <= hovered ? hovered < count : false) {
             CosmeticBlocks.INSTANCE.setBlock(this.favs.get(this.hoveredIdx));
             this.onClose();
          }

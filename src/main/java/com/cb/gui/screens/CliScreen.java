@@ -4,7 +4,6 @@ import com.cb.gui.NvgScreen;
 import com.cb.render.NVGRenderer;
 import com.cb.render.Theme;
 import com.mojang.blaze3d.platform.Window;
-import java.util.Iterator;
 import java.util.List;
 import kotlin.Metadata;
 import kotlin.collections.CollectionsKt;
@@ -123,12 +122,10 @@ public final class CliScreen extends Screen implements NvgScreen {
 
    @Override
    public void renderOverlay(float delta) {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      Minecraft minecraft = var10000;
-      Window var11 = minecraft.getWindow();
-      Intrinsics.checkNotNullExpressionValue(var11, "getWindow(...)");
-      Window window = var11;
+      Minecraft minecraft = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(minecraft, "getInstance(...)");
+      Window window = minecraft.getWindow();
+      Intrinsics.checkNotNullExpressionValue(window, "getWindow(...)");
       int fbWidth = window.getWidth();
       int fbHeight = window.getHeight();
       if (fbWidth > 0 && fbHeight > 0) {
@@ -189,12 +186,9 @@ public final class CliScreen extends Screen implements NvgScreen {
          NVGRenderer.INSTANCE.rect(x, y, w, popH, -14935012, 8.0F);
          NVGRenderer.INSTANCE.rectOutline(x, y, w, popH, Theme.INSTANCE.withAlpha(-1750963, 0.3F), 8.0F, 0.0F);
          float ry = y + 4.0F;
-         Iterator var9 = this.suggestions.iterator();
-         int var10 = 0;
+         int i = 0;
 
-         while (var9.hasNext()) {
-            int i = var10++;
-            CliEngine.Suggestion s = (CliEngine.Suggestion)var9.next();
+         for (CliEngine.Suggestion s : this.suggestions) {
             boolean highlight = i == this.suggestionIdx;
             if (highlight) {
                NVGRenderer.INSTANCE.rect(x + 3.0F, ry, w - 6.0F, rowH, Theme.INSTANCE.withAlpha(-1750963, 0.22F), 4.0F);
@@ -207,6 +201,7 @@ public final class CliScreen extends Screen implements NvgScreen {
             }
 
             ry += rowH;
+            i++;
          }
       }
    }
@@ -280,11 +275,11 @@ public final class CliScreen extends Screen implements NvgScreen {
             if ((event.modifiers() & 2) != 0) {
                String clip = GLFW.glfwGetClipboardString(GLFW.glfwGetCurrentContext());
                if (clip != null) {
-                  String var10001 = this.input.substring(0, this.caret);
-                  Intrinsics.checkNotNullExpressionValue(var10001, "substring(...)");
-                  String var10003 = this.input.substring(this.caret);
-                  Intrinsics.checkNotNullExpressionValue(var10003, "substring(...)");
-                  this.input = var10001 + clip + var10003;
+                  String before = this.input.substring(0, this.caret);
+                  Intrinsics.checkNotNullExpressionValue(before, "substring(...)");
+                  String after = this.input.substring(this.caret);
+                  Intrinsics.checkNotNullExpressionValue(after, "substring(...)");
+                  this.input = before + clip + after;
                   this.caret = this.caret + clip.length();
                   this.onInputChanged();
                }
@@ -312,22 +307,21 @@ public final class CliScreen extends Screen implements NvgScreen {
             return true;
          case 259:
             if (this.caret > 0 && this.input.length() > 0) {
-               String var5 = this.input;
-               int var9 = this.caret - 1;
-               int var10 = this.caret;
-               this.input = StringsKt.removeRange(var5, var9, var10).toString();
-               int var6 = this.caret;
-               this.caret = var6 + -1;
+               String text = this.input;
+               int deleteFrom = this.caret - 1;
+               int deleteTo = this.caret;
+               this.input = StringsKt.removeRange(text, deleteFrom, deleteTo).toString();
+               this.caret = this.caret - 1;
                this.onInputChanged();
             }
 
             return true;
          case 261:
             if (this.caret < this.input.length()) {
-               String clip = this.input;
-               int var3 = this.caret;
-               int var4 = this.caret + 1;
-               this.input = StringsKt.removeRange(clip, var3, var4).toString();
+               String text = this.input;
+               int deleteFrom = this.caret;
+               int deleteTo = this.caret + 1;
+               this.input = StringsKt.removeRange(text, deleteFrom, deleteTo).toString();
                this.onInputChanged();
             }
 
@@ -364,34 +358,30 @@ public final class CliScreen extends Screen implements NvgScreen {
    @Override
    public boolean charTyped(@NotNull CharacterEvent event) {
       Intrinsics.checkNotNullParameter(event, "event");
-      String var10000 = event.codepointAsString();
-      Intrinsics.checkNotNullExpressionValue(var10000, "codepointAsString(...)");
-      String s = var10000;
+      String s = event.codepointAsString();
+      Intrinsics.checkNotNullExpressionValue(s, "codepointAsString(...)");
       if (s.length() > 0) {
-         CharSequence $this$all$iv = s;
-         int $i$f$all = 0;
-         boolean var9;
+         CharSequence chars = s;
+         boolean allPrintable;
 
          label31: {
-            for (int var5 = 0; var5 < $this$all$iv.length(); var5++) {
-               char element$iv = $this$all$iv.charAt(var5);
-               char it = element$iv;
-               int var8/* $VF was: $i$a$-all-CliScreen$charTyped$1 */ = 0;
-               if (it < ' ') {
-                  var9 = false;
+            for (int i = 0; i < chars.length(); i++) {
+               char c = chars.charAt(i);
+               if (c < ' ') {
+                  allPrintable = false;
                   break label31;
                }
             }
 
-            var9 = true;
+            allPrintable = true;
          }
 
-         if (var9) {
-            String var10001 = this.input.substring(0, this.caret);
-            Intrinsics.checkNotNullExpressionValue(var10001, "substring(...)");
-            String var10003 = this.input.substring(this.caret);
-            Intrinsics.checkNotNullExpressionValue(var10003, "substring(...)");
-            this.input = var10001 + s + var10003;
+         if (allPrintable) {
+            String before = this.input.substring(0, this.caret);
+            Intrinsics.checkNotNullExpressionValue(before, "substring(...)");
+            String after = this.input.substring(this.caret);
+            Intrinsics.checkNotNullExpressionValue(after, "substring(...)");
+            this.input = before + s + after;
             this.caret = this.caret + s.length();
             this.onInputChanged();
             return true;
@@ -432,9 +422,8 @@ public final class CliScreen extends Screen implements NvgScreen {
    }
 
    private final float toUi(double scaled) {
-      Window var10000 = Minecraft.getInstance().getWindow();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getWindow(...)");
-      Window window = var10000;
+      Window window = Minecraft.getInstance().getWindow();
+      Intrinsics.checkNotNullExpressionValue(window, "getWindow(...)");
       return (float)(scaled * window.getGuiScale() / this.uiScale);
    }
 }

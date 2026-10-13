@@ -162,12 +162,10 @@ public final class ProfileScreen extends Screen implements NvgScreen {
 
    @Override
    public void renderOverlay(float delta) {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      Minecraft minecraft = var10000;
-      Window var15 = minecraft.getWindow();
-      Intrinsics.checkNotNullExpressionValue(var15, "getWindow(...)");
-      Window window = var15;
+      Minecraft minecraft = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(minecraft, "getInstance(...)");
+      Window window = minecraft.getWindow();
+      Intrinsics.checkNotNullExpressionValue(window, "getWindow(...)");
       int fbWidth = window.getWidth();
       int fbHeight = window.getHeight();
       if (fbWidth > 0 && fbHeight > 0) {
@@ -238,16 +236,15 @@ public final class ProfileScreen extends Screen implements NvgScreen {
       this.maxScroll = RangesKt.coerceAtLeast(contentHeight - listHeight, 0.0F);
       this.scroll = RangesKt.coerceIn(this.scroll, 0.0F, this.maxScroll);
       NVGRenderer now = NVGRenderer.INSTANCE;
-      float x$iv = listX;
+      float x = listX;
       float alpha = listTop;
       float tw = listWidth;
-      float h$iv = listHeight;
-      int $i$f$scissor = 0;
+      float h = listHeight;
       now.save();
-      now.intersectScissor(x$iv, alpha, tw, h$iv);
+      now.intersectScissor(x, alpha, tw, h);
 
       try {
-         int var33/* $VF was: $i$a$-scissor-ProfileScreen$draw$1 */ = 0;
+         int scissorLambda = 0;
          if (this.profiles.isEmpty()) {
             NVGRenderer.INSTANCE.textCentered("No saved profiles yet.", this.panelX + this.panelWidth / 2.0F, listTop + 30.0F, 13.0F, -10724260, null);
          } else {
@@ -269,15 +266,15 @@ public final class ProfileScreen extends Screen implements NvgScreen {
       if (nowx < this.toastUntil && this.toast.length() > 0) {
          alpha = RangesKt.coerceIn((float)(this.toastUntil - nowx) / 1800.0F, 0.0F, 1.0F);
          tw = NVGRenderer.INSTANCE.textWidth(this.toast, 13.0F, null);
-         h$iv = tw + 28.0F;
+         h = tw + 28.0F;
          float boxH = 26.0F;
-         float tx = this.panelX + (this.panelWidth - h$iv) / 2.0F;
+         float tx = this.panelX + (this.panelWidth - h) / 2.0F;
          float ty = this.panelY + this.panelHeight - boxH - 12.0F;
          NVGRenderer.INSTANCE.save();
          NVGRenderer.INSTANCE.globalAlpha(alpha);
-         NVGRenderer.INSTANCE.rect(tx, ty, h$iv, boxH, -14935012, 6.0F);
-         NVGRenderer.INSTANCE.rectOutline(tx, ty, h$iv, boxH, -1750963, 6.0F, 0.0F);
-         NVGRenderer.INSTANCE.textCentered(this.toast, tx + h$iv / 2.0F, ty + boxH / 2.0F, 13.0F, -1184275, null);
+         NVGRenderer.INSTANCE.rect(tx, ty, h, boxH, -14935012, 6.0F);
+         NVGRenderer.INSTANCE.rectOutline(tx, ty, h, boxH, -1750963, 6.0F, 0.0F);
+         NVGRenderer.INSTANCE.textCentered(this.toast, tx + h / 2.0F, ty + boxH / 2.0F, 13.0F, -1184275, null);
          NVGRenderer.INSTANCE.restore();
       }
    }
@@ -285,20 +282,19 @@ public final class ProfileScreen extends Screen implements NvgScreen {
    private final void drawCard(ProfileManager.ProfileInfo p, float x, float y, float w, float mouseX, float mouseY, float delta) {
       boolean hovered = this.inside(mouseX, mouseY, x, y, w, this.cardHeight) && mouseY >= this.listClipTop && mouseY <= this.listClipBottom;
       Map bg = this.cardHover;
-      Object key$iv = p.getName();
-      int $i$f$getOrPut = 0;
-      Object value$iv = bg.get(key$iv);
-      Object var10000;
-      if (value$iv == null) {
-         int var14/* $VF was: $i$a$-getOrPut-ProfileScreen$drawCard$anim$1 */ = 0;
-         Object answer$iv = new Anim(0.0F, 14.0F);
-         bg.put(key$iv, answer$iv);
-         var10000 = answer$iv;
+      Object key = p.getName();
+      Object value = bg.get(key);
+      Object result;
+      if (value == null) {
+         int getOrPutLambda = 0;
+         Object answer = new Anim(0.0F, 14.0F);
+         bg.put(key, answer);
+         result = answer;
       } else {
-         var10000 = value$iv;
+         result = value;
       }
 
-      Anim anim = (Anim)var10000;
+      Anim anim = (Anim)result;
       anim.setTarget(hovered ? 1.0F : 0.0F);
       anim.update(delta);
       int bgx = this.lerp(-14935012, -1, anim.getValue() * 0.4F);
@@ -306,8 +302,8 @@ public final class ProfileScreen extends Screen implements NvgScreen {
       NVGRenderer.INSTANCE.rectOutline(x, y, w, this.cardHeight, 352321535, 8.0F, 0.0F);
       NVGRenderer.INSTANCE.rectVarying(x, y, 3.0F, this.cardHeight, 8.0F, 0.0F, 0.0F, 8.0F, -1750963);
       NVGRenderer.INSTANCE.text(p.getName(), x + 14.0F, y + 18.0F, 14.0F, -1184275, NVGRenderer.Font.MEDIUM);
-      key$iv = p.getSettingCount() + " settings  ·  " + ProfileManager.INSTANCE.formatTimestamp(p.getLastModified());
-      NVGRenderer.INSTANCE.text((String)key$iv, x + 14.0F, y + 40.0F, 12.0F, -10724260, null);
+      key = p.getSettingCount() + " settings  ·  " + ProfileManager.INSTANCE.formatTimestamp(p.getLastModified());
+      NVGRenderer.INSTANCE.text((String)key, x + 14.0F, y + 40.0F, 12.0F, -10724260, null);
       float btnW = 76.0F;
       float btnH = 26.0F;
       float btnY = y + (this.cardHeight - btnH) / 2.0F;
@@ -328,9 +324,8 @@ public final class ProfileScreen extends Screen implements NvgScreen {
    }
 
    private final float toUi(double scaled) {
-      Window var10000 = Minecraft.getInstance().getWindow();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getWindow(...)");
-      Window window = var10000;
+      Window window = Minecraft.getInstance().getWindow();
+      Intrinsics.checkNotNullExpressionValue(window, "getWindow(...)");
       return (float)(scaled * window.getGuiScale() / this.uiScale);
    }
 
@@ -466,13 +461,12 @@ public final class ProfileScreen extends Screen implements NvgScreen {
          return false;
       }
 
-      String var10000 = event.codepointAsString();
-      Intrinsics.checkNotNullExpressionValue(var10000, "codepointAsString(...)");
-      String s = var10000;
-      int var3 = 0;
+      String s = event.codepointAsString();
+      Intrinsics.checkNotNullExpressionValue(s, "codepointAsString(...)");
+      int i = 0;
 
-      for (int var4 = s.length(); var3 < var4; var3++) {
-         char ch = s.charAt(var3);
+      for (int len = s.length(); i < len; i++) {
+         char ch = s.charAt(i);
          if ((Character.isLetterOrDigit(ch) || ch == '_' || ch == '-' || ch == ' ') && this.nameInput.length() < 32) {
             this.nameInput = this.nameInput + ch;
          }
@@ -492,7 +486,7 @@ public final class ProfileScreen extends Screen implements NvgScreen {
 
    private final int lerp(int a, int b, float t) {
       float tt = RangesKt.coerceIn(t, 0.0F, 1.0F);
-      return lerp$ch(a, b, tt, 24) << 24 | lerp$ch(a, b, tt, 16) << 16 | lerp$ch(a, b, tt, 8) << 8 | lerp$ch(a, b, tt, 0);
+      return lerpChannel(a, b, tt, 24) << 24 | lerpChannel(a, b, tt, 16) << 16 | lerpChannel(a, b, tt, 8) << 8 | lerpChannel(a, b, tt, 0);
    }
 
    @Override
@@ -512,9 +506,9 @@ public final class ProfileScreen extends Screen implements NvgScreen {
       }
    }
 
-   private static final int lerp$ch(int $a, int $b, float tt, int shift) {
-      int ca = $a >>> shift & 0xFF;
-      int cb = $b >>> shift & 0xFF;
+   private static final int lerpChannel(int a, int b, float tt, int shift) {
+      int ca = a >>> shift & 0xFF;
+      int cb = b >>> shift & 0xFF;
       return RangesKt.coerceIn((int)(ca + (cb - ca) * tt), 0, 255);
    }
 }

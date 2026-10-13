@@ -117,12 +117,10 @@ public final class HudEditorScreen extends Screen implements NvgScreen {
 
    @Override
    public void renderOverlay(float delta) {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      Minecraft minecraft = var10000;
-      Window var9 = minecraft.getWindow();
-      Intrinsics.checkNotNullExpressionValue(var9, "getWindow(...)");
-      Window window = var9;
+      Minecraft minecraft = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(minecraft, "getInstance(...)");
+      Window window = minecraft.getWindow();
+      Intrinsics.checkNotNullExpressionValue(window, "getWindow(...)");
       int fbWidth = window.getWidth();
       int fbHeight = window.getHeight();
       if (fbWidth > 0 && fbHeight > 0) {
@@ -174,15 +172,15 @@ public final class HudEditorScreen extends Screen implements NvgScreen {
    }
 
    private final void drawSnapLines(float w, float h) {
-      for (Pair var4 : this.activeSnapLinesX) {
-         int x = ((Number)var4.component1()).intValue();
-         int color = ((Number)var4.component2()).intValue();
+      for (Pair pair : this.activeSnapLinesX) {
+         int x = ((Number)pair.component1()).intValue();
+         int color = ((Number)pair.component2()).intValue();
          NVGRenderer.INSTANCE.line(x, 0.0F, x, h, color, 2.0F);
       }
 
-      for (Pair var8 : this.activeSnapLinesY) {
-         int y = ((Number)var8.component1()).intValue();
-         int color = ((Number)var8.component2()).intValue();
+      for (Pair pair : this.activeSnapLinesY) {
+         int y = ((Number)pair.component1()).intValue();
+         int color = ((Number)pair.component2()).intValue();
          NVGRenderer.INSTANCE.line(0.0F, y, w, y, color, 2.0F);
       }
    }
@@ -226,7 +224,6 @@ public final class HudEditorScreen extends Screen implements NvgScreen {
       int mouseY = (int)event.y();
       if (this.draggingElement != null) {
          HudElement element = this.draggingElement;
-         int var9/* $VF was: $i$a$-let-HudEditorScreen$mouseDragged$1 */ = 0;
          element.updateDrag(mouseX, mouseY, this.scaledWidth(), this.scaledHeight());
          this.applySmartSnap(element);
          return true;
@@ -239,11 +236,9 @@ public final class HudEditorScreen extends Screen implements NvgScreen {
    public boolean mouseReleased(@NotNull MouseButtonEvent event) {
       Intrinsics.checkNotNullParameter(event, "event");
       if (event.button() == 0) {
-         HudElement var2 = this.draggingElement;
-         if (var2 != null) {
-            HudElement it = var2;
-            int var4/* $VF was: $i$a$-let-HudEditorScreen$mouseReleased$1 */ = 0;
-            it.stopDrag();
+         HudElement element = this.draggingElement;
+         if (element != null) {
+            element.stopDrag();
             this.draggingElement = null;
             this.activeSnapLinesX.clear();
             this.activeSnapLinesY.clear();
@@ -299,10 +294,10 @@ public final class HudEditorScreen extends Screen implements NvgScreen {
          }
       }
 
-      for (Triple var23 : snapTargetsX) {
-         int target = ((Number)var23.component1()).intValue();
-         int snapTo = ((Number)var23.component2()).intValue();
-         int color = ((Number)var23.component3()).intValue();
+      for (Triple triple : snapTargetsX) {
+         int target = ((Number)triple.component1()).intValue();
+         int snapTo = ((Number)triple.component2()).intValue();
+         int color = ((Number)triple.component3()).intValue();
          if (Math.abs(elementCenterX - target) < this.snapThreshold) {
             element.setX(snapTo);
             this.activeSnapLinesX.add(TuplesKt.to(target, color));
@@ -345,10 +340,10 @@ public final class HudEditorScreen extends Screen implements NvgScreen {
          }
       }
 
-      for (Triple var28 : snapTargetsY) {
-         int target = ((Number)var28.component1()).intValue();
-         int snapTo = ((Number)var28.component2()).intValue();
-         int color = ((Number)var28.component3()).intValue();
+      for (Triple triple : snapTargetsY) {
+         int target = ((Number)triple.component1()).intValue();
+         int snapTo = ((Number)triple.component2()).intValue();
+         int color = ((Number)triple.component3()).intValue();
          if (Math.abs(elementCenterY - target) < this.snapThreshold) {
             element.setY(snapTo);
             this.activeSnapLinesY.add(TuplesKt.to(target, color));

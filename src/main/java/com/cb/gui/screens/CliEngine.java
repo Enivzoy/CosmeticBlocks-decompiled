@@ -193,21 +193,21 @@ public final class CliEngine {
    }
 
    private final Path getSavedColorsFile() {
-      Path var10000 = configDir.resolve("saved_colors.txt");
-      Intrinsics.checkNotNullExpressionValue(var10000, "resolve(...)");
-      return var10000;
+      Path file = configDir.resolve("saved_colors.txt");
+      Intrinsics.checkNotNullExpressionValue(file, "resolve(...)");
+      return file;
    }
 
    private final Path getNotesFile() {
-      Path var10000 = configDir.resolve("notes.txt");
-      Intrinsics.checkNotNullExpressionValue(var10000, "resolve(...)");
-      return var10000;
+      Path file = configDir.resolve("notes.txt");
+      Intrinsics.checkNotNullExpressionValue(file, "resolve(...)");
+      return file;
    }
 
    private final Path getProfilesDir() {
-      Path var10000 = configDir.resolve("profiles");
-      Intrinsics.checkNotNullExpressionValue(var10000, "resolve(...)");
-      return var10000;
+      Path dir = configDir.resolve("profiles");
+      Intrinsics.checkNotNullExpressionValue(dir, "resolve(...)");
+      return dir;
    }
 
    @NotNull
@@ -245,14 +245,14 @@ public final class CliEngine {
          }
       }
 
-      String var3;
+      String output;
       try {
-         var3 = this.executeCliCommand(cmd);
+         output = this.executeCliCommand(cmd);
       } catch (Throwable t) {
-         var3 = "Error: " + t.getMessage();
+         output = "Error: " + t.getMessage();
       }
 
-      return var3;
+      return output;
    }
 
    @NotNull
@@ -269,27 +269,22 @@ public final class CliEngine {
    public final void checkReminders() {
       if (!reminders.isEmpty()) {
          long now = System.currentTimeMillis();
-         Iterable $this$filter$iv = reminders;
-         int $i$f$filter = 0;
-         Iterable $this$filterTo$iv$iv = $this$filter$iv;
-         var destination$iv$iv = new ArrayList();
-         int $i$f$filterTo = 0;
+         Iterable items = reminders;
+         Iterable filterSource = items;
+         var dest = new ArrayList();
 
-         for (Object element$iv$iv : $this$filterTo$iv$iv) {
-            CliEngine.Reminder it = (CliEngine.Reminder)element$iv$iv;
-            int var12/* $VF was: $i$a$-filter-CliEngine$checkReminders$triggered$1 */ = 0;
-            if (it.getTriggerTime() <= now) {
-               destination$iv$iv.add(element$iv$iv);
+         for (Object element : filterSource) {
+            CliEngine.Reminder reminder = (CliEngine.Reminder)element;
+            if (reminder.getTriggerTime() <= now) {
+               dest.add(element);
             }
          }
 
-         List triggered = (List)destination$iv$iv;
-         $this$filter$iv = triggered;
-         $i$f$filter = 0;
+         List triggered = (List)dest;
+         items = triggered;
 
-         for (Object element$iv : $this$filter$iv) {
-            CliEngine.Reminder reminder = (CliEngine.Reminder)element$iv;
-            int var18/* $VF was: $i$a$-forEach-CliEngine$checkReminders$1 */ = 0;
+         for (Object element : items) {
+            CliEngine.Reminder reminder = (CliEngine.Reminder)element;
             reminders.remove(reminder);
             ChatUtil.INSTANCE.info("Reminder: " + reminder.getMessage());
          }
@@ -298,20 +293,19 @@ public final class CliEngine {
 
    public final int addReminder(long delayMs, @NotNull String message) {
       Intrinsics.checkNotNullParameter(message, "message");
-      int $this$sortBy$iv = nextReminderId++;
-      int id = $this$sortBy$iv;
+      int newId = nextReminderId++;
+      int id = newId;
       reminders.add(new CliEngine.Reminder(System.currentTimeMillis() + delayMs, message, id));
-      List $this$sortBy$ivx = reminders;
-      int $i$f$sortBy = 0;
-      if ($this$sortBy$ivx.size() > 1) {
-         CollectionsKt.sortWith($this$sortBy$ivx, new CliEngine$addReminder$$inlined$sortBy$1());
+      List reminderList = reminders;
+      if (reminderList.size() > 1) {
+         CollectionsKt.sortWith(reminderList, new CliEngine$addReminder$$inlined$sortBy$1());
       }
 
       return id;
    }
 
    public final boolean cancelReminder(int id) {
-      return reminders.removeIf(it -> cancelReminder$lambda$0(id, (CliEngine.Reminder)it));
+      return reminders.removeIf(it -> cancelReminderPredicate(id, (CliEngine.Reminder)it));
    }
 
    private final List<CliEngine.Suggestion> computeSuggestions(String raw) {
@@ -322,49 +316,43 @@ public final class CliEngine {
 
       int firstSpace = StringsKt.indexOf(text, ' ', 0, false);
       if (firstSpace < 0) {
-         String var91 = text.toLowerCase(Locale.ROOT);
-         Intrinsics.checkNotNullExpressionValue(var91, "toLowerCase(...)");
-         String q = var91;
-         Iterable var24 = CollectionsKt.distinct(TOP_COMMANDS);
-         int $i$f$filter = 0;
-         Iterable var30 = var24;
-         var destination$iv$iv = new ArrayList();
-         int $i$f$filterTo = 0;
+         String lowerText = text.toLowerCase(Locale.ROOT);
+         Intrinsics.checkNotNullExpressionValue(lowerText, "toLowerCase(...)");
+         String q = lowerText;
+         Iterable topCommands = CollectionsKt.distinct(TOP_COMMANDS);
+         Iterable source = topCommands;
+         var dest = new ArrayList();
 
-         for (Object element$iv$iv : var30) {
-            String it = (String)element$iv$iv;
-            int var65/* $VF was: $i$a$-filter-CliEngine$computeSuggestions$1 */ = 0;
+         for (Object element : source) {
+            String it = (String)element;
             if (StringsKt.startsWith(it, q, false)) {
-               destination$iv$iv.add(element$iv$iv);
+               dest.add(element);
             }
          }
 
-         var24 = (Iterable & List)destination$iv$iv;
-         $i$f$filter = 0;
-         var30 = var24;
-         destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault(var24, 10));
-         $i$f$filterTo = 0;
+         topCommands = (Iterable & List)dest;
+         source = topCommands;
+         dest = new ArrayList(CollectionsKt.collectionSizeOrDefault(topCommands, 10));
 
-         for (Object item$iv$iv : var30) {
-            String var60 = (String)item$iv$iv;
-            Collection var83 = destination$iv$iv;
-            int var66/* $VF was: $i$a$-map-CliEngine$computeSuggestions$2 */ = 0;
-            var83.add(new CliEngine.Suggestion(var60, var60, ""));
+         for (Object item : source) {
+            String name = (String)item;
+            Collection collector = dest;
+            collector.add(new CliEngine.Suggestion(name, name, ""));
          }
 
-         return CollectionsKt.take(destination$iv$iv, 10);
+         return CollectionsKt.take(dest, 10);
       } else {
          String head;
          String rest;
          label153: {
-            String var10000 = text.substring(0, firstSpace);
-            Intrinsics.checkNotNullExpressionValue(var10000, "substring(...)");
-            var10000 = var10000.toLowerCase(Locale.ROOT);
-            Intrinsics.checkNotNullExpressionValue(var10000, "toLowerCase(...)");
-            head = var10000;
-            var10000 = text.substring(firstSpace + 1);
-            Intrinsics.checkNotNullExpressionValue(var10000, "substring(...)");
-            rest = var10000;
+            String tmp = text.substring(0, firstSpace);
+            Intrinsics.checkNotNullExpressionValue(tmp, "substring(...)");
+            tmp = tmp.toLowerCase(Locale.ROOT);
+            Intrinsics.checkNotNullExpressionValue(tmp, "toLowerCase(...)");
+            head = tmp;
+            tmp = text.substring(firstSpace + 1);
+            Intrinsics.checkNotNullExpressionValue(tmp, "substring(...)");
+            rest = tmp;
             String switchHead = head;
             switch (switchHead.hashCode()) {
                case -1405258946:
@@ -397,285 +385,251 @@ public final class CliEngine {
                   return CollectionsKt.emptyList();
             }
 
-            var10000 = rest.toLowerCase(Locale.ROOT);
-            Intrinsics.checkNotNullExpressionValue(var10000, "toLowerCase(...)");
-            String q = var10000;
-            Iterable $this$computeSuggestions_u24lambda_u245 = this.booleanSettings();
-            int $i$f$map = 0;
-            Iterable qx = $this$computeSuggestions_u24lambda_u245;
-            var destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault($this$computeSuggestions_u24lambda_u245, 10));
-            int $i$f$mapTo = 0;
+            tmp = rest.toLowerCase(Locale.ROOT);
+            Intrinsics.checkNotNullExpressionValue(tmp, "toLowerCase(...)");
+            String q = tmp;
+            Iterable working = this.booleanSettings();
+            Iterable source = working;
+            var dest = new ArrayList(CollectionsKt.collectionSizeOrDefault(working, 10));
 
-            for (Object item$iv$iv : qx) {
-               BooleanSetting $i$f$mapTox = (BooleanSetting)item$iv$iv;
-               Collection var21 = destination$iv$iv;
-               int var16/* $VF was: $i$a$-map-CliEngine$computeSuggestions$3 */ = 0;
-               var21.add($i$f$mapTox.getName());
+            for (Object item : source) {
+               BooleanSetting setting = (BooleanSetting)item;
+               Collection collector = dest;
+               collector.add(setting.getName());
             }
 
-            $this$computeSuggestions_u24lambda_u245 = (Iterable & List)destination$iv$iv;
-            $i$f$map = 0;
-            qx = $this$computeSuggestions_u24lambda_u245;
-            destination$iv$iv = new ArrayList();
-            $i$f$mapTo = 0;
+            working = (Iterable & List)dest;
+            source = working;
+            dest = new ArrayList();
 
-            for (Object element$iv$iv : qx) {
-               String it = (String)element$iv$iv;
-               int var75/* $VF was: $i$a$-filter-CliEngine$computeSuggestions$4 */ = 0;
-               var10000 = it.toLowerCase(Locale.ROOT);
-               Intrinsics.checkNotNullExpressionValue(var10000, "toLowerCase(...)");
-               if (StringsKt.contains(var10000, q, false)) {
-                  destination$iv$iv.add(element$iv$iv);
+            for (Object element : source) {
+               String it = (String)element;
+               tmp = it.toLowerCase(Locale.ROOT);
+               Intrinsics.checkNotNullExpressionValue(tmp, "toLowerCase(...)");
+               if (StringsKt.contains(tmp, q, false)) {
+                  dest.add(element);
                }
             }
 
-            $this$computeSuggestions_u24lambda_u245 = CollectionsKt.take(CollectionsKt.distinct((Iterable & List)destination$iv$iv), 10);
-            $i$f$map = 0;
-            qx = $this$computeSuggestions_u24lambda_u245;
-            destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault($this$computeSuggestions_u24lambda_u245, 10));
-            $i$f$mapTo = 0;
+            working = CollectionsKt.take(CollectionsKt.distinct((Iterable & List)dest), 10);
+            source = working;
+            dest = new ArrayList(CollectionsKt.collectionSizeOrDefault(working, 10));
 
-            for (Object item$iv$iv : qx) {
-               String var72 = (String)item$iv$iv;
-               Collection var82 = destination$iv$iv;
-               int var76/* $VF was: $i$a$-map-CliEngine$computeSuggestions$5 */ = 0;
-               var82.add(new CliEngine.Suggestion(head + " " + var72, head + " " + var72, "toggle"));
+            for (Object item : source) {
+               String name = (String)item;
+               Collection collector = dest;
+               collector.add(new CliEngine.Suggestion(head + " " + name, head + " " + name, "toggle"));
             }
 
-            return (List<CliEngine.Suggestion>)destination$iv$iv;
+            return (List<CliEngine.Suggestion>)dest;
          }
 
-         CliEngine var28 = this;
+         CliEngine engine = this;
 
-         List<CliEngine.Suggestion> var29 = null;
+         List<CliEngine.Suggestion> result = null;
          try {
-            int var41/* $VF was: $i$a$-runCatching-CliEngine$computeSuggestions$6 */ = 0;
-            String var89 = rest.toLowerCase(Locale.ROOT);
-            Intrinsics.checkNotNullExpressionValue(var89, "toLowerCase(...)");
-            String q = var89;
-            Iterable var51 = var28.listProfiles();
-            int $i$f$filter = 0;
-            Iterable var63 = var51;
-            var destination$iv$iv = new ArrayList();
-            int $i$f$filterTo = 0;
+            String lower = rest.toLowerCase(Locale.ROOT);
+            Intrinsics.checkNotNullExpressionValue(lower, "toLowerCase(...)");
+            String q = lower;
+            Iterable profiles = engine.listProfiles();
+            Iterable profileSource = profiles;
+            var dest = new ArrayList();
 
-            for (Object element$iv$iv : var63) {
-               String it = (String)element$iv$iv;
-               int var19/* $VF was: $i$a$-filter-CliEngine$computeSuggestions$6$1 */ = 0;
-               var89 = it.toLowerCase(Locale.ROOT);
-               Intrinsics.checkNotNullExpressionValue(var89, "toLowerCase(...)");
-               if (StringsKt.startsWith(var89, q, false)) {
-                  destination$iv$iv.add(element$iv$iv);
+            for (Object element : profileSource) {
+               String it = (String)element;
+               lower = it.toLowerCase(Locale.ROOT);
+               Intrinsics.checkNotNullExpressionValue(lower, "toLowerCase(...)");
+               if (StringsKt.startsWith(lower, q, false)) {
+                  dest.add(element);
                }
             }
 
-            var51 = (Iterable & List)destination$iv$iv;
-            $i$f$filter = 0;
-            var63 = var51;
-            destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault(var51, 10));
-            $i$f$filterTo = 0;
+            profiles = (Iterable & List)dest;
+            profileSource = profiles;
+            dest = new ArrayList(CollectionsKt.collectionSizeOrDefault(profiles, 10));
 
-            for (Object item$iv$iv : var63) {
-               String var80 = (String)item$iv$iv;
-               Collection var20 = destination$iv$iv;
-               int var81/* $VF was: $i$a$-map-CliEngine$computeSuggestions$6$2 */ = 0;
-               var20.add(new CliEngine.Suggestion(head + " " + var80, head + " " + var80, Intrinsics.areEqual(head, "load") ? "Load profile" : "Delete profile"));
+            for (Object item : profileSource) {
+               String name = (String)item;
+               Collection collector = dest;
+               collector.add(new CliEngine.Suggestion(head + " " + name, head + " " + name, Intrinsics.areEqual(head, "load") ? "Load profile" : "Delete profile"));
             }
 
-            var29 = (List<CliEngine.Suggestion>)CollectionsKt.take((Iterable & List)destination$iv$iv, 10);
-         } catch (Throwable var22) {
-            var29 = null;
+            result = (List<CliEngine.Suggestion>)CollectionsKt.take((Iterable & List)dest, 10);
+         } catch (Throwable exception) {
+            result = null;
          }
 
-         return var29 != null ? var29 : CollectionsKt.emptyList();
+         return result != null ? result : CollectionsKt.emptyList();
       }
    }
 
    private final List<CliEngine.Suggestion> cbSuggestions(String rest) {
       int nextSpace = StringsKt.indexOf(rest, ' ', 0, false);
       if (nextSpace < 0) {
-         String var115 = rest.toLowerCase(Locale.ROOT);
-         Intrinsics.checkNotNullExpressionValue(var115, "toLowerCase(...)");
-         String q = var115;
-         Iterable var22 = CollectionsKt.distinct(CB_SUBCOMMANDS);
-         int $i$f$filter = 0;
-         Iterable var26 = var22;
-         var destination$iv$iv = new ArrayList();
-         int $i$f$filterTo = 0;
+         String lower = rest.toLowerCase(Locale.ROOT);
+         Intrinsics.checkNotNullExpressionValue(lower, "toLowerCase(...)");
+         String q = lower;
+         Iterable subCommands = CollectionsKt.distinct(CB_SUBCOMMANDS);
+         Iterable source = subCommands;
+         var dest = new ArrayList();
 
-         for (Object element$iv$iv : var26) {
-            String it = (String)element$iv$iv;
-            int var73/* $VF was: $i$a$-filter-CliEngine$cbSuggestions$1 */ = 0;
+         for (Object element : source) {
+            String it = (String)element;
             if (StringsKt.startsWith(it, q, false)) {
-               destination$iv$iv.add(element$iv$iv);
+               dest.add(element);
             }
          }
 
-         var22 = (Iterable & List)destination$iv$iv;
-         $i$f$filter = 0;
-         var26 = var22;
-         destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault(var22, 10));
-         $i$f$filterTo = 0;
+         subCommands = (Iterable & List)dest;
+         source = subCommands;
+         dest = new ArrayList(CollectionsKt.collectionSizeOrDefault(subCommands, 10));
 
-         for (Object item$iv$iv : var26) {
-            String var64 = (String)item$iv$iv;
-            Collection var107 = destination$iv$iv;
-            int var74/* $VF was: $i$a$-map-CliEngine$cbSuggestions$2 */ = 0;
-            var107.add(new CliEngine.Suggestion("cb " + var64, "cb " + var64, ""));
+         for (Object item : source) {
+            String name = (String)item;
+            Collection collector = dest;
+            collector.add(new CliEngine.Suggestion("cb " + name, "cb " + name, ""));
          }
 
-         return CollectionsKt.take(destination$iv$iv, 10);
+         return CollectionsKt.take(dest, 10);
       } else {
          String args;
          String lastToken;
          String prefix;
          label270: {
-            String var10000 = rest.substring(0, nextSpace);
-            Intrinsics.checkNotNullExpressionValue(var10000, "substring(...)");
-            var10000 = var10000.toLowerCase(Locale.ROOT);
-            Intrinsics.checkNotNullExpressionValue(var10000, "toLowerCase(...)");
-            String sub = var10000;
-            var10000 = rest.substring(nextSpace + 1);
-            Intrinsics.checkNotNullExpressionValue(var10000, "substring(...)");
-            args = var10000;
-            var10000 = StringsKt.substringAfterLast(args, ' ', args).toLowerCase(Locale.ROOT);
-            Intrinsics.checkNotNullExpressionValue(var10000, "toLowerCase(...)");
-            lastToken = var10000;
+            String tmp = rest.substring(0, nextSpace);
+            Intrinsics.checkNotNullExpressionValue(tmp, "substring(...)");
+            tmp = tmp.toLowerCase(Locale.ROOT);
+            Intrinsics.checkNotNullExpressionValue(tmp, "toLowerCase(...)");
+            String sub = tmp;
+            tmp = rest.substring(nextSpace + 1);
+            Intrinsics.checkNotNullExpressionValue(tmp, "substring(...)");
+            args = tmp;
+            tmp = StringsKt.substringAfterLast(args, ' ', args).toLowerCase(Locale.ROOT);
+            Intrinsics.checkNotNullExpressionValue(tmp, "toLowerCase(...)");
+            lastToken = tmp;
             String argsBeforeLast = StringsKt.substringBeforeLast(args, ' ', "");
             prefix = argsBeforeLast.length() == 0 ? "cb " + sub : "cb " + sub + " " + argsBeforeLast;
-            String $i$f$mapTo = sub;
-            switch ($i$f$mapTo.hashCode()) {
+            String switchKey = sub;
+            switch (switchKey.hashCode()) {
                case -1785238953:
-                  if ($i$f$mapTo.equals("favorites")) {
+                  if (switchKey.equals("favorites")) {
                      return this.favSuggestions(args, prefix);
                   }
 
                   return CollectionsKt.emptyList();
                case -1335458389:
-                  if (!$i$f$mapTo.equals("delete")) {
+                  if (!switchKey.equals("delete")) {
                      return CollectionsKt.emptyList();
                   }
                   break;
                case 98:
-                  if ($i$f$mapTo.equals("b")) {
+                  if (switchKey.equals("b")) {
                      return this.blockSuggestions(lastToken, prefix, "Brush");
                   }
 
                   return CollectionsKt.emptyList();
                case 102:
-                  if ($i$f$mapTo.equals("f")) {
+                  if (switchKey.equals("f")) {
                      return this.blockSuggestions(lastToken, prefix, "Fill");
                   }
 
                   return CollectionsKt.emptyList();
                case 114:
-                  if (!$i$f$mapTo.equals("r")) {
+                  if (!switchKey.equals("r")) {
                      return CollectionsKt.emptyList();
                   }
                   break label270;
                case 99339:
-                  if (!$i$f$mapTo.equals("del")) {
+                  if (!switchKey.equals("del")) {
                      return CollectionsKt.emptyList();
                   }
                   break;
                case 101147:
-                  if ($i$f$mapTo.equals("fav")) {
+                  if (switchKey.equals("fav")) {
                      return this.favSuggestions(args, prefix);
                   }
 
                   return CollectionsKt.emptyList();
                case 112797:
-                  if (!$i$f$mapTo.equals("rep")) {
+                  if (!switchKey.equals("rep")) {
                      return CollectionsKt.emptyList();
                   }
                   break label270;
                case 3143043:
-                  if ($i$f$mapTo.equals("fill")) {
+                  if (switchKey.equals("fill")) {
                      return this.blockSuggestions(lastToken, prefix, "Fill");
                   }
 
                   return CollectionsKt.emptyList();
                case 3327206:
-                  if (!$i$f$mapTo.equals("load")) {
+                  if (!switchKey.equals("load")) {
                      return CollectionsKt.emptyList();
                   }
                   break;
                case 3506395:
-                  if ($i$f$mapTo.equals("room")) {
-                     String[] var34 = new String[]{"info", "clear"};
-                     Iterable var35 = CollectionsKt.listOf(var34);
-                     int $i$f$filter = 0;
-                     Iterable var54 = var35;
-                     var destination$iv$iv = new ArrayList();
-                     int $i$f$filterTo = 0;
+                  if (switchKey.equals("room")) {
+                     String[] roomSubcommands = new String[]{"info", "clear"};
+                     Iterable roomSubs = CollectionsKt.listOf(roomSubcommands);
+                     Iterable roomSource = roomSubs;
+                     var dest = new ArrayList();
 
-                     for (Object element$iv$iv : var54) {
-                        String it = (String)element$iv$iv;
-                        int var100/* $VF was: $i$a$-filter-CliEngine$cbSuggestions$7 */ = 0;
+                     for (Object element : roomSource) {
+                        String it = (String)element;
                         if (StringsKt.startsWith(it, lastToken, false)) {
-                           destination$iv$iv.add(element$iv$iv);
+                           dest.add(element);
                         }
                      }
 
-                     var var36 = (Iterable & List)destination$iv$iv;
-                     $i$f$filter = 0;
-                     var54 = var36;
-                     destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault(var36, 10));
-                     $i$f$filterTo = 0;
+                     var roomFiltered = (Iterable & List)dest;
+                     roomSource = roomFiltered;
+                     dest = new ArrayList(CollectionsKt.collectionSizeOrDefault(roomFiltered, 10));
 
-                     for (Object item$iv$iv : var54) {
-                        String var95 = (String)item$iv$iv;
-                        Collection var105 = destination$iv$iv;
-                        int var101/* $VF was: $i$a$-map-CliEngine$cbSuggestions$8 */ = 0;
-                        var105.add(new CliEngine.Suggestion(prefix + " " + var95, prefix + " " + var95, "Room"));
+                     for (Object item : roomSource) {
+                        String roomName = (String)item;
+                        Collection collector = dest;
+                        collector.add(new CliEngine.Suggestion(prefix + " " + roomName, prefix + " " + roomName, "Room"));
                      }
 
-                     return (List<CliEngine.Suggestion>)destination$iv$iv;
+                     return (List<CliEngine.Suggestion>)dest;
                   }
 
                   return CollectionsKt.emptyList();
                case 93832333:
-                  if ($i$f$mapTo.equals("block")) {
+                  if (switchKey.equals("block")) {
                      return this.blockSuggestions(lastToken, prefix, "Brush");
                   }
 
                   return CollectionsKt.emptyList();
                case 109399969:
-                  if ($i$f$mapTo.equals("shape")) {
-                     String[] $this$map$iv = new String[]{"none", "fence", "wall"};
-                     Iterable var32 = CollectionsKt.listOf($this$map$iv);
-                     int $i$f$filter = 0;
-                     Iterable $this$mapTo$iv$iv = var32;
-                     var destination$iv$iv = new ArrayList();
-                     int $i$f$filterTo = 0;
+                  if (switchKey.equals("shape")) {
+                     String[] shapeArray = new String[]{"none", "fence", "wall"};
+                     Iterable shapes = CollectionsKt.listOf(shapeArray);
+                     Iterable shapeSource = shapes;
+                     var dest = new ArrayList();
 
-                     for (Object element$iv$iv : $this$mapTo$iv$iv) {
-                        String it = (String)element$iv$iv;
-                        int var17/* $VF was: $i$a$-filter-CliEngine$cbSuggestions$5 */ = 0;
+                     for (Object element : shapeSource) {
+                        String it = (String)element;
                         if (StringsKt.startsWith(it, lastToken, false)) {
-                           destination$iv$iv.add(element$iv$iv);
+                           dest.add(element);
                         }
                      }
 
-                     var var33 = (Iterable & List)destination$iv$iv;
-                     $i$f$filter = 0;
-                     $this$mapTo$iv$iv = var33;
-                     destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault(var33, 10));
-                     $i$f$filterTo = 0;
+                     var shapeList = (Iterable & List)dest;
+                     shapeSource = shapeList;
+                     dest = new ArrayList(CollectionsKt.collectionSizeOrDefault(shapeList, 10));
 
-                     for (Object item$iv$iv : $this$mapTo$iv$iv) {
-                        String var93 = (String)item$iv$iv;
-                        Collection var19 = destination$iv$iv;
-                        int var99/* $VF was: $i$a$-map-CliEngine$cbSuggestions$6 */ = 0;
-                        var19.add(new CliEngine.Suggestion(prefix + " " + var93, prefix + " " + var93, "Shape"));
+                     for (Object item : shapeSource) {
+                        String shapeName = (String)item;
+                        Collection collector = dest;
+                        collector.add(new CliEngine.Suggestion(prefix + " " + shapeName, prefix + " " + shapeName, "Shape"));
                      }
 
-                     return (List<CliEngine.Suggestion>)destination$iv$iv;
+                     return (List<CliEngine.Suggestion>)dest;
                   }
 
                   return CollectionsKt.emptyList();
                case 1094496948:
-                  if (!$i$f$mapTo.equals("replace")) {
+                  if (!switchKey.equals("replace")) {
                      return CollectionsKt.emptyList();
                   }
                   break label270;
@@ -683,85 +637,74 @@ public final class CliEngine {
                   return CollectionsKt.emptyList();
             }
 
-            CliEngine var47 = this;
-
             List configs;
             try {
-               int var70/* $VF was: $i$a$-runCatching-CliEngine$cbSuggestions$configs$1 */ = 0;
                configs = (List)CosmeticBlocks.INSTANCE.listConfigs();
-            } catch (Throwable var20) {
+            } catch (Throwable ignored) {
                configs = CollectionsKt.emptyList();
             }
 
-            Iterable $this$filter$iv = configs;
-            int $i$f$filter = 0;
-            Iterable var71 = $this$filter$iv;
-            var destination$iv$iv = new ArrayList();
-            int $i$f$filterTo = 0;
+            Iterable configSource = configs;
+            Iterable configItems = configSource;
+            var dest = new ArrayList();
 
-            for (Object element$iv$iv : var71) {
-               boolean var114;
+            for (Object element : configItems) {
+               boolean matches;
                label193: {
-                  String it = (String)element$iv$iv;
-                  int var18/* $VF was: $i$a$-filter-CliEngine$cbSuggestions$3 */ = 0;
+                  String it = (String)element;
                   if (lastToken.length() != 0) {
-                     var10000 = it.toLowerCase(Locale.ROOT);
-                     Intrinsics.checkNotNullExpressionValue(var10000, "toLowerCase(...)");
-                     if (!StringsKt.contains(var10000, lastToken, false)) {
-                        var114 = false;
+                     tmp = it.toLowerCase(Locale.ROOT);
+                     Intrinsics.checkNotNullExpressionValue(tmp, "toLowerCase(...)");
+                     if (!StringsKt.contains(tmp, lastToken, false)) {
+                        matches = false;
                         break label193;
                      }
                   }
 
-                  var114 = true;
+                  matches = true;
                }
 
-               if (var114) {
-                  destination$iv$iv.add(element$iv$iv);
+               if (matches) {
+                  dest.add(element);
                }
             }
 
-            $this$filter$iv = (Iterable & List)destination$iv$iv;
-            int $i$f$map = 0;
-            var71 = $this$filter$iv;
-            destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault($this$filter$iv, 10));
-            $i$f$filterTo = 0;
+            configSource = (Iterable & List)dest;
+            configItems = configSource;
+            dest = new ArrayList(CollectionsKt.collectionSizeOrDefault(configSource, 10));
 
-            for (Object item$iv$iv : var71) {
-               String var103 = (String)item$iv$iv;
-               Collection var106 = destination$iv$iv;
-               int var104/* $VF was: $i$a$-map-CliEngine$cbSuggestions$4 */ = 0;
-               var106.add(new CliEngine.Suggestion(prefix + " " + var103, prefix + " " + var103, Intrinsics.areEqual(sub, "load") ? "Load" : "Delete"));
+            for (Object item : configItems) {
+               String config = (String)item;
+               Collection collector = dest;
+               collector.add(new CliEngine.Suggestion(prefix + " " + config, prefix + " " + config, Intrinsics.areEqual(sub, "load") ? "Load" : "Delete"));
             }
 
-            return CollectionsKt.take(destination$iv$iv, 10);
+            return CollectionsKt.take(dest, 10);
          }
 
          String hint = StringsKt.trim(args).toString();
-         Regex var56 = new Regex("\\s+");
-         int count$iv = 0;
-         var var45 = var56.split(hint, count$iv);
-         int $i$f$count = 0;
-         int var112;
-         if (var45 instanceof Collection && ((Collection)var45).isEmpty()) {
-            var112 = 0;
+         Regex whitespaceRegex = new Regex("\\s+");
+         int count = 0;
+         var tokens = whitespaceRegex.split(hint, count);
+         int rawCount;
+         if (tokens instanceof Collection && ((Collection)tokens).isEmpty()) {
+            rawCount = 0;
          } else {
-            count$iv = 0;
+            count = 0;
 
-            for (Object element$iv : var45) {
-               String it = (String)element$iv;
-               int var96/* $VF was: $i$a$-count-CliEngine$cbSuggestions$tokenCount$1 */ = 0;
+            for (Object element : tokens) {
+               String it = (String)element;
                if (it.length() > 0) {
-                  if (++count$iv < 0) {
+                  if (++count < 0) {
                      CollectionsKt.throwCountOverflow();
                   }
                }
             }
 
-            var112 = count$iv;
+            rawCount = count;
          }
 
-         int tokenCount = var112;
+         int tokenCount = rawCount;
          hint = tokenCount <= 1 ? "From" : "To";
          return this.blockSuggestions(lastToken, prefix, hint);
       }
@@ -769,83 +712,77 @@ public final class CliEngine {
 
    private final List<CliEngine.Suggestion> blockSuggestions(String token, String prefix, String hint) {
       String q = StringsKt.replace(StringsKt.removePrefix(token, "minecraft:"), ' ', '_', false);
-      Set<Identifier> var10000 = BuiltInRegistries.BLOCK.keySet();
-      Intrinsics.checkNotNullExpressionValue(var10000, "keySet(...)");
+      Set<Identifier> blockKeys = BuiltInRegistries.BLOCK.keySet();
+      Intrinsics.checkNotNullExpressionValue(blockKeys, "keySet(...)");
       return SequencesKt.toList(
          SequencesKt.map(
             SequencesKt.take(
                SequencesKt.filter(
-                  SequencesKt.map(CollectionsKt.asSequence(var10000), it -> blockSuggestions$lambda$0(it)), it -> blockSuggestions$lambda$1(q, it)
+                  SequencesKt.map(CollectionsKt.asSequence(blockKeys), it -> blockIdPath(it)), it -> blockPathFilter(q, it)
                ),
                10
             ),
-            it -> blockSuggestions$lambda$2(prefix, hint, it)
+            it -> blockSuggestion(prefix, hint, it)
          )
       );
    }
 
    private final List<CliEngine.Suggestion> favSuggestions(String args, String prefix) {
-      CharSequence var10000 = args;
+      CharSequence argChars = args;
       char[] favSub = new char[]{' '};
-      List parts = StringsKt.split(var10000, favSub, false, 2);
-      String var66 = ((String)parts.get(0)).toLowerCase(Locale.ROOT);
-      Intrinsics.checkNotNullExpressionValue(var66, "toLowerCase(...)");
-      String favSubx = var66;
-      var66 = (String)CollectionsKt.getOrNull(parts, 1);
-      var66 = var66 != null ? StringsKt.trim(var66).toString() : null;
-      if (var66 == null) {
-         var66 = "";
+      List parts = StringsKt.split(argChars, favSub, false, 2);
+      String temp = ((String)parts.get(0)).toLowerCase(Locale.ROOT);
+      Intrinsics.checkNotNullExpressionValue(temp, "toLowerCase(...)");
+      String favSubx = temp;
+      temp = (String)CollectionsKt.getOrNull(parts, 1);
+      temp = temp != null ? StringsKt.trim(temp).toString() : null;
+      if (temp == null) {
+         temp = "";
       }
 
-      String favArg = var66;
+      String favArg = temp;
       if (parts.size() < 2) {
-         String[] var21 = new String[]{"add", "remove", "rm", "list", "gui"};
-         Iterable var22 = CollectionsKt.listOf(var21);
-         int $i$f$filter = 0;
-         Iterable var28 = var22;
-         var destination$iv$iv = new ArrayList();
-         int $i$f$filterTo = 0;
+         String[] subcommands = new String[]{"add", "remove", "rm", "list", "gui"};
+         Iterable subs = CollectionsKt.listOf(subcommands);
+         Iterable source = subs;
+         var dest = new ArrayList();
 
-         for (Object element$iv$iv : var28) {
-            String it = (String)element$iv$iv;
-            int var56/* $VF was: $i$a$-filter-CliEngine$favSuggestions$1 */ = 0;
+         for (Object element : source) {
+            String it = (String)element;
             if (StringsKt.startsWith(it, favSubx, false)) {
-               destination$iv$iv.add(element$iv$iv);
+               dest.add(element);
             }
          }
 
-         var var23 = (Iterable & List)destination$iv$iv;
-         $i$f$filter = 0;
-         var28 = var23;
-         destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault(var23, 10));
-         $i$f$filterTo = 0;
+         var favFiltered = (Iterable & List)dest;
+         source = favFiltered;
+         dest = new ArrayList(CollectionsKt.collectionSizeOrDefault(favFiltered, 10));
 
-         for (Object item$iv$iv : var28) {
-            String var53 = (String)item$iv$iv;
-            Collection var65 = destination$iv$iv;
-            int var57/* $VF was: $i$a$-map-CliEngine$favSuggestions$2 */ = 0;
-            var65.add(new CliEngine.Suggestion(prefix + " " + var53, prefix + " " + var53, "Favorites"));
+         for (Object item : source) {
+            String name = (String)item;
+            Collection collector = dest;
+            collector.add(new CliEngine.Suggestion(prefix + " " + name, prefix + " " + name, "Favorites"));
          }
 
-         return (List<CliEngine.Suggestion>)destination$iv$iv;
+         return (List<CliEngine.Suggestion>)dest;
       } else {
-         String $this$map$iv = favSubx;
-         switch ($this$map$iv.hashCode()) {
+         String favKey = favSubx;
+         switch (favKey.hashCode()) {
             case -934610812:
-               if (!$this$map$iv.equals("remove")) {
+               if (!favKey.equals("remove")) {
                   return CollectionsKt.emptyList();
                }
                break;
             case 3643:
-               if (!$this$map$iv.equals("rm")) {
+               if (!favKey.equals("rm")) {
                   return CollectionsKt.emptyList();
                }
                break;
             case 96417:
-               if ($this$map$iv.equals("add")) {
-                  String var10001 = StringsKt.substringAfterLast(favArg, ' ', favArg).toLowerCase(Locale.ROOT);
-                  Intrinsics.checkNotNullExpressionValue(var10001, "toLowerCase(...)");
-                  return this.blockSuggestions(var10001, prefix + " add", "Add fav");
+               if (favKey.equals("add")) {
+                  String blockId = StringsKt.substringAfterLast(favArg, ' ', favArg).toLowerCase(Locale.ROOT);
+                  Intrinsics.checkNotNullExpressionValue(blockId, "toLowerCase(...)");
+                  return this.blockSuggestions(blockId, prefix + " add", "Add fav");
                }
 
                return CollectionsKt.emptyList();
@@ -857,174 +794,153 @@ public final class CliEngine {
 
          List favs;
          try {
-            int var10/* $VF was: $i$a$-runCatching-CliEngine$favSuggestions$favs$1 */ = 0;
             favs = (List)CosmeticBlocks.INSTANCE.getFavorites();
-         } catch (Throwable var19) {
+         } catch (Throwable exception) {
             favs = CollectionsKt.emptyList();
          }
 
-         var66 = favArg.toLowerCase(Locale.ROOT);
-         Intrinsics.checkNotNullExpressionValue(var66, "toLowerCase(...)");
-         String qx = var66;
+         temp = favArg.toLowerCase(Locale.ROOT);
+         Intrinsics.checkNotNullExpressionValue(temp, "toLowerCase(...)");
+         String qx = temp;
          Iterable favsMapped = favs;
-         int $i$f$map = 0;
-         Iterable $this$mapTo$iv$iv = favsMapped;
-         var destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault(favsMapped, 10));
-         int $i$f$mapTo = 0;
+         Iterable favSource = favsMapped;
+         var dest = new ArrayList(CollectionsKt.collectionSizeOrDefault(favsMapped, 10));
 
-         for (Object item$iv$iv : $this$mapTo$iv$iv) {
-            String it = (String)item$iv$iv;
-            Collection var18 = destination$iv$iv;
-            int var17/* $VF was: $i$a$-map-CliEngine$favSuggestions$3 */ = 0;
-            var18.add(StringsKt.removePrefix(it, "minecraft:"));
+         for (Object item : favSource) {
+            String it = (String)item;
+            Collection collector = dest;
+            collector.add(StringsKt.removePrefix(it, "minecraft:"));
          }
 
-         favsMapped = destination$iv$iv;
-         $i$f$map = 0;
-         $this$mapTo$iv$iv = favsMapped;
-         destination$iv$iv = new ArrayList();
-         $i$f$mapTo = 0;
+         favsMapped = dest;
+         favSource = favsMapped;
+         dest = new ArrayList();
 
-         for (Object element$iv$iv : $this$mapTo$iv$iv) {
-            String it = (String)element$iv$iv;
-            int var62/* $VF was: $i$a$-filter-CliEngine$favSuggestions$4 */ = 0;
+         for (Object element : favSource) {
+            String it = (String)element;
             if (qx.length() == 0 || StringsKt.contains(it, qx, false)) {
-               destination$iv$iv.add(element$iv$iv);
+               dest.add(element);
             }
          }
 
-         favsMapped = destination$iv$iv;
-         $i$f$map = 0;
-         $this$mapTo$iv$iv = favsMapped;
-         destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault(favsMapped, 10));
-         $i$f$mapTo = 0;
+         favsMapped = dest;
+         favSource = favsMapped;
+         dest = new ArrayList(CollectionsKt.collectionSizeOrDefault(favsMapped, 10));
 
-         for (Object item$iv$iv : $this$mapTo$iv$iv) {
-            String var61 = (String)item$iv$iv;
-            Collection var64 = destination$iv$iv;
-            int var63/* $VF was: $i$a$-map-CliEngine$favSuggestions$5 */ = 0;
-            var64.add(new CliEngine.Suggestion(prefix + " " + favSubx + " " + var61, var61, "Remove fav"));
+         for (Object item : favSource) {
+            String fav = (String)item;
+            Collection collector = dest;
+            collector.add(new CliEngine.Suggestion(prefix + " " + favSubx + " " + fav, fav, "Remove fav"));
          }
 
-         return CollectionsKt.take(destination$iv$iv, 10);
+         return CollectionsKt.take(dest, 10);
       }
    }
 
    private final List<BooleanSetting> booleanSettings() {
-      Iterable $this$flatMap$iv = Tabs.INSTANCE.getAll();
-      int $i$f$flatMap = 0;
-      Iterable $this$filterIsInstanceTo$iv$iv = $this$flatMap$iv;
-      var destination$iv$iv = new ArrayList();
-      int $i$f$flatMapTo = 0;
+      Iterable tabs = Tabs.INSTANCE.getAll();
+      Iterable source = tabs;
+      var dest = new ArrayList();
 
-      for (Object element$iv$iv : $this$filterIsInstanceTo$iv$iv) {
-         SettingsTab it = (SettingsTab)element$iv$iv;
-         int var9/* $VF was: $i$a$-flatMap-CliEngine$booleanSettings$1 */ = 0;
-         Iterable list$iv$iv = it.getSettings();
-         CollectionsKt.addAll(destination$iv$iv, list$iv$iv);
+      for (Object element : source) {
+         SettingsTab tab = (SettingsTab)element;
+         Iterable settings = tab.getSettings();
+         CollectionsKt.addAll(dest, settings);
       }
 
-      $this$flatMap$iv = (Iterable & List)destination$iv$iv;
-      $i$f$flatMap = 0;
-      $this$filterIsInstanceTo$iv$iv = $this$flatMap$iv;
-      destination$iv$iv = new ArrayList();
-      $i$f$flatMapTo = 0;
+      tabs = (Iterable & List)dest;
+      source = tabs;
+      dest = new ArrayList();
 
-      for (Object element$iv$iv : $this$filterIsInstanceTo$iv$iv) {
-         if (element$iv$iv instanceof BooleanSetting) {
-            destination$iv$iv.add(element$iv$iv);
+      for (Object element : source) {
+         if (element instanceof BooleanSetting) {
+            dest.add(element);
          }
       }
 
-      return (List<BooleanSetting>)destination$iv$iv;
+      return (List<BooleanSetting>)dest;
    }
 
    private final List<KeybindSetting> keybindSettings() {
-      Iterable $this$flatMap$iv = Tabs.INSTANCE.getAll();
-      int $i$f$flatMap = 0;
-      Iterable $this$filterIsInstanceTo$iv$iv = $this$flatMap$iv;
-      var destination$iv$iv = new ArrayList();
-      int $i$f$flatMapTo = 0;
+      Iterable tabs = Tabs.INSTANCE.getAll();
+      Iterable source = tabs;
+      var dest = new ArrayList();
 
-      for (Object element$iv$iv : $this$filterIsInstanceTo$iv$iv) {
-         SettingsTab it = (SettingsTab)element$iv$iv;
-         int var9/* $VF was: $i$a$-flatMap-CliEngine$keybindSettings$1 */ = 0;
-         Iterable list$iv$iv = it.getSettings();
-         CollectionsKt.addAll(destination$iv$iv, list$iv$iv);
+      for (Object element : source) {
+         SettingsTab tab = (SettingsTab)element;
+         Iterable settings = tab.getSettings();
+         CollectionsKt.addAll(dest, settings);
       }
 
-      $this$flatMap$iv = (Iterable & List)destination$iv$iv;
-      $i$f$flatMap = 0;
-      $this$filterIsInstanceTo$iv$iv = $this$flatMap$iv;
-      destination$iv$iv = new ArrayList();
-      $i$f$flatMapTo = 0;
+      tabs = (Iterable & List)dest;
+      source = tabs;
+      dest = new ArrayList();
 
-      for (Object element$iv$iv : $this$filterIsInstanceTo$iv$iv) {
-         if (element$iv$iv instanceof KeybindSetting) {
-            destination$iv$iv.add(element$iv$iv);
+      for (Object element : source) {
+         if (element instanceof KeybindSetting) {
+            dest.add(element);
          }
       }
 
-      return (List<KeybindSetting>)destination$iv$iv;
+      return (List<KeybindSetting>)dest;
    }
 
    private final Long parseTimeString(String input) {
-      String var10000 = input.toLowerCase(Locale.ROOT);
-      Intrinsics.checkNotNullExpressionValue(var10000, "toLowerCase(...)");
-      String str = StringsKt.trim(var10000).toString();
+      String lower = input.toLowerCase(Locale.ROOT);
+      Intrinsics.checkNotNullExpressionValue(lower, "toLowerCase(...)");
+      String str = StringsKt.trim(lower).toString();
       Long totalMs = StringsKt.toLongOrNull(str);
       if (totalMs != null) {
          long it = totalMs.longValue();
-         int var11/* $VF was: $i$a$-let-CliEngine$parseTimeString$1 */ = 0;
          return it * 1000;
       }
 
       long totalMsx = 0L;
       String currentNum = "";
-      int var6 = 0;
+      int index = 0;
 
-      for (int var7 = str.length(); var6 < var7; var6++) {
-         char c = str.charAt(var6);
+      for (int length = str.length(); index < length; index++) {
+         char c = str.charAt(index);
          if (Character.isDigit(c)) {
             currentNum = currentNum + c;
          } else if (c == 'h') {
-            Long var10001 = StringsKt.toLongOrNull(currentNum);
-            if (var10001 == null) {
+            Long hours = StringsKt.toLongOrNull(currentNum);
+            if (hours == null) {
                return null;
             }
 
-            totalMsx += var10001 * 3600 * 1000;
+            totalMsx += hours * 3600 * 1000;
             currentNum = "";
          } else if (c == 'm') {
-            Long var12 = StringsKt.toLongOrNull(currentNum);
-            if (var12 == null) {
+            Long minutes = StringsKt.toLongOrNull(currentNum);
+            if (minutes == null) {
                return null;
             }
 
-            totalMsx += var12 * 60 * 1000;
+            totalMsx += minutes * 60 * 1000;
             currentNum = "";
          } else {
             if (c != 's') {
                return null;
             }
 
-            Long var13 = StringsKt.toLongOrNull(currentNum);
-            if (var13 == null) {
+            Long seconds = StringsKt.toLongOrNull(currentNum);
+            if (seconds == null) {
                return null;
             }
 
-            totalMsx += var13 * 1000;
+            totalMsx += seconds * 1000;
             currentNum = "";
          }
       }
 
       if (currentNum.length() > 0) {
-         Long var14 = StringsKt.toLongOrNull(currentNum);
-         if (var14 == null) {
+         Long trailingSeconds = StringsKt.toLongOrNull(currentNum);
+         if (trailingSeconds == null) {
             return null;
          }
 
-         totalMsx += var14 * 1000;
+         totalMsx += trailingSeconds * 1000;
       }
 
       return totalMsx > 0L ? totalMsx : null;
@@ -1039,35 +955,35 @@ public final class CliEngine {
    }
 
    private final Double evaluateCalcExpression(String expr) {
-      Double var2;
+      Double result;
       try {
-         var2 = new CliEngine.CalcParser(expr).parse();
-      } catch (Exception var4/* $VF was: <unused var> */) {
-         var2 = null;
+         result = new CliEngine.CalcParser(expr).parse();
+      } catch (Exception ignored) {
+         result = null;
       }
 
-      return var2;
+      return result;
    }
 
    private final String executeCliCommand(String input) {
       String cmd;
-      String var131;
+      String output;
       label548: {
-         CharSequence var10000 = input;
+         CharSequence tmp = input;
          String[] cmdx = new String[]{" "};
-         List parts = StringsKt.split(var10000, cmdx, false, 2);
-         String var129 = ((String)parts.get(0)).toLowerCase(Locale.ROOT);
-         Intrinsics.checkNotNullExpressionValue(var129, "toLowerCase(...)");
-         cmd = var129;
-                     var129 = (String)CollectionsKt.getOrNull(parts, 1);
-         if (var129 != null) {
-            var131 = StringsKt.trim(var129).toString();
-            if (var131 != null) {
+         List parts = StringsKt.split(tmp, cmdx, false, 2);
+         String part = ((String)parts.get(0)).toLowerCase(Locale.ROOT);
+         Intrinsics.checkNotNullExpressionValue(part, "toLowerCase(...)");
+         cmd = part;
+                     part = (String)CollectionsKt.getOrNull(parts, 1);
+         if (part != null) {
+            output = StringsKt.trim(part).toString();
+            if (output != null) {
                break label548;
             }
          }
 
-         var131 = "";
+         output = "";
       }
 
       String arg;
@@ -1077,38 +993,38 @@ public final class CliEngine {
                label671: {
                   label672: {
                      label673: {
-                        arg = var131;
-                        String var5 = cmd;
-                        switch (var5.hashCode()) {
+                        arg = output;
+                        String command = cmd;
+                        switch (command.hashCode()) {
                            case -1405258946:
-                              if (var5.equals("delprofile")) {
+                              if (command.equals("delprofile")) {
                                  if (arg.length() > 0) {
                                     boolean success = this.deleteProfile(arg);
-                                    var131 = success ? "Profile '" + arg + "' deleted" : "Profile not found";
+                                    output = success ? "Profile '" + arg + "' deleted" : "Profile not found";
                                  } else {
-                                    var131 = "Usage: delprofile <profile name>";
+                                    output = "Usage: delprofile <profile name>";
                                  }
 
-                                 return var131;
+                                 return output;
                               }
 
                               return "Unknown command: " + cmd;
                            case -1289153612:
-                              if (var5.equals("export")) {
+                              if (command.equals("export")) {
                                  boolean success = this.exportToClipboard();
                                  return success ? "Settings exported to clipboard" : "Export failed";
                               }
 
                               return "Unknown command: " + cmd;
                            case -1184795739:
-                              if (var5.equals("import")) {
+                              if (command.equals("import")) {
                                  boolean success = this.importFromClipboard();
                                  return success ? "Settings imported from clipboard" : "Import failed";
                               }
 
                               return "Unknown command: " + cmd;
                            case -1002263574:
-                              if (var5.equals("profiles")) {
+                              if (command.equals("profiles")) {
                                  List profiles = this.listProfiles();
                                  return profiles.isEmpty()
                                     ? "No profiles saved"
@@ -1117,220 +1033,217 @@ public final class CliEngine {
 
                               return "Unknown command: " + cmd;
                            case -934616827:
-                              if (!var5.equals("remind")) {
+                              if (!command.equals("remind")) {
                                  return "Unknown command: " + cmd;
                               }
                               break label673;
                            case -890346579:
-                              if (!var5.equals("rmreminder")) {
+                              if (!command.equals("rmreminder")) {
                                  return "Unknown command: " + cmd;
                               }
                               break label668;
                            case -868304044:
-                              if (!var5.equals("toggle")) {
+                              if (!command.equals("toggle")) {
                                  return "Unknown command: " + cmd;
                               }
                               break label671;
                            case -719093612:
-                              if (var5.equals("clearnotes")) {
+                              if (command.equals("clearnotes")) {
                                  return "Unknown command: " + cmd;
                               }
 
                               return "Unknown command: " + cmd;
                            case -715981186:
-                              if (!var5.equals("coinflip")) {
+                              if (!command.equals("coinflip")) {
                                  return "Unknown command: " + cmd;
                               }
                               break label670;
                            case -518602638:
-                              if (!var5.equals("reminder")) {
+                              if (!command.equals("reminder")) {
                                  return "Unknown command: " + cmd;
                               }
                               break label673;
                            case -448690650:
-                              if (var5.equals("noteexport")) {
+                              if (command.equals("noteexport")) {
                                  if (notes.isEmpty()) {
-                                    var131 = "No notes to export";
+                                    output = "No notes to export";
                                  } else {
                                     String export = CollectionsKt.joinToString(notes, "\n", "", "", -1, "...", null);
                                     GLFW.glfwSetClipboardString(GLFW.glfwGetCurrentContext(), export);
-                                    var131 = "Exported " + notes.size() + " notes to clipboard";
+                                    output = "Exported " + notes.size() + " notes to clipboard";
                                  }
 
-                                 return var131;
+                                 return output;
                               }
 
                               return "Unknown command: " + cmd;
                            case 0:
-                              if (var5.equals("")) {
+                              if (command.equals("")) {
                                  return "";
                               }
 
                               return "Unknown command: " + cmd;
                            case 61:
-                              if (!var5.equals("=")) {
+                              if (!command.equals("=")) {
                                  return "Unknown command: " + cmd;
                               }
                               break;
                            case 99:
-                              if (!var5.equals("c")) {
+                              if (!command.equals("c")) {
                                  return "Unknown command: " + cmd;
                               }
                               break;
                            case 100:
-                              if (!var5.equals("d")) {
+                              if (!command.equals("d")) {
                                  return "Unknown command: " + cmd;
                               }
                               break label669;
                            case 116:
-                              if (!var5.equals("t")) {
+                              if (!command.equals("t")) {
                                  return "Unknown command: " + cmd;
                               }
                               break label671;
                            case 119:
-                              if (var5.equals("w")) {
+                              if (command.equals("w")) {
                                  Config.INSTANCE.save();
                                  return "Settings saved";
                               }
 
                               return "Unknown command: " + cmd;
                            case 3167:
-                              if (var5.equals("cb")) {
+                              if (command.equals("cb")) {
                                  return this.executeCbCommand(arg);
                               }
 
                               return "Unknown command: " + cmd;
                            case 101609:
-                              if (var5.equals("fps")) {
-                                 Minecraft var154 = Minecraft.getInstance();
-                                 Intrinsics.checkNotNullExpressionValue(var154, "getInstance(...)");
-                                 Minecraft mc = var154;
+                              if (command.equals("fps")) {
+                                 Minecraft mc = Minecraft.getInstance();
+                                 Intrinsics.checkNotNullExpressionValue(mc, "getInstance(...)");
                                  return "FPS: " + mc.getFps();
                               }
 
                               return "Unknown command: " + cmd;
                            case 3023933:
-                              if (var5.equals("bind")) {
+                              if (command.equals("bind")) {
                                  String settingName;
                                  label451: {
-                                    CharSequence var144 = arg;
-                                    String[] var47 = new String[]{" "};
-                                    List bindParts = StringsKt.split(var144, var47, false, 2);
-                                    String var145 = ((String)bindParts.get(0)).toLowerCase(Locale.ROOT);
-                                    Intrinsics.checkNotNullExpressionValue(var145, "toLowerCase(...)");
-                                    settingName = var145;
-                                    var145 = (String)CollectionsKt.getOrNull(bindParts, 1);
-                                    if (var145 != null) {
-                                       var131 = var145.toUpperCase(Locale.ROOT);
-                                       Intrinsics.checkNotNullExpressionValue(var131, "toUpperCase(...)");
-                                       if (var131 != null) {
+                                    CharSequence argChars = arg;
+                                    String[] space = new String[]{" "};
+                                    List bindParts = StringsKt.split(argChars, space, false, 2);
+                                    String part = ((String)bindParts.get(0)).toLowerCase(Locale.ROOT);
+                                    Intrinsics.checkNotNullExpressionValue(part, "toLowerCase(...)");
+                                    settingName = part;
+                                    part = (String)CollectionsKt.getOrNull(bindParts, 1);
+                                    if (part != null) {
+                                       output = part.toUpperCase(Locale.ROOT);
+                                       Intrinsics.checkNotNullExpressionValue(output, "toUpperCase(...)");
+                                       if (output != null) {
                                           break label451;
                                        }
                                     }
 
-                                    var131 = "";
+                                    output = "";
                                  }
 
-                                 String keyName = var131;
+                                 String keyName = output;
                                  if (settingName.length() != 0) {
                                     if (keyName.length() == 0) {
-                                       Iterable var86 = this.keybindSettings();
-                                       Iterator var94 = var86.iterator();
-                                       Object var149;
+                                       Iterable keybinds = this.keybindSettings();
+                                       Iterator keybindIterator = keybinds.iterator();
+                                       Object foundSetting;
 
                                        while (true) {
-                                          if (!var94.hasNext()) {
-                                             var149 = null;
+                                          if (!keybindIterator.hasNext()) {
+                                             foundSetting = null;
                                              break;
                                           }
 
-                                          Object var100 = var94.next();
-                                          KeybindSetting it = (KeybindSetting)var100;
-                                          int var116/* $VF was: $i$a$-find-CliEngine$executeCliCommand$setting$2 */ = 0;
-                                          var131 = it.getName().toLowerCase(Locale.ROOT);
-                                          Intrinsics.checkNotNullExpressionValue(var131, "toLowerCase(...)");
-                                          if (StringsKt.contains(var131, settingName, false)) {
-                                             var149 = var100;
+                                          Object keybindCandidate = keybindIterator.next();
+                                          KeybindSetting it = (KeybindSetting)keybindCandidate;
+                                          output = it.getName().toLowerCase(Locale.ROOT);
+                                          Intrinsics.checkNotNullExpressionValue(output, "toLowerCase(...)");
+                                          if (StringsKt.contains(output, settingName, false)) {
+                                             foundSetting = keybindCandidate;
                                              break;
                                           }
                                        }
 
-                                       KeybindSetting setting = (KeybindSetting)var149;
+                                       KeybindSetting setting = (KeybindSetting)foundSetting;
                                        if (setting != null) {
                                           int currentKey = setting.getValue().intValue();
                                           if (currentKey != -1 && currentKey > 0) {
                                              String keyChar = (32 <= currentKey ? currentKey < 127 : false)
                                                 ? String.valueOf((char)currentKey)
                                                 : "KEY_" + currentKey;
-                                             var131 = "Current bind for '" + setting.getName() + "': " + keyChar;
+                                             output = "Current bind for '" + setting.getName() + "': " + keyChar;
                                           } else {
-                                             var131 = "'" + setting.getName() + "' has no keybind";
+                                             output = "'" + setting.getName() + "' has no keybind";
                                           }
 
-                                          return var131;
+                                          return output;
                                        } else {
                                           return "Setting not found: " + settingName;
                                        }
                                     } else {
-                                       Integer var150;
+                                       Integer keyValue;
                                        if (keyName.length() == 1) {
-                                          var150 = Integer.valueOf(Character.toUpperCase(keyName.charAt(0)));
+                                          keyValue = Integer.valueOf(Character.toUpperCase(keyName.charAt(0)));
                                        } else {
                                           label408:
                                           if (StringsKt.startsWith(keyName, "F", false) && keyName.length() > 1) {
-                                             var131 = keyName.substring(1);
-                                             Intrinsics.checkNotNullExpressionValue(var131, "substring(...)");
-                                             Integer fNum = StringsKt.toIntOrNull(var131);
+                                             output = keyName.substring(1);
+                                             Intrinsics.checkNotNullExpressionValue(output, "substring(...)");
+                                             Integer fNum = StringsKt.toIntOrNull(output);
                                              if (fNum != null) {
-                                                int var88 = fNum;
-                                                if (1 <= var88 ? var88 < 26 : false) {
-                                                   var150 = 290 + fNum - 1;
+                                                int fIndex = fNum;
+                                                if (1 <= fIndex ? fIndex < 26 : false) {
+                                                   keyValue = 290 + fNum - 1;
                                                    break label408;
                                                 }
                                              }
 
-                                             var150 = null;
+                                             keyValue = null;
                                           } else {
-                                             var150 = !Intrinsics.areEqual(keyName, "NONE") && !Intrinsics.areEqual(keyName, "UNBIND") ? null : 0;
+                                             keyValue = !Intrinsics.areEqual(keyName, "NONE") && !Intrinsics.areEqual(keyName, "UNBIND") ? null : 0;
                                           }
                                        }
 
-                                       Integer keyCode = var150;
+                                       Integer keyCode = keyValue;
                                        if (keyCode != null) {
-                                          Iterable var95 = this.keybindSettings();
-                                          Iterator var101 = var95.iterator();
-                                          Object var153;
+                                          Iterable keybinds2 = this.keybindSettings();
+                                          Iterator keybindIterator2 = keybinds2.iterator();
+                                          Object foundSetting2;
 
                                           while (true) {
-                                             if (!var101.hasNext()) {
-                                                var153 = null;
+                                             if (!keybindIterator2.hasNext()) {
+                                                foundSetting2 = null;
                                                 break;
                                              }
 
-                                             Object var107 = var101.next();
-                                             KeybindSetting it = (KeybindSetting)var107;
-                                             int var125/* $VF was: $i$a$-find-CliEngine$executeCliCommand$setting$3 */ = 0;
-                                             var131 = it.getName().toLowerCase(Locale.ROOT);
-                                             Intrinsics.checkNotNullExpressionValue(var131, "toLowerCase(...)");
-                                             if (StringsKt.contains(var131, settingName, false)) {
-                                                var153 = var107;
+                                             Object keybindCandidate2 = keybindIterator2.next();
+                                             KeybindSetting it = (KeybindSetting)keybindCandidate2;
+                                             output = it.getName().toLowerCase(Locale.ROOT);
+                                             Intrinsics.checkNotNullExpressionValue(output, "toLowerCase(...)");
+                                             if (StringsKt.contains(output, settingName, false)) {
+                                                foundSetting2 = keybindCandidate2;
                                                 break;
                                              }
                                           }
 
-                                          KeybindSetting setting = (KeybindSetting)var153;
+                                          KeybindSetting setting = (KeybindSetting)foundSetting2;
                                           if (setting != null) {
                                              if (keyCode == 0) {
                                                 setting.setValue(-1);
                                                 Config.INSTANCE.save();
-                                                var131 = "Unbound '" + setting.getName() + "'";
+                                                output = "Unbound '" + setting.getName() + "'";
                                              } else {
                                                 setting.setValue(keyCode);
                                                 Config.INSTANCE.save();
-                                                var131 = "Bound '" + setting.getName() + "' to " + keyName;
+                                                output = "Bound '" + setting.getName() + "' to " + keyName;
                                              }
 
-                                             return var131;
+                                             return output;
                                           } else {
                                              return "Setting not found: " + settingName;
                                           }
@@ -1345,126 +1258,124 @@ public final class CliEngine {
 
                               return "Unknown command: " + cmd;
                            case 3045973:
-                              if (!var5.equals("calc")) {
+                              if (!command.equals("calc")) {
                                  return "Unknown command: " + cmd;
                               }
                               break;
                            case 3059345:
-                              if (!var5.equals("coin")) {
+                              if (!command.equals("coin")) {
                                  return "Unknown command: " + cmd;
                               }
                               break label670;
                            case 3083175:
-                              if (!var5.equals("dice")) {
+                              if (!command.equals("dice")) {
                                  return "Unknown command: " + cmd;
                               }
                               break label669;
                            case 3145837:
-                              if (!var5.equals("flip")) {
+                              if (!command.equals("flip")) {
                                  return "Unknown command: " + cmd;
                               }
                               break label670;
                            case 3327206:
-                              if (var5.equals("load")) {
+                              if (command.equals("load")) {
                                  if (arg.length() > 0) {
                                     boolean success = this.loadProfile(arg);
-                                    var131 = success ? "Profile '" + arg + "' loaded" : "Profile not found";
+                                    output = success ? "Profile '" + arg + "' loaded" : "Profile not found";
                                  } else {
-                                    var131 = "Usage: load <profile name>";
+                                    output = "Usage: load <profile name>";
                                  }
 
-                                 return var131;
+                                 return output;
                               }
 
                               return "Unknown command: " + cmd;
                            case 3387378:
-                              if (var5.equals("note")) {
+                              if (command.equals("note")) {
                                  if (arg.length() > 0) {
                                     String timestamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
                                     notes.add("[" + timestamp + "] " + arg);
                                     this.saveNotes();
-                                    var131 = "Note saved (" + notes.size() + " total)";
+                                    output = "Note saved (" + notes.size() + " total)";
                                  } else {
-                                    var131 = "Usage: note <text>";
+                                    output = "Usage: note <text>";
                                  }
 
-                                 return var131;
+                                 return output;
                               }
 
                               return "Unknown command: " + cmd;
                            case 3441010:
-                              if (var5.equals("ping")) {
-                                 Minecraft var140 = Minecraft.getInstance();
-                                 Intrinsics.checkNotNullExpressionValue(var140, "getInstance(...)");
-                                 Minecraft mc = var140;
+                              if (command.equals("ping")) {
+                                 Minecraft mc = Minecraft.getInstance();
+                                 Intrinsics.checkNotNullExpressionValue(mc, "getInstance(...)");
                                  LocalPlayer player = mc.player;
-                                 int var141;
+                                 int latency;
                                  label379:
                                  if (player != null) {
-                                    ClientPacketListener var142 = mc.getConnection();
-                                    if (var142 != null) {
-                                       PlayerInfo var143 = var142.getPlayerInfo(player.getUUID());
-                                       if (var143 != null) {
-                                          var141 = var143.getLatency();
+                                    ClientPacketListener connection = mc.getConnection();
+                                    if (connection != null) {
+                                       PlayerInfo playerInfo = connection.getPlayerInfo(player.getUUID());
+                                       if (playerInfo != null) {
+                                          latency = playerInfo.getLatency();
                                           break label379;
                                        }
                                     }
 
-                                    var141 = -1;
+                                    latency = -1;
                                  } else {
-                                    var141 = -1;
+                                    latency = -1;
                                  }
 
-                                 int ping = var141;
+                                 int ping = latency;
                                  return ping >= 0 ? "Ping: " + ping + "ms" : "Ping: N/A";
                               }
 
                               return "Unknown command: " + cmd;
                            case 3506301:
-                              if (!var5.equals("roll")) {
+                              if (!command.equals("roll")) {
                                  return "Unknown command: " + cmd;
                               }
                               break label669;
                            case 3522941:
-                              if (var5.equals("save")) {
+                              if (command.equals("save")) {
                                  if (arg.length() > 0) {
                                     boolean success = this.saveProfile(arg);
-                                    var131 = success ? "Profile '" + arg + "' saved" : "Failed to save profile";
+                                    output = success ? "Profile '" + arg + "' saved" : "Failed to save profile";
                                  } else {
-                                    var131 = "Usage: save <profile name>";
+                                    output = "Usage: save <profile name>";
                                  }
 
-                                 return var131;
+                                 return output;
                               }
 
                               return "Unknown command: " + cmd;
                            case 93742038:
-                              if (!var5.equals("binds")) {
+                              if (!command.equals("binds")) {
                                  return "Unknown command: " + cmd;
                               }
                               break label672;
                            case 105008833:
-                              if (var5.equals("notes")) {
+                              if (command.equals("notes")) {
                                  if (notes.isEmpty()) {
-                                    var131 = "No notes saved";
+                                    output = "No notes saved";
                                  } else {
                                     List recent = CollectionsKt.reversed(CollectionsKt.takeLast(notes, 3));
-                                    var131 = CollectionsKt.joinToString(recent, " | ", "", "", -1, "...", it -> CliEngine.executeCliCommand$lambda$0((String)it));
+                                    output = CollectionsKt.joinToString(recent, " | ", "", "", -1, "...", it -> CliEngine.truncateNoteText((String)it));
                                  }
 
-                                 return var131;
+                                 return output;
                               }
 
                               return "Unknown command: " + cmd;
                            case 109250890:
-                              if (var5.equals("scale")) {
-                                 Minecraft var133 = Minecraft.getInstance();
-                                 Intrinsics.checkNotNullExpressionValue(var133, "getInstance(...)");
-                                 Minecraft mc = var133;
-                                 Window var134 = mc.getWindow();
-                                 int screenW = var134 != null ? var134.getGuiScaledWidth() : 800;
-                                 Window var135 = mc.getWindow();
-                                 int screenH = var135 != null ? var135.getGuiScaledHeight() : 600;
+                              if (command.equals("scale")) {
+                                 Minecraft mc = Minecraft.getInstance();
+                                 Intrinsics.checkNotNullExpressionValue(mc, "getInstance(...)");
+                                 Window windowW = mc.getWindow();
+                                 int screenW = windowW != null ? windowW.getGuiScaledWidth() : 800;
+                                 Window windowH = mc.getWindow();
+                                 int screenH = windowH != null ? windowH.getGuiScaledHeight() : 600;
                                  float baseWindowWidth = 450.0F;
                                  float baseWindowHeight = 350.0F;
                                  float maxScaleW = (screenW - 40) / baseWindowWidth;
@@ -1473,96 +1384,89 @@ public final class CliEngine {
                                  if (arg.length() > 0) {
                                     Float scale = StringsKt.toFloatOrNull(arg);
                                     if (scale != null) {
-                                       float var108 = scale;
-                                       if (0.5F <= var108 ? var108 <= maxScale : false) {
-                                          String var111 = "%.1f";
-                                          Object[] var122 = new Object[]{scale};
-                                          var122 = var122;
-                                          var131 = String.format(var111, Arrays.copyOf(var122, var122.length));
-                                          Intrinsics.checkNotNullExpressionValue(var131, "format(...)");
-                                          return "Scale set to " + var131 + " (apply in GUI)";
+                                       float scaleValue = scale;
+                                       if (0.5F <= scaleValue ? scaleValue <= maxScale : false) {
+                                          String fmt1 = "%.1f";
+                                          Object[] args1 = new Object[]{scale};
+                                          output = String.format(fmt1, Arrays.copyOf(args1, args1.length));
+                                          Intrinsics.checkNotNullExpressionValue(output, "format(...)");
+                                          return "Scale set to " + output + " (apply in GUI)";
                                        }
                                     }
 
                                     if (scale != null && scale > maxScale) {
-                                       String var110 = "%.1f";
-                                       Object[] var120 = new Object[]{maxScale};
-                                       var120 = var120;
-                                       var131 = String.format(var110, Arrays.copyOf(var120, var120.length));
-                                       Intrinsics.checkNotNullExpressionValue(var131, "format(...)");
-                                       var131 = "Max scale for screen: " + var131;
+                                       String fmt2 = "%.1f";
+                                       Object[] args2 = new Object[]{maxScale};
+                                       output = String.format(fmt2, Arrays.copyOf(args2, args2.length));
+                                       Intrinsics.checkNotNullExpressionValue(output, "format(...)");
+                                       output = "Max scale for screen: " + output;
                                     } else {
-                                       String var109 = "%.1f";
-                                       Object[] var118 = new Object[]{maxScale};
-                                       var118 = var118;
-                                       var131 = String.format(var109, Arrays.copyOf(var118, var118.length));
-                                       Intrinsics.checkNotNullExpressionValue(var131, "format(...)");
-                                       var131 = "Scale must be between 0.5 and " + var131;
+                                       String fmt3 = "%.1f";
+                                       Object[] args3 = new Object[]{maxScale};
+                                       output = String.format(fmt3, Arrays.copyOf(args3, args3.length));
+                                       Intrinsics.checkNotNullExpressionValue(output, "format(...)");
+                                       output = "Scale must be between 0.5 and " + output;
                                     }
 
-                                    return var131;
+                                    return output;
                                  } else {
-                                    String var103 = "%.1f";
-                                    Object[] var112 = new Object[]{maxScale};
-                                    var112 = var112;
-                                    var131 = String.format(var103, Arrays.copyOf(var112, var112.length));
-                                    Intrinsics.checkNotNullExpressionValue(var131, "format(...)");
-                                    return "Scale range: 0.5-" + var131;
+                                    String fmt4 = "%.1f";
+                                    Object[] args4 = new Object[]{maxScale};
+                                    output = String.format(fmt4, Arrays.copyOf(args4, args4.length));
+                                    Intrinsics.checkNotNullExpressionValue(output, "format(...)");
+                                    return "Scale range: 0.5-" + output;
                                  }
                               }
 
                               return "Unknown command: " + cmd;
                            case 110364485:
-                              if (!var5.equals("timer")) {
+                              if (!command.equals("timer")) {
                                  return "Unknown command: " + cmd;
                               }
                               break label673;
                            case 503572695:
-                              if (!var5.equals("keybinds")) {
+                              if (!command.equals("keybinds")) {
                                  return "Unknown command: " + cmd;
                               }
                               break label672;
                            case 1103187521:
-                              if (var5.equals("reminders")) {
+                              if (command.equals("reminders")) {
                                  if (reminders.isEmpty()) {
-                                    var131 = "No active reminders";
+                                    output = "No active reminders";
                                  } else {
                                     long now = System.currentTimeMillis();
-                                    Iterable $this$map$iv = CollectionsKt.take(reminders, 3);
-                                    int $i$f$map = 0;
-                                    Iterable destination$iv$iv = $this$map$iv;
-                                    var destination$iv$ivx = new ArrayList(CollectionsKt.collectionSizeOrDefault($this$map$iv, 10));
-                                    int $i$f$mapTo = 0;
+                                    Iterable mapSource = CollectionsKt.take(reminders, 3);
+                                    Iterable dest = mapSource;
+                                    var destMapped = new ArrayList(CollectionsKt.collectionSizeOrDefault(mapSource, 10));
 
-                                    for (Object item$iv$iv : destination$iv$iv) {
-                                       CliEngine.Reminder var16 = (CliEngine.Reminder)item$iv$iv;
-                                       Collection var20 = destination$iv$ivx;
-                                       int var17/* $VF was: $i$a$-map-CliEngine$executeCliCommand$list$1 */ = 0;
-                                       long remaining = (var16.getTriggerTime() - now) / 1000;
-                                       var20.add("#" + var16.getId() + ": " + INSTANCE.formatDuration(remaining * 1000));
+                                    for (Object item : dest) {
+                                       CliEngine.Reminder reminder = (CliEngine.Reminder)item;
+                                       Collection collector = destMapped;
+                                       long remaining = (reminder.getTriggerTime() - now) / 1000;
+                                       collector.add("#" + reminder.getId() + ": " + INSTANCE.formatDuration(remaining * 1000));
                                     }
 
-                                    List list = (List)destination$iv$ivx;
-                                    var131 = "Reminders: " + CollectionsKt.joinToString(list, ", ", "", "", -1, "...", null);
+                                    List list = (List)destMapped;
+                                    output = "Reminders: " + CollectionsKt.joinToString(list, ", ", "", "", -1, "...", null);
                                  }
 
-                                 return var131;
+                                 return output;
                               }
 
                               return "Unknown command: " + cmd;
                            case 1780471020:
-                              if (!var5.equals("cancelreminder")) {
+                              if (!command.equals("cancelreminder")) {
                                  return "Unknown command: " + cmd;
                               }
                               break label668;
                            case 1784425883:
-                              if (var5.equals("noteclear")) {
+                              if (command.equals("noteclear")) {
                                  return "Unknown command: " + cmd;
                               }
 
                               return "Unknown command: " + cmd;
                            case 1983864468:
-                              if (var5.equals("clearreminders")) {
+                              if (command.equals("clearreminders")) {
                                  int count = reminders.size();
                                  reminders.clear();
                                  return "Cleared " + count + " reminders";
@@ -1577,134 +1481,126 @@ public final class CliEngine {
                            Double result = this.evaluateCalcExpression(arg);
                            if (result != null) {
                               if (Intrinsics.areEqual(result, (long)result.doubleValue()) && Math.abs(result) < 9.223372E18F) {
-                                 var131 = String.valueOf((long)result.doubleValue());
+                                 output = String.valueOf((long)result.doubleValue());
                               } else {
-                                 String var60 = "%.10f";
-                                 Object[] var71 = new Object[]{result};
-                                 var71 = var71;
-                                 var131 = String.format(var60, Arrays.copyOf(var71, var71.length));
-                                 Intrinsics.checkNotNullExpressionValue(var131, "format(...)");
-                                 char[] var61 = new char[]{'0'};
-                                 var131 = StringsKt.trimEnd(var131, var61);
-                                 char[] var62 = new char[]{'.'};
-                                 var131 = StringsKt.trimEnd(var131, var62);
+                                 String fmtPrecise = "%.10f";
+                                 Object[] argsResult = new Object[]{result};
+                                 output = String.format(fmtPrecise, Arrays.copyOf(argsResult, argsResult.length));
+                                 Intrinsics.checkNotNullExpressionValue(output, "format(...)");
+                                 char[] zeroChars = new char[]{'0'};
+                                 output = StringsKt.trimEnd(output, zeroChars);
+                                 char[] dotChars = new char[]{'.'};
+                                 output = StringsKt.trimEnd(output, dotChars);
                               }
 
-                              String formatted = var131;
+                              String formatted = output;
                               GLFW.glfwSetClipboardString(GLFW.glfwGetCurrentContext(), formatted);
-                              var131 = arg + " = " + formatted + " (copied)";
+                              output = arg + " = " + formatted + " (copied)";
                            } else {
-                              var131 = "Invalid expression";
+                              output = "Invalid expression";
                            }
 
-                           return var131;
+                           return output;
                         } else {
                            return "Usage: calc <expr>";
                         }
                      }
 
                      if (arg.length() > 0) {
-                        String var161 = arg;
-                        String[] var53 = new String[]{" "};
-                        List timeParts = StringsKt.split(var161, var53, false, 2);
+                        String work = arg;
+                        String[] space = new String[]{" "};
+                        List timeParts = StringsKt.split(work, space, false, 2);
                         String timeStr = (String)timeParts.get(0);
-                        var161 = (String)CollectionsKt.getOrNull(timeParts, 1);
-                        if (var161 == null) {
-                           var161 = "Reminder!";
+                        work = (String)CollectionsKt.getOrNull(timeParts, 1);
+                        if (work == null) {
+                           work = "Reminder!";
                         }
 
-                        String message = var161;
+                        String message = work;
                         Long delayMs = this.parseTimeString(timeStr);
                         if (delayMs != null && delayMs > 0L) {
                            int id = this.addReminder(delayMs, message);
                            String timeFormatted = this.formatDuration(delayMs);
-                           var161 = "Reminder #" + id + " set for " + timeFormatted;
+                           work = "Reminder #" + id + " set for " + timeFormatted;
                         } else {
-                           var161 = "Invalid time. Use: 30s, 5m, 1h, 1h30m";
+                           work = "Invalid time. Use: 30s, 5m, 1h, 1h30m";
                         }
 
-                        return var161;
+                        return work;
                      } else {
                         return "Usage: remind <time> [message]";
                      }
                   }
 
-                  Iterable $this$filter$iv = this.keybindSettings();
-                  int $i$f$filter = 0;
-                  Iterable var67 = $this$filter$iv;
-                  var destination$iv$iv = new ArrayList();
-                  int $i$f$filterTo = 0;
+                  Iterable keybindSource = this.keybindSettings();
+                  Iterable filterSource = keybindSource;
+                  var dest = new ArrayList();
 
-                  for (Object element$iv$iv : var67) {
-                     KeybindSetting it = (KeybindSetting)element$iv$iv;
-                     int var114/* $VF was: $i$a$-filter-CliEngine$executeCliCommand$bound$1 */ = 0;
+                  for (Object element : filterSource) {
+                     KeybindSetting it = (KeybindSetting)element;
                      if (it.getValue().intValue() != -1 && it.getValue().intValue() > 0) {
-                        destination$iv$iv.add(element$iv$iv);
+                        dest.add(element);
                      }
                   }
 
-                  List bound = (List)destination$iv$iv;
+                  List bound = (List)dest;
                   if (bound.isEmpty()) {
-                     var131 = "No keybinds set";
+                     output = "No keybinds set";
                   } else {
-                     Iterable $this$map$iv = CollectionsKt.take(bound, 5);
-                     int $i$f$map = 0;
-                     Iterable var77 = $this$map$iv;
-                     var destination$iv$ivx = new ArrayList(CollectionsKt.collectionSizeOrDefault($this$map$iv, 10));
-                     int $i$f$mapTo = 0;
+                     Iterable mapSource = CollectionsKt.take(bound, 5);
+                     Iterable mapItems = mapSource;
+                     var destMapped = new ArrayList(CollectionsKt.collectionSizeOrDefault(mapSource, 10));
 
-                     for (Object item$iv$iv : var77) {
-                        KeybindSetting var115 = (KeybindSetting)item$iv$iv;
-                        Collection var128 = destination$iv$ivx;
-                        int var124/* $VF was: $i$a$-map-CliEngine$executeCliCommand$bindList$1 */ = 0;
-                        int v = var115.getValue().intValue();
+                     for (Object item : mapItems) {
+                        KeybindSetting bindingSetting = (KeybindSetting)item;
+                        Collection collector = destMapped;
+                        int v = bindingSetting.getValue().intValue();
                         String keyChar = (32 <= v ? v < 127 : false) ? String.valueOf((char)v) : "F" + (v - 290 + 1);
-                        var128.add(var115.getName() + "=" + keyChar);
+                        collector.add(bindingSetting.getName() + "=" + keyChar);
                      }
 
-                     $this$filter$iv = (List)destination$iv$ivx;
-                     var131 = CollectionsKt.joinToString($this$filter$iv, ", ", "", "", -1, "...", null);
+                     keybindSource = (List)destMapped;
+                     output = CollectionsKt.joinToString(keybindSource, ", ", "", "", -1, "...", null);
                   }
 
-                  return var131;
+                  return output;
                }
 
                if (arg.length() > 0) {
-                  Iterable var63 = this.booleanSettings();
-                  Iterator var73 = var63.iterator();
-                  Object var160;
+                  Iterable features = this.booleanSettings();
+                  Iterator featureIterator = features.iterator();
+                  Object foundFeature;
 
                   while (true) {
-                     if (!var73.hasNext()) {
-                        var160 = null;
+                     if (!featureIterator.hasNext()) {
+                        foundFeature = null;
                         break;
                      }
 
-                     Object var81 = var73.next();
-                     BooleanSetting it = (BooleanSetting)var81;
-                     int var96/* $VF was: $i$a$-find-CliEngine$executeCliCommand$setting$1 */ = 0;
-                     var131 = it.getName().toLowerCase(Locale.ROOT);
-                     Intrinsics.checkNotNullExpressionValue(var131, "toLowerCase(...)");
-                     String var10001 = arg.toLowerCase(Locale.ROOT);
-                     Intrinsics.checkNotNullExpressionValue(var10001, "toLowerCase(...)");
-                     if (Intrinsics.areEqual(var131, var10001)) {
-                        var160 = var81;
+                     Object featureCandidate = featureIterator.next();
+                     BooleanSetting it = (BooleanSetting)featureCandidate;
+                     output = it.getName().toLowerCase(Locale.ROOT);
+                     Intrinsics.checkNotNullExpressionValue(output, "toLowerCase(...)");
+                     String lowerArg = arg.toLowerCase(Locale.ROOT);
+                     Intrinsics.checkNotNullExpressionValue(lowerArg, "toLowerCase(...)");
+                     if (Intrinsics.areEqual(output, lowerArg)) {
+                        foundFeature = featureCandidate;
                         break;
                      }
                   }
 
-                  BooleanSetting setting = (BooleanSetting)var160;
+                  BooleanSetting setting = (BooleanSetting)foundFeature;
                   if (setting != null) {
                      boolean newValue = !setting.getValue();
                      setting.setValue(newValue);
                      String status = newValue ? "§aON" : "§cOFF";
                      Config.INSTANCE.save();
-                     var131 = setting.getName() + ": " + status;
+                     output = setting.getName() + ": " + status;
                   } else {
-                     var131 = "Feature not found: " + arg;
+                     output = "Feature not found: " + arg;
                   }
 
-                  return var131;
+                  return output;
                } else {
                   return "Usage: t <feature name>";
                }
@@ -1714,48 +1610,48 @@ public final class CliEngine {
             return "Coin flip: " + result;
          }
 
-         Integer var155 = StringsKt.toIntOrNull(arg);
-         int max = var155 != null ? var155 : 6;
+         Integer maxOpt = StringsKt.toIntOrNull(arg);
+         int max = maxOpt != null ? maxOpt : 6;
          if (max < 1) {
-            var131 = "Max must be at least 1";
+            output = "Max must be at least 1";
          } else {
             int result = RangesKt.random(new IntRange(1, max), Random.Default);
-            var131 = "Roll (1-" + max + "): " + result;
+            output = "Roll (1-" + max + "): " + result;
          }
 
-         return var131;
+         return output;
       }
 
       Integer id = StringsKt.toIntOrNull(arg);
       if (id != null) {
          boolean success = this.cancelReminder(id);
-         var131 = success ? "Reminder #" + id + " cancelled" : "Reminder #" + id + " not found";
+         output = success ? "Reminder #" + id + " cancelled" : "Reminder #" + id + " not found";
       } else {
-         var131 = "Usage: cancelreminder <id>";
+         output = "Usage: cancelreminder <id>";
       }
 
-      return var131;
+      return output;
    }
 
    private final String executeCbCommand(String arg) {
       String subCmd;
-      String var66;
+      String output;
       label500: {
-         CharSequence var10000 = arg;
+         CharSequence tmp = arg;
          String[] subCmdx = new String[]{" "};
-         List cbParts = StringsKt.split(var10000, subCmdx, false, 2);
-         String var64 = ((String)cbParts.get(0)).toLowerCase(Locale.ROOT);
-         Intrinsics.checkNotNullExpressionValue(var64, "toLowerCase(...)");
-         subCmd = var64;
-         var64 = (String)CollectionsKt.getOrNull(cbParts, 1);
-         if (var64 != null) {
-            var66 = StringsKt.trim(var64).toString();
-            if (var66 != null) {
+         List cbParts = StringsKt.split(tmp, subCmdx, false, 2);
+         String part = ((String)cbParts.get(0)).toLowerCase(Locale.ROOT);
+         Intrinsics.checkNotNullExpressionValue(part, "toLowerCase(...)");
+         subCmd = part;
+         part = (String)CollectionsKt.getOrNull(cbParts, 1);
+         if (part != null) {
+            output = StringsKt.trim(part).toString();
+            if (output != null) {
                break label500;
             }
          }
 
-         var66 = "";
+         output = "";
       }
 
       label616: {
@@ -1767,28 +1663,28 @@ public final class CliEngine {
                      label621: {
                         label622: {
                            label623: {
-                              cbArg = var66;
-                              String var5 = subCmd;
-                              switch (var5.hashCode()) {
+                              cbArg = output;
+                              String command = subCmd;
+                              switch (command.hashCode()) {
                                  case -1785238953:
-                                    if (!var5.equals("favorites")) {
+                                    if (!command.equals("favorites")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break label620;
                                  case -1715965556:
-                                    if (var5.equals("selection")) {
+                                    if (command.equals("selection")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
 
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                  case -1396673086:
-                                    if (var5.equals("backup")) {
+                                    if (command.equals("backup")) {
                                        return ConfigBackup.INSTANCE.backup();
                                     }
 
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                  case -1352294148:
-                                    if (var5.equals("create")) {
+                                    if (command.equals("create")) {
                                        return cbArg.length() > 0
                                           ? (
                                              CosmeticBlocks.INSTANCE.createConfig(cbArg)
@@ -1800,7 +1696,7 @@ public final class CliEngine {
 
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                  case -1335458389:
-                                    if (!var5.equals("delete")) {
+                                    if (!command.equals("delete")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
 
@@ -1808,44 +1704,43 @@ public final class CliEngine {
                                        ? (CosmeticBlocks.INSTANCE.deleteConfig(cbArg) ? "Deleted config '" + cbArg + "'" : "Cannot delete '" + cbArg + "'")
                                        : "Usage: cb delete <name>";
                                  case -934641255:
-                                    if (var5.equals("reload")) {
+                                    if (command.equals("reload")) {
                                        CosmeticBlocks.INSTANCE.load();
                                        return "Reloaded (" + CosmeticBlocks.INSTANCE.getReplacementCount() + " in dimension)";
                                     }
 
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                  case -934610812:
-                                    if (!var5.equals("remove")) {
+                                    if (!command.equals("remove")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break;
                                  case -926053069:
-                                    if (var5.equals("properties")) {
+                                    if (command.equals("properties")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
 
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                  case 0:
-                                    if (var5.equals("")) {
+                                    if (command.equals("")) {
                                        int count;
                                        String mode;
                                        label334: {
                                           count = CosmeticBlocks.INSTANCE.getReplacementCount();
                                           mode = CosmeticBlocks.INSTANCE.getEditMode() ? "ON" : "OFF";
-                                          ScannedRoom var81 = RoomScanner.INSTANCE.getCurrentRoom();
-                                          if (var81 != null) {
-                                             ScannedRoom it = var81;
-                                             int var13/* $VF was: $i$a$-let-CliEngine$executeCbCommand$roomInfo$1 */ = 0;
-                                             var66 = " | Room: " + it.getData().getName();
-                                             if (var66 != null) {
+                                          ScannedRoom scannedRoom = RoomScanner.INSTANCE.getCurrentRoom();
+                                          if (scannedRoom != null) {
+                                             ScannedRoom it = scannedRoom;
+                                             output = " | Room: " + it.getData().getName();
+                                             if (output != null) {
                                                 break label334;
                                              }
                                           }
 
-                                          var66 = "";
+                                          output = "";
                                        }
 
-                                       String roomInfo = var66;
+                                       String roomInfo = output;
                                        return "CB: "
                                           + count
                                           + " replacements, edit: "
@@ -1857,59 +1752,59 @@ public final class CliEngine {
 
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                  case 98:
-                                    if (!var5.equals("b")) {
+                                    if (!command.equals("b")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break label617;
                                  case 102:
-                                    if (!var5.equals("f")) {
+                                    if (!command.equals("f")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
 
                                     return cbArg.length() > 0 ? CosmeticBlocks.INSTANCE.fillRegion(cbArg) : "Usage: cb fill <block[:weight]...>";
                                  case 114:
-                                    if (!var5.equals("r")) {
+                                    if (!command.equals("r")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break label621;
                                  case 117:
-                                    if (var5.equals("u")) {
+                                    if (command.equals("u")) {
                                        return CosmeticBlocks.INSTANCE.undoLastOperation();
                                     }
 
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                  case 3240:
-                                    if (!var5.equals("em")) {
+                                    if (!command.equals("em")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break label618;
                                  case 3463:
-                                    if (!var5.equals("ls")) {
+                                    if (!command.equals("ls")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break label616;
                                  case 3521:
-                                    if (!var5.equals("p1")) {
+                                    if (!command.equals("p1")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break label623;
                                  case 3522:
-                                    if (!var5.equals("p2")) {
+                                    if (!command.equals("p2")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break label622;
                                  case 3643:
-                                    if (!var5.equals("rm")) {
+                                    if (!command.equals("rm")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break;
                                  case 3681:
-                                    if (!var5.equals("st")) {
+                                    if (!command.equals("st")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break label619;
                                  case 99339:
-                                    if (!var5.equals("del")) {
+                                    if (!command.equals("del")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
 
@@ -1917,46 +1812,46 @@ public final class CliEngine {
                                        ? (CosmeticBlocks.INSTANCE.deleteConfig(cbArg) ? "Deleted config '" + cbArg + "'" : "Cannot delete '" + cbArg + "'")
                                        : "Usage: cb delete <name>";
                                  case 101147:
-                                    if (!var5.equals("fav")) {
+                                    if (!command.equals("fav")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break label620;
                                  case 102715:
-                                    if (var5.equals("gui")) {
-                                       Scheduler.INSTANCE.scheduleTickEnd(CliEngine::executeCbCommand$lambda$6);
+                                    if (command.equals("gui")) {
+                                       Scheduler.INSTANCE.scheduleTickEnd(CliEngine::openBlockSelectorScreen);
                                        return "Opening block selector...";
                                     }
 
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                  case 112797:
-                                    if (!var5.equals("rep")) {
+                                    if (!command.equals("rep")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break label621;
                                  case 113754:
-                                    if (var5.equals("sel")) {
+                                    if (command.equals("sel")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
 
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                  case 3108362:
-                                    if (!var5.equals("edit")) {
+                                    if (!command.equals("edit")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break label618;
                                  case 3143043:
-                                    if (!var5.equals("fill")) {
+                                    if (!command.equals("fill")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
 
                                     return cbArg.length() > 0 ? CosmeticBlocks.INSTANCE.fillRegion(cbArg) : "Usage: cb fill <block[:weight]...>";
                                  case 3322014:
-                                    if (!var5.equals("list")) {
+                                    if (!command.equals("list")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break label616;
                                  case 3327206:
-                                    if (var5.equals("load")) {
+                                    if (command.equals("load")) {
                                        return cbArg.length() > 0
                                           ? (
                                              CosmeticBlocks.INSTANCE.loadConfigByName(cbArg)
@@ -1968,24 +1863,24 @@ public final class CliEngine {
 
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                  case 3446877:
-                                    if (!var5.equals("pos1")) {
+                                    if (!command.equals("pos1")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break label623;
                                  case 3446878:
-                                    if (!var5.equals("pos2")) {
+                                    if (!command.equals("pos2")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break label622;
                                  case 3506395:
-                                    if (var5.equals("room")) {
+                                    if (command.equals("room")) {
                                        label626: {
-                                          CharSequence var69 = cbArg;
+                                          CharSequence argChars = cbArg;
                                           String[] mode = new String[]{" "};
-                                          List roomParts = StringsKt.split(var69, mode, false, 2);
-                                          String var70 = ((String)roomParts.get(0)).toLowerCase(Locale.ROOT);
-                                          Intrinsics.checkNotNullExpressionValue(var70, "toLowerCase(...)");
-                                          String roomCmd = var70;
+                                          List roomParts = StringsKt.split(argChars, mode, false, 2);
+                                          String roomText = ((String)roomParts.get(0)).toLowerCase(Locale.ROOT);
+                                          Intrinsics.checkNotNullExpressionValue(roomText, "toLowerCase(...)");
+                                          String roomCmd = roomText;
                                           String roomInfo = roomCmd;
                                           switch (roomInfo.hashCode()) {
                                              case 0:
@@ -2012,11 +1907,11 @@ public final class CliEngine {
                                                 if (roomInfo.equals("scan")) {
                                                    ScannedRoom room = RoomScanner.INSTANCE.getCurrentRoom();
                                                    if (room != null) {
-                                                      RoomInfo var71 = room.getData();
-                                                      if (var71 != null) {
-                                                         var70 = var71.getName();
-                                                         if (var70 != null) {
-                                                            return "Room: " + var70;
+                                                      RoomInfo roomData = room.getData();
+                                                      if (roomData != null) {
+                                                         roomText = roomData.getName();
+                                                         if (roomText != null) {
+                                                            return "Room: " + roomText;
                                                          }
                                                       }
                                                    }
@@ -2030,12 +1925,12 @@ public final class CliEngine {
                                                    ScannedRoom room = RoomScanner.INSTANCE.getCurrentRoom();
                                                    if (room != null) {
                                                       int count = CosmeticBlocks.INSTANCE.clearRoom(room.getData().getName());
-                                                      var70 = "Cleared " + count + " blocks from " + room.getData().getName();
+                                                      roomText = "Cleared " + count + " blocks from " + room.getData().getName();
                                                    } else {
-                                                      var70 = "Not in a scanned room";
+                                                      roomText = "Not in a scanned room";
                                                    }
 
-                                                   return var70;
+                                                   return roomText;
                                                 }
 
                                                 return "Usage: cb room [info|clear|clearall|list|scan]";
@@ -2053,92 +1948,92 @@ public final class CliEngine {
                                           ScannedRoom room = RoomScanner.INSTANCE.getCurrentRoom();
                                           if (room != null) {
                                              int blockCount = CosmeticBlocks.INSTANCE.getRoomBlockCount(room.getData().getName());
-                                             var70 = "Room: " + room.getData().getName() + " | Rot: " + room.getRotation() + " | Blocks: " + blockCount;
+                                             roomText = "Room: " + room.getData().getName() + " | Rot: " + room.getRotation() + " | Blocks: " + blockCount;
                                           } else {
-                                             var70 = "Not in a scanned dungeon room";
+                                             roomText = "Not in a scanned dungeon room";
                                           }
 
-                                          return var70;
+                                          return roomText;
                                        }
 
                                        List rooms = CosmeticBlocks.INSTANCE.listRoomNames();
                                        return rooms.isEmpty()
                                           ? "No room blocks saved"
-                                          : CollectionsKt.joinToString(rooms, ", ", "", "", -1, "...", it -> CliEngine.executeCbCommand$lambda$5((String)it));
+                                          : CollectionsKt.joinToString(rooms, ", ", "", "", -1, "...", it -> CliEngine.roomWithBlockCount((String)it));
                                     }
 
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                  case 3522941:
-                                    if (var5.equals("save")) {
+                                    if (command.equals("save")) {
                                        CosmeticBlocks.INSTANCE.save();
                                        return "CB data saved";
                                     }
 
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                  case 3594468:
-                                    if (var5.equals("undo")) {
+                                    if (command.equals("undo")) {
                                        return CosmeticBlocks.INSTANCE.undoLastOperation();
                                     }
 
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                  case 93832333:
-                                    if (!var5.equals("block")) {
+                                    if (!command.equals("block")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break label617;
                                  case 94746189:
-                                    if (var5.equals("clear")) {
+                                    if (command.equals("clear")) {
                                        int count = CosmeticBlocks.INSTANCE.clearDimension();
                                        return "Cleared " + count + " replacements";
                                     }
 
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                  case 106940784:
-                                    if (var5.equals("props")) {
+                                    if (command.equals("props")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
 
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                  case 109399969:
-                                    if (var5.equals("shape")) {
+                                    if (command.equals("shape")) {
                                        if (cbArg.length() == 0) {
-                                          var66 = CosmeticBlocks.INSTANCE.getCurrentShape();
-                                          if (var66 == null) {
-                                             var66 = "none";
+                                          output = CosmeticBlocks.INSTANCE.getCurrentShape();
+                                          if (output == null) {
+                                             output = "none";
                                           }
                                        } else if (!Intrinsics.areEqual(cbArg, "none") && !Intrinsics.areEqual(cbArg, "off")) {
-                                          String[] var16 = new String[]{"fence", "wall", "pane"};
-                                          if (CollectionsKt.listOf(var16).contains(cbArg)) {
+                                          String[] shapeNames = new String[]{"fence", "wall", "pane"};
+                                          if (CollectionsKt.listOf(shapeNames).contains(cbArg)) {
                                              CosmeticBlocks.INSTANCE.setCurrentShape(cbArg);
-                                             var66 = "Shape: " + cbArg + " (next blocks will use this shape)";
+                                             output = "Shape: " + cbArg + " (next blocks will use this shape)";
                                           } else {
-                                             var66 = "Shapes: fence, wall, pane, none";
+                                             output = "Shapes: fence, wall, pane, none";
                                           }
 
-                                          return var66;
+                                          return output;
                                        } else {
                                           CosmeticBlocks.INSTANCE.setCurrentShape(null);
                                           return "Shape override cleared";
                                        }
 
-                                       return "Shape: " + var66;
+                                       return "Shape: " + output;
                                     }
 
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                  case 109757585:
-                                    if (!var5.equals("state")) {
+                                    if (!command.equals("state")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break label619;
                                  case 790299700:
-                                    if (var5.equals("clearall")) {
+                                    if (command.equals("clearall")) {
                                        int count = CosmeticBlocks.INSTANCE.clearAll();
                                        return "Cleared " + count + " total replacements";
                                     }
 
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                  case 951117169:
-                                    if (var5.equals("configs")) {
+                                    if (command.equals("configs")) {
                                        List configs = CosmeticBlocks.INSTANCE.listConfigs();
                                        return "Configs: "
                                           + CollectionsKt.joinToString(configs, ", ", "", "", -1, "...", null)
@@ -2149,7 +2044,7 @@ public final class CliEngine {
 
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                  case 1094496948:
-                                    if (!var5.equals("replace")) {
+                                    if (!command.equals("replace")) {
                                        return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                                     }
                                     break label621;
@@ -2157,14 +2052,14 @@ public final class CliEngine {
                                     return "Usage: cb <em|block|remove|clear|list|save|reload|fill|replace|pos1|pos2|sel|undo|fav|shape|room|state|props|gui|backup>";
                               }
 
-                              String var83 = cbArg;
-                              String[] var39 = new String[]{" "};
-                              List coords = StringsKt.split(var83, var39, false, 0);
+                              String removeResult = cbArg;
+                              String[] space = new String[]{" "};
+                              List coords = StringsKt.split(removeResult, space, false, 0);
                               if (coords.size() >= 3) {
                                  Integer x = StringsKt.toIntOrNull((String)coords.get(0));
                                  Integer y = StringsKt.toIntOrNull((String)coords.get(1));
                                  Integer z = StringsKt.toIntOrNull((String)coords.get(2));
-                                 var83 = x != null && y != null && z != null
+                                 removeResult = x != null && y != null && z != null
                                     ? (
                                        CosmeticBlocks.INSTANCE.removeAt(x, y, z)
                                           ? "Removed at " + x + "," + y + "," + z
@@ -2172,86 +2067,86 @@ public final class CliEngine {
                                     )
                                     : "Invalid coords";
                               } else {
-                                 var83 = "Usage: cb remove <x> <y> <z>";
+                                 removeResult = "Usage: cb remove <x> <y> <z>";
                               }
 
-                              return var83;
+                              return removeResult;
                            }
 
-                           String var77 = cbArg;
-                           String[] var33 = new String[]{" "};
-                           List coords = StringsKt.split(var77, var33, false, 0);
+                           String pos1Result = cbArg;
+                           String[] space = new String[]{" "};
+                           List coords = StringsKt.split(pos1Result, space, false, 0);
                            if (coords.size() >= 3) {
                               Integer x = StringsKt.toIntOrNull((String)coords.get(0));
                               Integer y = StringsKt.toIntOrNull((String)coords.get(1));
                               Integer z = StringsKt.toIntOrNull((String)coords.get(2));
                               if (x != null && y != null && z != null) {
                                  CosmeticBlocks.INSTANCE.setPos1(new BlockPos(x, y, z));
-                                 var77 = "Pos1: " + x + ", " + y + ", " + z;
+                                 pos1Result = "Pos1: " + x + ", " + y + ", " + z;
                               } else {
-                                 var77 = "Invalid coordinates";
+                                 pos1Result = "Invalid coordinates";
                               }
 
-                              return var77;
+                              return pos1Result;
                            } else {
                               BlockPos pos = CosmeticBlocks.INSTANCE.getLastLookBlockPos();
                               if (pos != null) {
                                  CosmeticBlocks.INSTANCE.setPos1(pos);
-                                 var77 = "Pos1: " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ();
+                                 pos1Result = "Pos1: " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ();
                               } else {
-                                 var77 = "Look at a block first, then open CLI. Or: cb pos1 <x> <y> <z>";
+                                 pos1Result = "Look at a block first, then open CLI. Or: cb pos1 <x> <y> <z>";
                               }
 
-                              return var77;
+                              return pos1Result;
                            }
                         }
 
-                        String var76 = cbArg;
-                        String[] var30 = new String[]{" "};
-                        List coords = StringsKt.split(var76, var30, false, 0);
+                        String pos2Result = cbArg;
+                        String[] space = new String[]{" "};
+                        List coords = StringsKt.split(pos2Result, space, false, 0);
                         if (coords.size() >= 3) {
                            Integer x = StringsKt.toIntOrNull((String)coords.get(0));
                            Integer y = StringsKt.toIntOrNull((String)coords.get(1));
                            Integer z = StringsKt.toIntOrNull((String)coords.get(2));
                            if (x != null && y != null && z != null) {
                               CosmeticBlocks.INSTANCE.setPos2(new BlockPos(x, y, z));
-                              var76 = "Pos2: " + x + ", " + y + ", " + z;
+                              pos2Result = "Pos2: " + x + ", " + y + ", " + z;
                            } else {
-                              var76 = "Invalid coordinates";
+                              pos2Result = "Invalid coordinates";
                            }
 
-                           return var76;
+                           return pos2Result;
                         } else {
                            BlockPos pos = CosmeticBlocks.INSTANCE.getLastLookBlockPos();
                            if (pos != null) {
                               CosmeticBlocks.INSTANCE.setPos2(pos);
-                              var76 = "Pos2: " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ();
+                              pos2Result = "Pos2: " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ();
                            } else {
-                              var76 = "Look at a block first, then open CLI. Or: cb pos2 <x> <y> <z>";
+                              pos2Result = "Look at a block first, then open CLI. Or: cb pos2 <x> <y> <z>";
                            }
 
-                           return var76;
+                           return pos2Result;
                         }
                      }
 
                      String from;
                      label403: {
-                        CharSequence var78 = cbArg;
-                        String[] var36 = new String[]{" "};
-                        List rParts = StringsKt.split(var78, var36, false, 2);
+                        CharSequence replaceChars = cbArg;
+                        String[] space = new String[]{" "};
+                        List rParts = StringsKt.split(replaceChars, space, false, 2);
                         from = (String)rParts.get(0);
-                        var78 = (String)CollectionsKt.getOrNull(rParts, 1);
-                        if (var78 != null) {
-                           var66 = StringsKt.trim(var78).toString();
-                           if (var66 != null) {
+                        replaceChars = (String)CollectionsKt.getOrNull(rParts, 1);
+                        if (replaceChars != null) {
+                           output = StringsKt.trim(replaceChars).toString();
+                           if (output != null) {
                               break label403;
                            }
                         }
 
-                        var66 = "";
+                        output = "";
                      }
 
-                     String to = var66;
+                     String to = output;
                      if (from.length() > 0 && to.length() > 0) {
                         return CosmeticBlocks.INSTANCE.replaceRegion(from, to);
                      }
@@ -2261,87 +2156,85 @@ public final class CliEngine {
 
                   String favCmd;
                   label392: {
-                     CharSequence var84 = cbArg;
-                     String[] var41 = new String[]{" "};
-                     List favParts = StringsKt.split(var84, var41, false, 2);
-                     String var85 = ((String)favParts.get(0)).toLowerCase(Locale.ROOT);
-                     Intrinsics.checkNotNullExpressionValue(var85, "toLowerCase(...)");
-                     favCmd = var85;
-                     var85 = (String)CollectionsKt.getOrNull(favParts, 1);
-                     if (var85 != null) {
-                        var66 = StringsKt.trim(var85).toString();
-                        if (var66 != null) {
+                     CharSequence favChars = cbArg;
+                     String[] space = new String[]{" "};
+                     List favParts = StringsKt.split(favChars, space, false, 2);
+                     String subPart = ((String)favParts.get(0)).toLowerCase(Locale.ROOT);
+                     Intrinsics.checkNotNullExpressionValue(subPart, "toLowerCase(...)");
+                     favCmd = subPart;
+                     subPart = (String)CollectionsKt.getOrNull(favParts, 1);
+                     if (subPart != null) {
+                        output = StringsKt.trim(subPart).toString();
+                        if (output != null) {
                            break label392;
                         }
                      }
 
-                     var66 = "";
+                     output = "";
                   }
 
-                  String favArg = var66;
+                  String favArg = output;
                   if (favCmd.length() != 0 && !Intrinsics.areEqual(favCmd, "gui")) {
                      if (Intrinsics.areEqual(favCmd, "add")) {
-                        CharSequence var61 = favArg;
-                        if (var61.length() == 0) {
-                           int var11/* $VF was: $i$a$-ifEmpty-CliEngine$executeCbCommand$block$1 */ = 0;
-                           var66 = CosmeticBlocks.INSTANCE.getSelectedBlock();
+                        CharSequence favArgChars = favArg;
+                        if (favArgChars.length() == 0) {
+                           output = CosmeticBlocks.INSTANCE.getSelectedBlock();
                         } else {
-                            var66 = var61.toString();
+                            output = favArgChars.toString();
                         }
 
-                        String block = var66;
+                        String block = output;
                         return CosmeticBlocks.INSTANCE.addFavorite(block)
                            ? "Added " + StringsKt.removePrefix(block, "minecraft:") + " to favorites"
                            : "Already in favorites or invalid block";
                      } else if (Intrinsics.areEqual(favCmd, "remove") || Intrinsics.areEqual(favCmd, "rm")) {
-                        CharSequence var62 = favArg;
-                        if (var62.length() == 0) {
-                           int var63/* $VF was: $i$a$-ifEmpty-CliEngine$executeCbCommand$block$2 */ = 0;
-                           var66 = CosmeticBlocks.INSTANCE.getSelectedBlock();
+                        CharSequence favArgChars2 = favArg;
+                        if (favArgChars2.length() == 0) {
+                           output = CosmeticBlocks.INSTANCE.getSelectedBlock();
                         } else {
-                           var66 = var62.toString();
+                           output = favArgChars2.toString();
                         }
 
-                        String block = var66;
+                        String block = output;
                         return CosmeticBlocks.INSTANCE.removeFavorite(block)
                            ? "Removed " + StringsKt.removePrefix(block, "minecraft:") + " from favorites"
                            : "Not in favorites";
                      } else {
                         if (!Intrinsics.areEqual(favCmd, "list") && !Intrinsics.areEqual(favCmd, "ls")) {
-                           var66 = "Usage: cb fav [add|remove|list|gui]";
+                           output = "Usage: cb fav [add|remove|list|gui]";
                         } else {
                            List favs = CosmeticBlocks.INSTANCE.getFavorites();
-                           var66 = favs.isEmpty()
+                           output = favs.isEmpty()
                               ? "No favorites"
-                              : CollectionsKt.joinToString(favs, ", ", "", "", -1, "...", it -> CliEngine.executeCbCommand$lambda$4((String)it));
+                              : CollectionsKt.joinToString(favs, ", ", "", "", -1, "...", it -> CliEngine.stripMinecraftPrefix((String)it));
                         }
 
-                        return var66;
+                        return output;
                      }
                   }
 
-                  Scheduler.INSTANCE.scheduleTickEnd(CliEngine::executeCbCommand$lambda$1);
+                  Scheduler.INSTANCE.scheduleTickEnd(CliEngine::openFavoritesScreen);
                   return "Opening favorites...";
                }
 
                String property;
                label346: {
-                  CharSequence var73 = cbArg;
-                  String[] var28 = new String[]{" "};
-                  List stateParts = StringsKt.split(var73, var28, false, 2);
+                  CharSequence stateChars = cbArg;
+                  String[] space = new String[]{" "};
+                  List stateParts = StringsKt.split(stateChars, space, false, 2);
                   property = (String)stateParts.get(0);
-                  var73 = (String)CollectionsKt.getOrNull(stateParts, 1);
-                  if (var73 != null) {
-                     var66 = StringsKt.trim(var73).toString();
-                     if (var66 != null) {
+                  stateChars = (String)CollectionsKt.getOrNull(stateParts, 1);
+                  if (stateChars != null) {
+                     output = StringsKt.trim(stateChars).toString();
+                     if (output != null) {
                         break label346;
                      }
                   }
 
-                  var66 = "";
+                  output = "";
                }
 
-               String value = var66;
+               String value = output;
                if (property.length() > 0 && value.length() > 0) {
                   CosmeticBlocks.INSTANCE.setBlockProperty(property, value);
                   return "Brush: " + StringsKt.removePrefix(CosmeticBlocks.INSTANCE.getSelectedBlock(), "minecraft:");
@@ -2356,126 +2249,118 @@ public final class CliEngine {
 
          if (cbArg.length() > 0) {
             CosmeticBlocks.INSTANCE.setBlock(StringsKt.replace(cbArg, " ", "_", false));
-            var66 = "Brush: " + StringsKt.replace(cbArg, " ", "_", false);
+            output = "Brush: " + StringsKt.replace(cbArg, " ", "_", false);
          } else {
-            var66 = "Usage: cb block <block_id>";
+            output = "Usage: cb block <block_id>";
          }
 
-         return var66;
+         return output;
       }
 
       List list = CosmeticBlocks.INSTANCE.listReplacements();
       return list.isEmpty()
          ? "No CB replacements"
-         : CollectionsKt.joinToString(CollectionsKt.take(list, 5), " | ", "", "", -1, "...", it -> CliEngine.executeCbCommand$lambda$0((String)it));
+         : CollectionsKt.joinToString(CollectionsKt.take(list, 5), " | ", "", "", -1, "...", it -> CliEngine.truncateReplacement((String)it));
    }
 
    private final boolean exportToClipboard() {
-      boolean sb;
+      boolean success;
       try {
-         StringBuilder sbx = new StringBuilder();
-         sbx.append("# CB Settings Export").append('\n');
-         Iterable $this$forEach$iv = Tabs.INSTANCE.getAll();
-         int $i$f$forEach = 0;
+         StringBuilder builder = new StringBuilder();
+         builder.append("# CB Settings Export").append('\n');
+         Iterable tabs = Tabs.INSTANCE.getAll();
 
-         for (Object element$iv : $this$forEach$iv) {
-            SettingsTab tab = (SettingsTab)element$iv;
-            int var7/* $VF was: $i$a$-forEach-CliEngine$exportToClipboard$1 */ = 0;
-            Iterable $this$forEach$ivx = tab.getSettings();
-            int $i$f$forEachx = 0;
+         for (Object element : tabs) {
+            SettingsTab tab = (SettingsTab)element;
+            Iterable settings = tab.getSettings();
 
-            for (Object element$ivx : $this$forEach$ivx) {
-               Setting setting = (Setting)element$ivx;
-               int var13/* $VF was: $i$a$-forEach-CliEngine$exportToClipboard$1$1 */ = 0;
-               sbx.append(tab.getName() + "." + setting.getName() + "=" + INSTANCE.valueToString(setting)).append('\n');
+            for (Object settingElement : settings) {
+               Setting setting = (Setting)settingElement;
+               builder.append(tab.getName() + "." + setting.getName() + "=" + INSTANCE.valueToString(setting)).append('\n');
             }
          }
 
-         GLFW.glfwSetClipboardString(GLFW.glfwGetCurrentContext(), sbx.toString());
-         sb = true;
+         GLFW.glfwSetClipboardString(GLFW.glfwGetCurrentContext(), builder.toString());
+         success = true;
       } catch (Exception e) {
          e.printStackTrace();
-         sb = false;
+         success = false;
       }
 
-      return sb;
+      return success;
    }
 
    private final boolean importFromClipboard() {
       boolean data;
       try {
-         String var10000 = GLFW.glfwGetClipboardString(GLFW.glfwGetCurrentContext());
-         if (var10000 == null) {
+         String clipboard = GLFW.glfwGetClipboardString(GLFW.glfwGetCurrentContext());
+         if (clipboard == null) {
             return false;
          }
 
-         String datax = var10000;
+         String datax = clipboard;
          int imported = 0;
-         Iterable $this$forEach$iv = StringsKt.lines(datax);
-         int $i$f$forEach = 0;
+         Iterable lines = StringsKt.lines(datax);
 
-         for (Object element$iv : $this$forEach$iv) {
-            String line = (String)element$iv;
-            int var8/* $VF was: $i$a$-forEach-CliEngine$importFromClipboard$1 */ = 0;
+         for (Object element : lines) {
+            String line = (String)element;
             if (!StringsKt.startsWith(line, "#", false) && !StringsKt.isBlank(line)) {
-               CharSequence var29 = line;
+               CharSequence lineChars = line;
                String[] keyParts = new String[]{"="};
-               List parts = StringsKt.split(var29, keyParts, false, 2);
+               List parts = StringsKt.split(lineChars, keyParts, false, 2);
                if (parts.size() == 2) {
-                  var29 = (CharSequence)parts.get(0);
+                  lineChars = (CharSequence)parts.get(0);
                   String[] tabName = new String[]{"."};
-                  List keyPartsx = StringsKt.split(var29, tabName, false, 2);
+                  List keyPartsx = StringsKt.split(lineChars, tabName, false, 2);
                   if (keyPartsx.size() == 2) {
                      String tabNamex = (String)keyPartsx.get(0);
                      String propName = (String)keyPartsx.get(1);
-                     Iterable var13 = Tabs.INSTANCE.getAll();
-                     Iterator var14 = var13.iterator();
-                     Object var31;
+                     Iterable tabs = Tabs.INSTANCE.getAll();
+                     Iterator tabIterator = tabs.iterator();
+                     Object foundTab;
 
                      while (true) {
-                        if (var14.hasNext()) {
-                           Object var15 = var14.next();
-                           SettingsTab it = (SettingsTab)var15;
-                           int var17/* $VF was: $i$a$-find-CliEngine$importFromClipboard$1$tab$1 */ = 0;
+                        if (tabIterator.hasNext()) {
+                           Object tabCandidate = tabIterator.next();
+                           SettingsTab it = (SettingsTab)tabCandidate;
                            if (!Intrinsics.areEqual(it.getName(), tabNamex)) {
                               continue;
                            }
 
-                           var31 = var15;
+                           foundTab = tabCandidate;
                            break;
                         }
 
-                        var31 = null;
+                        foundTab = null;
                         break;
                      }
 
-                     SettingsTab var32 = (SettingsTab)var31;
-                     if ((SettingsTab)var31 != null) {
-                        SettingsTab tab = var32;
-                        Iterable var25 = tab.getSettings();
-                        Iterator var26 = var25.iterator();
-                        Object var33;
+                     SettingsTab tabResult = (SettingsTab)foundTab;
+                     if ((SettingsTab)foundTab != null) {
+                        SettingsTab tab = tabResult;
+                        Iterable settings = tab.getSettings();
+                        Iterator settingIterator = settings.iterator();
+                        Object foundSetting;
 
                         while (true) {
-                           if (var26.hasNext()) {
-                              Object var27 = var26.next();
-                              Setting it = (Setting)var27;
-                              int var19/* $VF was: $i$a$-find-CliEngine$importFromClipboard$1$setting$1 */ = 0;
+                           if (settingIterator.hasNext()) {
+                              Object settingCandidate = settingIterator.next();
+                              Setting it = (Setting)settingCandidate;
                               if (!Intrinsics.areEqual(it.getName(), propName)) {
                                  continue;
                               }
 
-                              var33 = var27;
+                              foundSetting = settingCandidate;
                               break;
                            }
 
-                           var33 = null;
+                           foundSetting = null;
                            break;
                         }
 
-                        Setting var34 = (Setting)var33;
-                        if ((Setting)var33 != null) {
-                           Setting setting = var34;
+                        Setting foundSetting2 = (Setting)foundSetting;
+                        if ((Setting)foundSetting != null) {
+                           Setting setting = foundSetting2;
                            if (INSTANCE.stringToValue(setting, (String)parts.get(1))) {
                               imported++;
                            }
@@ -2503,45 +2388,40 @@ public final class CliEngine {
       boolean sanitized;
       try {
          CharSequence e = name;
-         Regex var4 = new Regex("[^a-zA-Z0-9_-]");
-         String var5 = "_";
-         String sanitizedx = var4.replace(e, var5);
+         Regex invalidChars = new Regex("[^a-zA-Z0-9_-]");
+         String underscore = "_";
+         String sanitizedx = invalidChars.replace(e, underscore);
          Path file = this.getProfilesDir().resolve(sanitizedx + ".profile");
-         Path var10000 = this.getProfilesDir();
-         LinkOption[] var10001 = new LinkOption[0];
-         if (!Files.exists(var10000, Arrays.copyOf(var10001, var10001.length))) {
+         Path profilesDir = this.getProfilesDir();
+         LinkOption[] linkOptions = new LinkOption[0];
+         if (!Files.exists(profilesDir, Arrays.copyOf(linkOptions, linkOptions.length))) {
             Files.createDirectories(this.getProfilesDir());
          }
 
-         var var28 = Files.newBufferedWriter(file);
-         Throwable var29 = null;
+         var bufferedWriter = Files.newBufferedWriter(file);
+         Throwable cause = null;
 
          try {
-            BufferedWriter writer = var28;
-            int var7/* $VF was: $i$a$-use-CliEngine$saveProfile$1 */ = 0;
+            BufferedWriter writer = bufferedWriter;
             writer.write("# CB Profile: " + name + "\n");
-            Iterable $this$forEach$iv = Tabs.INSTANCE.getAll();
-            int $i$f$forEach = 0;
+            Iterable tabs = Tabs.INSTANCE.getAll();
 
-            for (Object element$iv : $this$forEach$iv) {
-               SettingsTab tab = (SettingsTab)element$iv;
-               int var13/* $VF was: $i$a$-forEach-CliEngine$saveProfile$1$1 */ = 0;
-               Iterable $this$forEach$ivx = tab.getSettings();
-               int $i$f$forEachx = 0;
+            for (Object element : tabs) {
+               SettingsTab tab = (SettingsTab)element;
+               Iterable settings = tab.getSettings();
 
-               for (Object element$ivx : $this$forEach$ivx) {
-                  Setting setting = (Setting)element$ivx;
-                  int var19/* $VF was: $i$a$-forEach-CliEngine$saveProfile$1$1$1 */ = 0;
+               for (Object settingElement : settings) {
+                  Setting setting = (Setting)settingElement;
                   writer.write(tab.getName() + "." + setting.getName() + ":" + INSTANCE.valueToString(setting) + "\n");
                }
             }
 
-            Unit var30 = Unit.INSTANCE;
-         } catch (Throwable var23) {
-            var29 = var23;
-            throw var23;
+            Unit unit = Unit.INSTANCE;
+         } catch (Throwable thrown) {
+            cause = thrown;
+            throw thrown;
          } finally {
-            CloseableKt.closeFinally(var28, var29);
+            CloseableKt.closeFinally(bufferedWriter, cause);
          }
 
          sanitized = true;
@@ -2558,52 +2438,46 @@ public final class CliEngine {
       try {
          CharSequence e = name;
          Regex map = new Regex("[^a-zA-Z0-9_-]");
-         String $this$forEach$iv = "_";
-         String sanitizedx = map.replace(e, $this$forEach$iv);
+         String underscore = "_";
+         String sanitizedx = map.replace(e, underscore);
          Path file = this.getProfilesDir().resolve(sanitizedx + ".profile");
          Intrinsics.checkNotNull(file);
-         LinkOption[] var10001 = new LinkOption[0];
-         if (!Files.exists(file, Arrays.copyOf(var10001, var10001.length))) {
+         LinkOption[] linkOptions = new LinkOption[0];
+         if (!Files.exists(file, Arrays.copyOf(linkOptions, linkOptions.length))) {
             return false;
          }
 
          Map mapx = new LinkedHashMap();
-         List var10000 = Files.readAllLines(file);
-         Intrinsics.checkNotNullExpressionValue(var10000, "readAllLines(...)");
-         Iterable $this$forEach$ivx = var10000;
-         int $i$f$forEach = 0;
+         List lines = Files.readAllLines(file);
+         Intrinsics.checkNotNullExpressionValue(lines, "readAllLines(...)");
+         Iterable readLines = lines;
 
-         for (Object element$iv : $this$forEach$ivx) {
-            String line = (String)element$iv;
-            int var10/* $VF was: $i$a$-forEach-CliEngine$loadProfile$1 */ = 0;
+         for (Object element : readLines) {
+            String line = (String)element;
             Intrinsics.checkNotNull(line);
             if (!StringsKt.startsWith(line, "#", false) && !StringsKt.isBlank(line)) {
                int idx = StringsKt.indexOf(line, ':', 0, false);
                if (idx > 0) {
-                  String var31 = line.substring(0, idx);
-                  Intrinsics.checkNotNullExpressionValue(var31, "substring(...)");
-                  String var10002 = line.substring(idx + 1);
-                  Intrinsics.checkNotNullExpressionValue(var10002, "substring(...)");
-                  mapx.put(var31, var10002);
+                  String key = line.substring(0, idx);
+                  Intrinsics.checkNotNullExpressionValue(key, "substring(...)");
+                  String val = line.substring(idx + 1);
+                  Intrinsics.checkNotNullExpressionValue(val, "substring(...)");
+                  mapx.put(key, val);
                }
             }
          }
 
-         Iterable $this$forEach$ivxx = Tabs.INSTANCE.getAll();
-         $i$f$forEach = 0;
+         Iterable tabs = Tabs.INSTANCE.getAll();
 
-         for (Object element$iv : $this$forEach$ivxx) {
-            SettingsTab tab = (SettingsTab)element$iv;
-            int var28/* $VF was: $i$a$-forEach-CliEngine$loadProfile$2 */ = 0;
-            Iterable $this$forEach$ivxxx = tab.getSettings();
-            int $i$f$forEachx = 0;
+         for (Object element : tabs) {
+            SettingsTab tab = (SettingsTab)element;
+            Iterable settings = tab.getSettings();
 
-            for (Object element$ivx : $this$forEach$ivxxx) {
-               Setting setting = (Setting)element$ivx;
-               int var16/* $VF was: $i$a$-forEach-CliEngine$loadProfile$2$1 */ = 0;
-               String var30 = (String)mapx.get(tab.getName() + "." + setting.getName());
-               if (var30 != null) {
-                  String v = var30;
+            for (Object settingElement : settings) {
+               Setting setting = (Setting)settingElement;
+               String stored = (String)mapx.get(tab.getName() + "." + setting.getName());
+               if (stored != null) {
+                  String v = stored;
                   INSTANCE.stringToValue(setting, v);
                }
             }
@@ -2620,57 +2494,53 @@ public final class CliEngine {
    }
 
    private final List<String> listProfiles() {
-      Path var10000 = this.getProfilesDir();
-      LinkOption[] var10001 = new LinkOption[0];
-      if (!Files.exists(var10000, Arrays.copyOf(var10001, var10001.length))) {
+      Path profilesDir = this.getProfilesDir();
+      LinkOption[] linkOptions = new LinkOption[0];
+      if (!Files.exists(profilesDir, Arrays.copyOf(linkOptions, linkOptions.length))) {
          return CollectionsKt.emptyList();
       }
 
-      CliEngine var1 = this;
+      CliEngine engine = this;
 
-      List<String> var15 = null;
+      List<String> result = null;
       try {
-         int var3/* $VF was: $i$a$-runCatching-CliEngine$listProfiles$1 */ = 0;
-         Iterable $this$map$iv = PathsKt.listDirectoryEntries(var1.getProfilesDir(), "*.profile");
-         int $i$f$map = 0;
-         Iterable $this$mapTo$iv$iv = $this$map$iv;
-         var destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault($this$map$iv, 10));
-         int $i$f$mapTo = 0;
+         Iterable entries = PathsKt.listDirectoryEntries(engine.getProfilesDir(), "*.profile");
+         Iterable entrySource = entries;
+         var dest = new ArrayList(CollectionsKt.collectionSizeOrDefault(entries, 10));
 
-         for (Object item$iv$iv : $this$mapTo$iv$iv) {
-            Path it = (Path)item$iv$iv;
-            Collection var12 = destination$iv$iv;
-            int var13/* $VF was: $i$a$-map-CliEngine$listProfiles$1$1 */ = 0;
-            var12.add(PathsKt.getNameWithoutExtension(it));
+         for (Object item : entrySource) {
+            Path it = (Path)item;
+            Collection collector = dest;
+            collector.add(PathsKt.getNameWithoutExtension(it));
          }
 
-         var15 = (List<String>)CollectionsKt.sorted((Iterable & List)destination$iv$iv);
-      } catch (Throwable var14) {
-         var15 = null;
+         result = (List<String>)CollectionsKt.sorted((Iterable & List)dest);
+      } catch (Throwable exception) {
+         result = null;
       }
 
-      return var15 != null ? var15 : CollectionsKt.emptyList();
+      return result != null ? result : CollectionsKt.emptyList();
    }
 
    private final boolean deleteProfile(String name) {
       boolean sanitized;
       try {
          CharSequence e = name;
-         Regex var4 = new Regex("[^a-zA-Z0-9_-]");
-         String var5 = "_";
-         String sanitizedx = var4.replace(e, var5);
+         Regex invalidChars = new Regex("[^a-zA-Z0-9_-]");
+         String underscore = "_";
+         String sanitizedx = invalidChars.replace(e, underscore);
          Path file = this.getProfilesDir().resolve(sanitizedx + ".profile");
          Intrinsics.checkNotNull(file);
-         LinkOption[] var10001 = new LinkOption[0];
-         boolean var10000;
-         if (Files.exists(file, Arrays.copyOf(var10001, var10001.length))) {
+         LinkOption[] linkOptions = new LinkOption[0];
+         boolean deleted;
+         if (Files.exists(file, Arrays.copyOf(linkOptions, linkOptions.length))) {
             Files.delete(file);
-            var10000 = true;
+            deleted = true;
          } else {
-            var10000 = false;
+            deleted = false;
          }
 
-         sanitized = var10000;
+         sanitized = deleted;
       } catch (Exception e) {
          e.printStackTrace();
          sanitized = false;
@@ -2681,16 +2551,16 @@ public final class CliEngine {
 
    private final String valueToString(Setting<?> setting) {
       Object v = setting.getValue();
-      Object var3 = v;
-      return var3 instanceof Integer
+      Object raw = v;
+      return raw instanceof Integer
          ? String.valueOf(((Number)v).intValue())
          : (
-            var3 instanceof Double
+            raw instanceof Double
                ? String.valueOf(((Number)v).doubleValue())
                : (
-                  var3 instanceof Float
+                  raw instanceof Float
                      ? String.valueOf(((Number)v).floatValue())
-                     : (var3 instanceof Boolean ? String.valueOf(((Boolean)v).booleanValue()) : (var3 instanceof Enum ? ((Enum)v).name() : String.valueOf(v)))
+                     : (raw instanceof Boolean ? String.valueOf(((Boolean)v).booleanValue()) : (raw instanceof Enum ? ((Enum)v).name() : String.valueOf(v)))
                )
          );
    }
@@ -2700,45 +2570,43 @@ public final class CliEngine {
       try {
          Object curx = setting.getValue();
          Setting rawSetting = setting;
-         boolean var15;
+         boolean converted;
          if (curx instanceof Integer) {
             Intrinsics.checkNotNull(setting, "null cannot be cast to non-null type com.cb.setting.Setting<kotlin.Int>");
             rawSetting.setValue(Integer.parseInt(raw));
-            var15 = true;
+            converted = true;
          } else if (curx instanceof Double) {
             Intrinsics.checkNotNull(setting, "null cannot be cast to non-null type com.cb.setting.Setting<kotlin.Double>");
             rawSetting.setValue(Double.parseDouble(raw));
-            var15 = true;
+            converted = true;
          } else if (curx instanceof Float) {
             Intrinsics.checkNotNull(setting, "null cannot be cast to non-null type com.cb.setting.Setting<kotlin.Float>");
             rawSetting.setValue(Float.parseFloat(raw));
-            var15 = true;
+            converted = true;
          } else if (curx instanceof Boolean) {
             Intrinsics.checkNotNull(setting, "null cannot be cast to non-null type com.cb.setting.Setting<kotlin.Boolean>");
             rawSetting.setValue(Boolean.parseBoolean(raw));
-            var15 = true;
+            converted = true;
          } else if (curx instanceof String) {
             Intrinsics.checkNotNull(setting, "null cannot be cast to non-null type com.cb.setting.Setting<kotlin.String>");
             rawSetting.setValue(raw);
-            var15 = true;
+            converted = true;
          } else if (!(curx instanceof Enum)) {
-            var15 = false;
+            converted = false;
          } else {
             Enum[] constants = (Enum[])curx.getClass().getEnumConstants();
             Intrinsics.checkNotNull(constants);
-            Object[] $this$firstOrNull$iv = constants;
-            int $i$f$firstOrNull = 0;
-            int var8 = 0;
-            int var9 = $this$firstOrNull$iv.length;
+            Object[] constantsArray = constants;
+            int index = 0;
+            int count = constantsArray.length;
             Enum match = null;
 
             while (true) {
-               if (var8 < var9) {
-                  Object element$iv = $this$firstOrNull$iv[var8];
-                  Enum it = (Enum)element$iv;
-                  int var12/* $VF was: $i$a$-firstOrNull-CliEngine$stringToValue$match$1 */ = 0;
+               if (index < count) {
+                  Object element = constantsArray[index];
+                  Enum it = (Enum)element;
                   if (!Intrinsics.areEqual(it.name(), raw)) {
-                     var8++;
+                     index++;
                      continue;
                   }
 
@@ -2756,11 +2624,11 @@ public final class CliEngine {
 
             Intrinsics.checkNotNull(setting, "null cannot be cast to non-null type com.cb.setting.Setting<kotlin.Any>");
             rawSetting.setValue(match);
-            var15 = true;
+            converted = true;
          }
 
-         cur = var15;
-      } catch (Exception var13/* $VF was: <unused var> */) {
+         cur = converted;
+      } catch (Exception ignored) {
          cur = false;
       }
 
@@ -2769,36 +2637,33 @@ public final class CliEngine {
 
    public final void saveSavedColors() {
       try {
-         Path var10000 = this.getSavedColorsFile();
-         LinkOption[] var10001 = new LinkOption[0];
-         if (!Files.exists(var10000, Arrays.copyOf(var10001, var10001.length))) {
+         Path file = this.getSavedColorsFile();
+         LinkOption[] linkOptions = new LinkOption[0];
+         if (!Files.exists(file, Arrays.copyOf(linkOptions, linkOptions.length))) {
             PathsKt.createParentDirectories(this.getSavedColorsFile());
-            var10000 = this.getSavedColorsFile();
-            FileAttribute[] var17 = new FileAttribute[0];
-            Intrinsics.checkNotNullExpressionValue(Files.createFile(var10000, Arrays.copyOf(var17, var17.length)), "createFile(...)");
+            file = this.getSavedColorsFile();
+            FileAttribute[] attrs = new FileAttribute[0];
+            Intrinsics.checkNotNullExpressionValue(Files.createFile(file, Arrays.copyOf(attrs, attrs.length)), "createFile(...)");
          }
 
-         var var1 = Files.newBufferedWriter(this.getSavedColorsFile());
-         Throwable var2 = null;
+         var bufferedWriter = Files.newBufferedWriter(this.getSavedColorsFile());
+         Throwable cause = null;
 
          try {
-            BufferedWriter writer = var1;
-            int var4/* $VF was: $i$a$-use-CliEngine$saveSavedColors$1 */ = 0;
-            Iterable $this$forEach$iv = savedColors;
-            int $i$f$forEach = 0;
+            BufferedWriter writer = bufferedWriter;
+            Iterable colors = savedColors;
 
-            for (Object element$iv : $this$forEach$iv) {
-               Color color = (Color)element$iv;
-               int var10/* $VF was: $i$a$-forEach-CliEngine$saveSavedColors$1$1 */ = 0;
+            for (Object element : colors) {
+               Color color = (Color)element;
                writer.write(color.getRGB() + "\n");
             }
 
-            Unit var15 = Unit.INSTANCE;
-         } catch (Throwable var13) {
-            var2 = var13;
-            throw var13;
+            Unit unit = Unit.INSTANCE;
+         } catch (Throwable thrown) {
+            cause = thrown;
+            throw thrown;
          } finally {
-            CloseableKt.closeFinally(var1, var2);
+            CloseableKt.closeFinally(bufferedWriter, cause);
          }
       } catch (IOException e) {
          throw new UncheckedIOException(e);
@@ -2807,37 +2672,35 @@ public final class CliEngine {
 
    private final void loadSavedColors() {
       try {
-         Path var10000 = this.getSavedColorsFile();
-         LinkOption[] var10001 = new LinkOption[0];
-         if (Files.exists(var10000, Arrays.copyOf(var10001, var10001.length))) {
+         Path file = this.getSavedColorsFile();
+         LinkOption[] linkOptions = new LinkOption[0];
+         if (Files.exists(file, Arrays.copyOf(linkOptions, linkOptions.length))) {
             savedColors.clear();
-            var var1 = Files.newBufferedReader(this.getSavedColorsFile());
-            Throwable var2 = null;
+            var bufferedReader = Files.newBufferedReader(this.getSavedColorsFile());
+            Throwable cause = null;
 
             try {
-               BufferedReader reader = var1;
-               int var4/* $VF was: $i$a$-use-CliEngine$loadSavedColors$1 */ = 0;
+               BufferedReader reader = bufferedReader;
 
                while (true) {
-                  String var13 = reader.readLine();
-                  if (var13 == null) {
-                     Unit var12 = Unit.INSTANCE;
+                  String lineRead = reader.readLine();
+                  if (lineRead == null) {
+                     Unit unit = Unit.INSTANCE;
                      return;
                   }
 
-                  String line = var13;
-                  Integer var14 = StringsKt.toIntOrNull(line);
-                  if (var14 != null) {
-                     int it = var14.intValue();
-                     int var7/* $VF was: $i$a$-let-CliEngine$loadSavedColors$1$1 */ = 0;
+                  String line = lineRead;
+                  Integer parsed = StringsKt.toIntOrNull(line);
+                  if (parsed != null) {
+                     int it = parsed.intValue();
                      savedColors.add(new Color(it, true));
                   }
                }
-            } catch (Throwable var10) {
-               var2 = var10;
-               throw var10;
+            } catch (Throwable thrown) {
+               cause = thrown;
+               throw thrown;
             } finally {
-               CloseableKt.closeFinally(var1, var2);
+               CloseableKt.closeFinally(bufferedReader, cause);
             }
          }
       } catch (IOException e) {
@@ -2847,36 +2710,33 @@ public final class CliEngine {
 
    private final void saveNotes() {
       try {
-         Path var10000 = this.getNotesFile();
-         LinkOption[] var10001 = new LinkOption[0];
-         if (!Files.exists(var10000, Arrays.copyOf(var10001, var10001.length))) {
+         Path file = this.getNotesFile();
+         LinkOption[] linkOptions = new LinkOption[0];
+         if (!Files.exists(file, Arrays.copyOf(linkOptions, linkOptions.length))) {
             PathsKt.createParentDirectories(this.getNotesFile());
-            var10000 = this.getNotesFile();
-            FileAttribute[] var17 = new FileAttribute[0];
-            Intrinsics.checkNotNullExpressionValue(Files.createFile(var10000, Arrays.copyOf(var17, var17.length)), "createFile(...)");
+            file = this.getNotesFile();
+            FileAttribute[] attrs = new FileAttribute[0];
+            Intrinsics.checkNotNullExpressionValue(Files.createFile(file, Arrays.copyOf(attrs, attrs.length)), "createFile(...)");
          }
 
-         var var1 = Files.newBufferedWriter(this.getNotesFile());
-         Throwable var2 = null;
+         var bufferedWriter = Files.newBufferedWriter(this.getNotesFile());
+         Throwable cause = null;
 
          try {
-            BufferedWriter writer = var1;
-            int var4/* $VF was: $i$a$-use-CliEngine$saveNotes$1 */ = 0;
-            Iterable $this$forEach$iv = notes;
-            int $i$f$forEach = 0;
+            BufferedWriter writer = bufferedWriter;
+            Iterable notesList = notes;
 
-            for (Object element$iv : $this$forEach$iv) {
-               String note = (String)element$iv;
-               int var10/* $VF was: $i$a$-forEach-CliEngine$saveNotes$1$1 */ = 0;
+            for (Object element : notesList) {
+               String note = (String)element;
                writer.write(note + "\n");
             }
 
-            Unit var15 = Unit.INSTANCE;
-         } catch (Throwable var13) {
-            var2 = var13;
-            throw var13;
+            Unit unit = Unit.INSTANCE;
+         } catch (Throwable thrown) {
+            cause = thrown;
+            throw thrown;
          } finally {
-            CloseableKt.closeFinally(var1, var2);
+            CloseableKt.closeFinally(bufferedWriter, cause);
          }
       } catch (IOException e) {
          throw new UncheckedIOException(e);
@@ -2885,34 +2745,33 @@ public final class CliEngine {
 
    private final void loadNotes() {
       try {
-         Path var10000 = this.getNotesFile();
-         LinkOption[] var10001 = new LinkOption[0];
-         if (Files.exists(var10000, Arrays.copyOf(var10001, var10001.length))) {
+         Path file = this.getNotesFile();
+         LinkOption[] linkOptions = new LinkOption[0];
+         if (Files.exists(file, Arrays.copyOf(linkOptions, linkOptions.length))) {
             notes.clear();
-            var var1 = Files.newBufferedReader(this.getNotesFile());
-            Throwable var2 = null;
+            var bufferedReader = Files.newBufferedReader(this.getNotesFile());
+            Throwable cause = null;
 
             try {
-               BufferedReader reader = var1;
-               int var4/* $VF was: $i$a$-use-CliEngine$loadNotes$1 */ = 0;
+               BufferedReader reader = bufferedReader;
 
                while (true) {
-                  String var11 = reader.readLine();
-                  if (var11 == null) {
-                     Unit var10 = Unit.INSTANCE;
+                  String lineRead = reader.readLine();
+                  if (lineRead == null) {
+                     Unit unit = Unit.INSTANCE;
                      return;
                   }
 
-                  String line = var11;
+                  String line = lineRead;
                   if (!StringsKt.isBlank(line)) {
                      notes.add(line);
                   }
                }
-            } catch (Throwable var8) {
-               var2 = var8;
-               throw var8;
+            } catch (Throwable thrown) {
+               cause = thrown;
+               throw thrown;
             } finally {
-               CloseableKt.closeFinally(var1, var2);
+               CloseableKt.closeFinally(bufferedReader, cause);
             }
          }
       } catch (IOException e) {
@@ -2920,65 +2779,65 @@ public final class CliEngine {
       }
    }
 
-   private static final boolean cancelReminder$lambda$0(int $id, CliEngine.Reminder it) {
+   private static final boolean cancelReminderPredicate(int targetId, CliEngine.Reminder it) {
       Intrinsics.checkNotNullParameter(it, "it");
-      return it.getId() == $id;
+      return it.getId() == targetId;
    }
 
-   private static final boolean cancelReminder$lambda$1(Function1 $tmp0, Object p0) {
-      return (Boolean)$tmp0.invoke(p0);
+   private static final boolean invokePredicate(Function1 function, Object argument) {
+      return (Boolean)function.invoke(argument);
    }
 
-   private static final String blockSuggestions$lambda$0(Identifier it) {
+   private static final String blockIdPath(Identifier it) {
       Intrinsics.checkNotNullParameter(it, "it");
       return it.getPath();
    }
 
-   private static final boolean blockSuggestions$lambda$1(String $q, String it) {
+   private static final boolean blockPathFilter(String query, String it) {
       Intrinsics.checkNotNullParameter(it, "it");
-      return $q.length() == 0 || StringsKt.contains(it, $q, false);
+      return query.length() == 0 || StringsKt.contains(it, query, false);
    }
 
-   private static final CliEngine.Suggestion blockSuggestions$lambda$2(String $prefix, String $hint, String it) {
+   private static final CliEngine.Suggestion blockSuggestion(String prefix, String hint, String it) {
       Intrinsics.checkNotNullParameter(it, "it");
-      return new CliEngine.Suggestion($prefix + " " + it, it, $hint);
+      return new CliEngine.Suggestion(prefix + " " + it, it, hint);
    }
 
-   private static final CharSequence executeCliCommand$lambda$0(String it) {
+   private static final CharSequence truncateNoteText(String it) {
       Intrinsics.checkNotNullParameter(it, "it");
       return StringsKt.take(it, 30) + (it.length() > 30 ? "..." : "");
    }
 
-   private static final CharSequence executeCbCommand$lambda$0(String it) {
+   private static final CharSequence truncateReplacement(String it) {
       Intrinsics.checkNotNullParameter(it, "it");
       return StringsKt.take(it, 25);
    }
 
-   private static final Unit executeCbCommand$lambda$1() {
+   private static final Unit openFavoritesScreen() {
       Minecraft.getInstance().setScreenAndShow(new BlockSelectorScreen());
       return Unit.INSTANCE;
    }
 
-   private static final CharSequence executeCbCommand$lambda$4(String it) {
+   private static final CharSequence stripMinecraftPrefix(String it) {
       Intrinsics.checkNotNullParameter(it, "it");
       return StringsKt.removePrefix(it, "minecraft:");
    }
 
-   private static final CharSequence executeCbCommand$lambda$5(String it) {
+   private static final CharSequence roomWithBlockCount(String it) {
       Intrinsics.checkNotNullParameter(it, "it");
       return it + " (" + CosmeticBlocks.INSTANCE.getRoomBlockCount(it) + ")";
    }
 
-   private static final Unit executeCbCommand$lambda$6() {
+   private static final Unit openBlockSelectorScreen() {
       Minecraft.getInstance().setScreenAndShow(new BlockSelectorScreen());
       return Unit.INSTANCE;
    }
 
    static {
-      Path var10000 = FabricLoader.getInstance().getConfigDir().resolve("cb");
-      Intrinsics.checkNotNullExpressionValue(var10000, "resolve(...)");
-      configDir = var10000;
-      String[] var0 = new String[]{
+      Path configPath = FabricLoader.getInstance().getConfigDir().resolve("cb");
+      Intrinsics.checkNotNullExpressionValue(configPath, "resolve(...)");
+      configDir = configPath;
+      String[] commands = new String[]{
          "w",
          "export",
          "import",
@@ -3013,8 +2872,8 @@ public final class CliEngine {
          "keybinds",
          "cb"
       };
-      TOP_COMMANDS = CollectionsKt.listOf(var0);
-      var0 = new String[]{
+      TOP_COMMANDS = CollectionsKt.listOf(commands);
+      commands = new String[]{
          "em",
          "edit",
          "block",
@@ -3056,7 +2915,7 @@ public final class CliEngine {
          "props",
          "properties"
       };
-      CB_SUBCOMMANDS = CollectionsKt.listOf(var0);
+      CB_SUBCOMMANDS = CollectionsKt.listOf(commands);
    }
 
    @Metadata(
@@ -3181,133 +3040,133 @@ public final class CliEngine {
                return this.parseNumber();
             }
 
-            String var10000 = this.expr.substring(start, this.pos);
-            Intrinsics.checkNotNullExpressionValue(var10000, "substring(...)");
-            var10000 = var10000.toLowerCase(Locale.ROOT);
-            Intrinsics.checkNotNullExpressionValue(var10000, "toLowerCase(...)");
-            String name = var10000;
-            String var3 = name;
-            double var18;
-            switch (var3.hashCode()) {
+            String tmp = this.expr.substring(start, this.pos);
+            Intrinsics.checkNotNullExpressionValue(tmp, "substring(...)");
+            tmp = tmp.toLowerCase(Locale.ROOT);
+            Intrinsics.checkNotNullExpressionValue(tmp, "toLowerCase(...)");
+            String name = tmp;
+            String funcKey = name;
+            double computed;
+            switch (funcKey.hashCode()) {
                case 101:
-                  if (!var3.equals("e")) {
+                  if (!funcKey.equals("e")) {
                      throw new IllegalArgumentException("Unknown function: " + name);
                   }
 
-                  var18 = Math.E;
+                  computed = Math.E;
                   break;
                case 3458: {
-                  if (!var3.equals("ln")) {
+                  if (!funcKey.equals("ln")) {
                      throw new IllegalArgumentException("Unknown function: " + name);
                   }
 
                   this.expect('(');
                   double arg = this.parseExpression();
                   this.expect(')');
-                  var18 = Math.log(arg);
+                  computed = Math.log(arg);
                   break;
                }
                case 3577:
-                  if (!var3.equals("pi")) {
+                  if (!funcKey.equals("pi")) {
                      throw new IllegalArgumentException("Unknown function: " + name);
                   }
 
-                  var18 = Math.PI;
+                  computed = Math.PI;
                   break;
                case 96370: {
-                  if (!var3.equals("abs")) {
+                  if (!funcKey.equals("abs")) {
                      throw new IllegalArgumentException("Unknown function: " + name);
                   }
 
                   this.expect('(');
                   double arg = this.parseExpression();
                   this.expect(')');
-                  var18 = Math.abs(arg);
+                  computed = Math.abs(arg);
                   break;
                }
                case 98695: {
-                  if (!var3.equals("cos")) {
+                  if (!funcKey.equals("cos")) {
                      throw new IllegalArgumentException("Unknown function: " + name);
                   }
 
                   this.expect('(');
                   double arg = this.parseExpression();
                   this.expect(')');
-                  var18 = Math.cos(arg);
+                  computed = Math.cos(arg);
                   break;
                }
                case 107332: {
-                  if (!var3.equals("log")) {
+                  if (!funcKey.equals("log")) {
                      throw new IllegalArgumentException("Unknown function: " + name);
                   }
 
                   this.expect('(');
                   double arg = this.parseExpression();
                   this.expect(')');
-                  var18 = Math.log10(arg);
+                  computed = Math.log10(arg);
                   break;
                }
                case 113880: {
-                  if (!var3.equals("sin")) {
+                  if (!funcKey.equals("sin")) {
                      throw new IllegalArgumentException("Unknown function: " + name);
                   }
 
                   this.expect('(');
                   double arg = this.parseExpression();
                   this.expect(')');
-                  var18 = Math.sin(arg);
+                  computed = Math.sin(arg);
                   break;
                }
                case 114593: {
-                  if (!var3.equals("tan")) {
+                  if (!funcKey.equals("tan")) {
                      throw new IllegalArgumentException("Unknown function: " + name);
                   }
 
                   this.expect('(');
                   double arg = this.parseExpression();
                   this.expect(')');
-                  var18 = Math.tan(arg);
+                  computed = Math.tan(arg);
                   break;
                }
                case 3049733: {
-                  if (!var3.equals("ceil")) {
+                  if (!funcKey.equals("ceil")) {
                      throw new IllegalArgumentException("Unknown function: " + name);
                   }
 
                   this.expect('(');
                   double arg = this.parseExpression();
                   this.expect(')');
-                  var18 = Math.ceil(arg);
+                  computed = Math.ceil(arg);
                   break;
                }
                case 3538208: {
-                  if (!var3.equals("sqrt")) {
+                  if (!funcKey.equals("sqrt")) {
                      throw new IllegalArgumentException("Unknown function: " + name);
                   }
 
                   this.expect('(');
                   double arg = this.parseExpression();
                   this.expect(')');
-                  var18 = Math.sqrt(arg);
+                  computed = Math.sqrt(arg);
                   break;
                }
                case 97526796: {
-                  if (!var3.equals("floor")) {
+                  if (!funcKey.equals("floor")) {
                      throw new IllegalArgumentException("Unknown function: " + name);
                   }
 
                   this.expect('(');
                   double arg = this.parseExpression();
                   this.expect(')');
-                  var18 = Math.floor(arg);
+                  computed = Math.floor(arg);
                   break;
                }
                case 108704142: {
-                  if (var3.equals("round")) {
+                  if (funcKey.equals("round")) {
                      this.expect('(');
                      double arg = this.parseExpression();
                      this.expect(')');
-                     var18 = Math.rint(arg);
+                     computed = Math.rint(arg);
                      break;
                   }
 
@@ -3317,7 +3176,7 @@ public final class CliEngine {
                   throw new IllegalArgumentException("Unknown function: " + name);
             }
 
-            return var18;
+            return computed;
          }
       }
 
@@ -3325,33 +3184,33 @@ public final class CliEngine {
          this.skipWhitespace();
          int start = this.pos;
          if (this.pos < this.length && (this.expr.charAt(this.pos) == '-' || this.expr.charAt(this.pos) == '+')) {
-            int var2 = this.pos++;
+            int consumed = this.pos++;
          }
 
          while (this.pos < this.length && (Character.isDigit(this.expr.charAt(this.pos)) || this.expr.charAt(this.pos) == '.')) {
-            int var3 = this.pos++;
+            int digitAdvance = this.pos++;
          }
 
          if (start == this.pos) {
             throw new IllegalArgumentException("Expected number at " + this.pos);
          }
 
-         String var10000 = this.expr.substring(start, this.pos);
-         Intrinsics.checkNotNullExpressionValue(var10000, "substring(...)");
-         return Double.parseDouble(var10000);
+         String numberText = this.expr.substring(start, this.pos);
+         Intrinsics.checkNotNullExpressionValue(numberText, "substring(...)");
+         return Double.parseDouble(numberText);
       }
 
       private final boolean match(char c) {
          this.skipWhitespace();
-         boolean var10000;
+         boolean matched;
          if (this.pos < this.length && this.expr.charAt(this.pos) == c) {
-            int var2 = this.pos++;
-            var10000 = true;
+            int consumed = this.pos++;
+            matched = true;
          } else {
-            var10000 = false;
+            matched = false;
          }
 
-         return var10000;
+         return matched;
       }
 
       private final void expect(char c) {
@@ -3362,7 +3221,7 @@ public final class CliEngine {
 
       private final void skipWhitespace() {
          while (this.pos < this.length && CharsKt.isWhitespace(this.expr.charAt(this.pos))) {
-            int var1 = this.pos++;
+            int space = this.pos++;
          }
       }
    }
@@ -3464,12 +3323,12 @@ public final class CliEngine {
       public boolean equals(@Nullable Object other) {
          if (this == other) {
             return true;
-         } else if (!(other instanceof CliEngine.Reminder var2)) {
+         } else if (!(other instanceof CliEngine.Reminder that)) {
             return false;
-         } else if (this.triggerTime != var2.triggerTime) {
+         } else if (this.triggerTime != that.triggerTime) {
             return false;
          } else {
-            return !Intrinsics.areEqual(this.message, var2.message) ? false : this.id == var2.id;
+            return !Intrinsics.areEqual(this.message, that.message) ? false : this.id == that.id;
          }
       }
    }
@@ -3578,12 +3437,12 @@ public final class CliEngine {
       public boolean equals(@Nullable Object other) {
          if (this == other) {
             return true;
-         } else if (!(other instanceof CliEngine.Suggestion var2)) {
+         } else if (!(other instanceof CliEngine.Suggestion that)) {
             return false;
-         } else if (!Intrinsics.areEqual(this.insert, var2.insert)) {
+         } else if (!Intrinsics.areEqual(this.insert, that.insert)) {
             return false;
          } else {
-            return !Intrinsics.areEqual(this.display, var2.display) ? false : Intrinsics.areEqual(this.hint, var2.hint);
+            return !Intrinsics.areEqual(this.display, that.display) ? false : Intrinsics.areEqual(this.hint, that.hint);
          }
       }
    }
