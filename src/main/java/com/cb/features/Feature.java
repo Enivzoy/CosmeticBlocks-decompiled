@@ -80,9 +80,9 @@ public abstract class Feature {
 
    @NotNull
    protected final Minecraft getMc() {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      return var10000;
+      Minecraft minecraft = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(minecraft, "getInstance(...)");
+      return minecraft;
    }
 
    public final boolean getEnabled() {

@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import kotlin.Metadata;
 import kotlin.jvm.internal.Intrinsics;
 import kotlin.jvm.internal.SourceDebugExtension;
@@ -61,14 +60,11 @@ public final class FeatureManager {
 
    public final void register(@NotNull Feature... featureList) {
       Intrinsics.checkNotNullParameter(featureList, "featureList");
-      int var2 = 0;
 
-      for (int var3 = featureList.length; var2 < var3; var2++) {
-         Feature feature = featureList[var2];
-         Map var10000 = features;
-         String var10001 = feature.getName().toLowerCase(Locale.ROOT);
-         Intrinsics.checkNotNullExpressionValue(var10001, "toLowerCase(...)");
-         var10000.put(var10001, feature);
+      for (Feature feature : featureList) {
+         String key = feature.getName().toLowerCase(Locale.ROOT);
+         Intrinsics.checkNotNullExpressionValue(key, "toLowerCase(...)");
+         features.put(key, feature);
          if (feature.getEnabled() && !feature.getAlwaysActive()) {
             EventBus.INSTANCE.subscribe(feature);
          }
@@ -78,30 +74,23 @@ public final class FeatureManager {
    @Nullable
    public final Feature get(@NotNull String name) {
       Intrinsics.checkNotNullParameter(name, "name");
-      LinkedHashMap var10000 = features;
-      String var10001 = name.toLowerCase(Locale.ROOT);
-      Intrinsics.checkNotNullExpressionValue(var10001, "toLowerCase(...)");
-      return (Feature)var10000.get(var10001);
+      String key = name.toLowerCase(Locale.ROOT);
+      Intrinsics.checkNotNullExpressionValue(key, "toLowerCase(...)");
+      return features.get(key);
    }
 
    @NotNull
    public final List<Feature> enabledFeatures() {
-      Collection var10000 = features.values();
-      Intrinsics.checkNotNullExpressionValue(var10000, "<get-values>(...)");
-      Iterable $this$filter$iv = var10000;
-      int $i$f$filter = 0;
-      Iterable $this$filterTo$iv$iv = $this$filter$iv;
-      var destination$iv$iv = new ArrayList();
-      int $i$f$filterTo = 0;
+      Collection<Feature> allFeatures = features.values();
+      Intrinsics.checkNotNullExpressionValue(allFeatures, "<get-values>(...)");
+      List<Feature> result = new ArrayList<>();
 
-      for (Object element$iv$iv : $this$filterTo$iv$iv) {
-         Feature it = (Feature)element$iv$iv;
-         int var9/* $VF was: $i$a$-filter-FeatureManager$enabledFeatures$1 */ = 0;
-         if (it.getEnabled()) {
-            destination$iv$iv.add(element$iv$iv);
+      for (Feature feature : allFeatures) {
+         if (feature.getEnabled()) {
+            result.add(feature);
          }
       }
 
-      return (List<Feature>)destination$iv$iv;
+      return result;
    }
 }
