@@ -110,24 +110,24 @@ public final class CosmeticBlocksTab extends SettingsTab {
    private static final BooleanSetting customWaterColor = INSTANCE.bool("Custom Water Color", "Tints water with a custom colour.", false);
    @NotNull
    private static final ColorSetting waterColor = SettingKt.visibleWhen(
-      INSTANCE.color("Water Color", "Custom water tint.", -12618012), CosmeticBlocksTab::waterColor$lambda$0
+      INSTANCE.color("Water Color", "Custom water tint.", -12618012), CosmeticBlocksTab::customWaterColorVisible
    );
    @NotNull
    private static final ConfigListSetting activeConfig = INSTANCE.configList(
-      "Active Config", "Switch between saved block layouts.", "default", CosmeticBlocksTab::activeConfig$lambda$0
+      "Active Config", "Switch between saved block layouts.", "default", CosmeticBlocksTab::listConfigOptions
    );
    @NotNull
    private static final BooleanSetting showReplacedBlocks = SettingKt.visibleWhen(
-      INSTANCE.bool("Show Replaced Blocks", "Renders a wireframe over replaced blocks.", false), CosmeticBlocksTab::showReplacedBlocks$lambda$0
+      INSTANCE.bool("Show Replaced Blocks", "Renders a wireframe over replaced blocks.", false), CosmeticBlocksTab::showReplacedBlocksVisible
    );
    @NotNull
    private static final ColorSetting overlayColor = SettingKt.visibleWhen(
-      INSTANCE.color("Overlay Color", "Wireframe overlay colour.", -10172161), CosmeticBlocksTab::overlayColor$lambda$0
+      INSTANCE.color("Overlay Color", "Wireframe overlay colour.", -10172161), CosmeticBlocksTab::overlayColorVisible
    );
    @NotNull
    private static final NumberSetting overlayRange = SettingKt.visibleWhen(
       INSTANCE.number("Overlay Range", "Max distance to render overlays.", 32.0, 8.0, 64.0, 1.0, null),
-      CosmeticBlocksTab::overlayRange$lambda$0
+      CosmeticBlocksTab::overlayRangeVisible
    );
 
    private CosmeticBlocksTab() {
@@ -234,23 +234,23 @@ public final class CosmeticBlocksTab extends SettingsTab {
       return overlayRange;
    }
 
-   private static final boolean waterColor$lambda$0() {
+   private static final boolean customWaterColorVisible() {
       return customWaterColor.getValue();
    }
 
-   private static final List activeConfig$lambda$0() {
+   private static final List listConfigOptions() {
       return ConfigSwitcher.INSTANCE.listConfigs();
    }
 
-   private static final boolean showReplacedBlocks$lambda$0() {
+   private static final boolean showReplacedBlocksVisible() {
       return enabled.getValue();
    }
 
-   private static final boolean overlayColor$lambda$0() {
+   private static final boolean overlayColorVisible() {
       return enabled.getValue();
    }
 
-   private static final boolean overlayRange$lambda$0() {
+   private static final boolean overlayRangeVisible() {
       return enabled.getValue();
    }
 

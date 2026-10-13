@@ -45,20 +45,20 @@ public final class BlockRemapsTab extends SettingsTab {
    public static final BlockRemapsTab INSTANCE = new BlockRemapsTab();
    @NotNull
    private static final BooleanSetting enabled = SettingKt.onChange(
-      INSTANCE.bool("Enabled", "Render all blocks of a source type as their mapped target.", false), BlockRemapsTab::enabled$lambda$0
+      INSTANCE.bool("Enabled", "Render all blocks of a source type as their mapped target.", false), BlockRemapsTab::onEnabledChanged
    );
    @NotNull
    private static final BooleanSetting keepShape = SettingKt.onChange(
-      INSTANCE.bool("Keep Block Shape", "Preserve stair/slab geometry of the source block when remapping.", false), BlockRemapsTab::keepShape$lambda$0
+      INSTANCE.bool("Keep Block Shape", "Preserve stair/slab geometry of the source block when remapping.", false), BlockRemapsTab::onKeepShapeChanged
    );
    @NotNull
    private static final ButtonSetting openEditor = INSTANCE.button(
-      "Remap Editor", "Add or remove block remaps with a searchable picker.", "Open", BlockRemapsTab::openEditor$lambda$0
+      "Remap Editor", "Add or remove block remaps with a searchable picker.", "Open", BlockRemapsTab::openEditorAction
    );
    @NotNull
-   private static final ButtonSetting export = INSTANCE.button("Export", "Copy all remaps to the clipboard as JSON.", "Copy", BlockRemapsTab::export$lambda$0);
+   private static final ButtonSetting export = INSTANCE.button("Export", "Copy all remaps to the clipboard as JSON.", "Copy", BlockRemapsTab::exportAction);
    @NotNull
-   private static final ButtonSetting importBtn = INSTANCE.button("Import", "Replace all remaps from clipboard JSON.", "Paste", BlockRemapsTab::import$lambda$0);
+   private static final ButtonSetting importBtn = INSTANCE.button("Import", "Replace all remaps from clipboard JSON.", "Paste", BlockRemapsTab::importAction);
 
    private BlockRemapsTab() {
       super("Block Remaps");
@@ -89,44 +89,40 @@ public final class BlockRemapsTab extends SettingsTab {
       return importBtn;
    }
 
-   private static final Unit enabled$lambda$0(boolean it) {
+   private static final Unit onEnabledChanged(boolean it) {
       GlobalRemap.INSTANCE.rebuild$cb_client();
       return Unit.INSTANCE;
    }
 
-   private static final Unit keepShape$lambda$0(boolean it) {
+   private static final Unit onKeepShapeChanged(boolean it) {
       GlobalRemap.INSTANCE.rebuild$cb_client();
       return Unit.INSTANCE;
    }
 
-   private static final void openEditor$lambda$0$0(Minecraft $mc) {
-      $mc.setScreenAndShow(new GlobalRemapEditorScreen());
+   private static final void openEditorOnClientThread(Minecraft mc) {
+      mc.setScreenAndShow(new GlobalRemapEditorScreen());
    }
 
-   private static final Unit openEditor$lambda$0() {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      Minecraft mc = var10000;
-      mc.execute(() -> openEditor$lambda$0$0(mc));
+   private static final Unit openEditorAction() {
+      Minecraft mc = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(mc, "getInstance(...)");
+      mc.execute(() -> openEditorOnClientThread(mc));
       return Unit.INSTANCE;
    }
 
-   private static final Unit export$lambda$0() {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      Minecraft mc = var10000;
+   private static final Unit exportAction() {
+      Minecraft mc = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(mc, "getInstance(...)");
       mc.keyboardHandler.setClipboard(GlobalRemap.INSTANCE.exportJson());
       ChatUtil.INSTANCE.success("Copied " + GlobalRemap.INSTANCE.sources().size() + " remaps to clipboard");
       return Unit.INSTANCE;
    }
 
-   private static final Unit import$lambda$0() {
-      Minecraft var10000 = Minecraft.getInstance();
-      Intrinsics.checkNotNullExpressionValue(var10000, "getInstance(...)");
-      Minecraft mc = var10000;
-      String var2 = mc.keyboardHandler.getClipboard();
-      Intrinsics.checkNotNullExpressionValue(var2, "getClipboard(...)");
-      String json = var2;
+   private static final Unit importAction() {
+      Minecraft mc = Minecraft.getInstance();
+      Intrinsics.checkNotNullExpressionValue(mc, "getInstance(...)");
+      String json = mc.keyboardHandler.getClipboard();
+      Intrinsics.checkNotNullExpressionValue(json, "getClipboard(...)");
       if (GlobalRemap.INSTANCE.importJson(json)) {
          ChatUtil.INSTANCE.success("Imported " + GlobalRemap.INSTANCE.sources().size() + " remaps");
       } else {

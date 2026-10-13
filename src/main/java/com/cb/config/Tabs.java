@@ -31,7 +31,7 @@ public final class Tabs {
    }
 
    static {
-      SettingsTab[] var0 = new SettingsTab[]{CosmeticBlocksTab.INSTANCE, BlockRemapsTab.INSTANCE, GuiTab.INSTANCE, HelpTab.INSTANCE};
-      all = CollectionsKt.listOf(var0);
+      SettingsTab[] tabs = new SettingsTab[]{CosmeticBlocksTab.INSTANCE, BlockRemapsTab.INSTANCE, GuiTab.INSTANCE, HelpTab.INSTANCE};
+      all = CollectionsKt.listOf(tabs);
    }
 }

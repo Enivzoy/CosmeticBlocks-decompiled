@@ -126,62 +126,62 @@ public abstract class SettingsTab {
    }
 
    @NotNull
-   protected final BooleanSetting bool(@NotNull String name, @NotNull String description, boolean var3) {
+   protected final BooleanSetting bool(@NotNull String name, @NotNull String description, boolean defaultValue) {
       Intrinsics.checkNotNullParameter(name, "name");
       Intrinsics.checkNotNullParameter(description, "description");
-      return this.register(new BooleanSetting(name, description, var3));
+      return this.register(new BooleanSetting(name, description, defaultValue));
    }
 
    @NotNull
    protected final NumberSetting number(
-      @NotNull String name, @NotNull String description, double var3, double min, double max, double step, @NotNull String unit
+      @NotNull String name, @NotNull String description, double defaultValue, double min, double max, double step, @NotNull String unit
    ) {
       Intrinsics.checkNotNullParameter(name, "name");
       Intrinsics.checkNotNullParameter(description, "description");
       Intrinsics.checkNotNullParameter(unit, "unit");
-      return this.register(new NumberSetting(name, description, var3, min, max, step, unit));
+      return this.register(new NumberSetting(name, description, defaultValue, min, max, step, unit));
    }
 
    @NotNull
-   protected final <E extends Enum<E>> ModeSetting<E> mode(@NotNull String name, @NotNull String description, @NotNull E var3) {
+   protected final <E extends Enum<E>> ModeSetting<E> mode(@NotNull String name, @NotNull String description, @NotNull E defaultValue) {
       Intrinsics.checkNotNullParameter(name, "name");
       Intrinsics.checkNotNullParameter(description, "description");
-      Intrinsics.checkNotNullParameter(var3, "default");
-      return this.register(new ModeSetting<>(name, description, (E)var3));
+      Intrinsics.checkNotNullParameter(defaultValue, "default");
+      return this.register(new ModeSetting<>(name, description, (E)defaultValue));
    }
 
    @NotNull
-   protected final ColorSetting color(@NotNull String name, @NotNull String description, int var3) {
+   protected final ColorSetting color(@NotNull String name, @NotNull String description, int defaultValue) {
       Intrinsics.checkNotNullParameter(name, "name");
       Intrinsics.checkNotNullParameter(description, "description");
-      return this.register(new ColorSetting(name, description, var3));
+      return this.register(new ColorSetting(name, description, defaultValue));
    }
 
    @NotNull
-   protected final KeybindSetting keybind(@NotNull String name, @NotNull String description, int var3) {
+   protected final KeybindSetting keybind(@NotNull String name, @NotNull String description, int defaultValue) {
       Intrinsics.checkNotNullParameter(name, "name");
       Intrinsics.checkNotNullParameter(description, "description");
-      return this.register(new KeybindSetting(name, description, var3));
+      return this.register(new KeybindSetting(name, description, defaultValue));
    }
 
    @NotNull
-   protected final StringSetting string(@NotNull String name, @NotNull String description, @NotNull String var3, int maxLength, @NotNull String placeholder) {
+   protected final StringSetting string(@NotNull String name, @NotNull String description, @NotNull String defaultValue, int maxLength, @NotNull String placeholder) {
       Intrinsics.checkNotNullParameter(name, "name");
       Intrinsics.checkNotNullParameter(description, "description");
-      Intrinsics.checkNotNullParameter(var3, "default");
+      Intrinsics.checkNotNullParameter(defaultValue, "default");
       Intrinsics.checkNotNullParameter(placeholder, "placeholder");
-      return this.register(new StringSetting(name, description, var3, maxLength, placeholder));
+      return this.register(new StringSetting(name, description, defaultValue, maxLength, placeholder));
    }
 
    @NotNull
    protected final ConfigListSetting configList(
-      @NotNull String name, @NotNull String description, @NotNull String var3, @NotNull Function0<? extends List<String>> options
+      @NotNull String name, @NotNull String description, @NotNull String defaultValue, @NotNull Function0<? extends List<String>> options
    ) {
       Intrinsics.checkNotNullParameter(name, "name");
       Intrinsics.checkNotNullParameter(description, "description");
-      Intrinsics.checkNotNullParameter(var3, "default");
+      Intrinsics.checkNotNullParameter(defaultValue, "default");
       Intrinsics.checkNotNullParameter(options, "options");
-      return this.register(new ConfigListSetting(name, description, var3, options));
+      return this.register(new ConfigListSetting(name, description, defaultValue, options));
    }
 
    @NotNull

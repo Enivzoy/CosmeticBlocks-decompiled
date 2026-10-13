@@ -13,12 +13,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import kotlin.Metadata;
-import kotlin.Unit;
-import kotlin.io.CloseableKt;
 import kotlin.jvm.internal.Intrinsics;
 import kotlin.jvm.internal.SourceDebugExtension;
 import net.fabricmc.loader.api.FabricLoader;
@@ -80,91 +77,52 @@ public final class Config {
    }
 
    private final Path getConfigFile() {
-      Path var10000 = FabricLoader.getInstance().getConfigDir().resolve("cb").resolve("cb-ui.json");
-      Intrinsics.checkNotNullExpressionValue(var10000, "resolve(...)");
-      return var10000;
+      Path path = FabricLoader.getInstance().getConfigDir().resolve("cb").resolve("cb-ui.json");
+      Intrinsics.checkNotNullExpressionValue(path, "resolve(...)");
+      return path;
    }
 
    public final void load() {
       Path file = this.getConfigFile();
       if (Files.exists(file)) {
          try {
-            var json = Files.newBufferedReader(file);
-            Throwable var4 = null;
-
-            JsonElement var30;
-            try {
-               BufferedReader it = json;
-               int var6/* $VF was: $i$a$-use-Config$load$root$1 */ = 0;
-               var30 = JsonParser.parseReader(it);
-            } catch (Throwable var26) {
-               var4 = var26;
-               throw var26;
-            } finally {
-               CloseableKt.closeFinally(json, var4);
+            JsonElement root;
+            try (BufferedReader reader = Files.newBufferedReader(file)) {
+               root = JsonParser.parseReader(reader);
             }
 
-            JsonElement root = var30;
             if (!root.isJsonObject()) {
                return;
             }
 
-            JsonObject jsonx = root.getAsJsonObject();
-            var30 = jsonx.get("tabs");
-            JsonObject var10000 = var30 instanceof JsonObject ? (JsonObject)var30 : null;
-            if ((var30 instanceof JsonObject ? (JsonObject)var30 : null) != null) {
-               JsonObject tabsJson = var10000;
-               int var7/* $VF was: $i$a$-let-Config$load$1 */ = 0;
-               Iterable $this$forEach$iv = Tabs.INSTANCE.getAll();
-               int $i$f$forEach = 0;
-
-               for (Object element$iv : $this$forEach$iv) {
-                  SettingsTab tab = (SettingsTab)element$iv;
-                  int var13/* $VF was: $i$a$-forEach-Config$load$1$1 */ = 0;
-                  JsonElement name = tabsJson.get(tab.getName());
-                  var10000 = name instanceof JsonObject ? (JsonObject)name : null;
-                  if ((name instanceof JsonObject ? (JsonObject)name : null) != null) {
-                     JsonObject tabJson = var10000;
-                     int var16/* $VF was: $i$a$-let-Config$load$1$1$1 */ = 0;
-                     Iterable $this$forEach$ivx = tab.getSettings();
-                     int $i$f$forEachx = 0;
-
-                     for (Object element$ivx : $this$forEach$ivx) {
-                        Setting it = (Setting)element$ivx;
-                        int var22/* $VF was: $i$a$-forEach-Config$load$1$1$1$1 */ = 0;
-                        it.readJson(tabJson);
+            JsonObject json = root.getAsJsonObject();
+            JsonElement tabsElement = json.get("tabs");
+            if (tabsElement instanceof JsonObject tabsJson) {
+               for (SettingsTab tab : Tabs.INSTANCE.getAll()) {
+                  JsonElement tabElement = tabsJson.get(tab.getName());
+                  if (tabElement instanceof JsonObject tabJson) {
+                     for (Setting setting : tab.getSettings()) {
+                        setting.readJson(tabJson);
                      }
                   }
                }
             }
 
-            var30 = jsonx.get("panels");
-            var10000 = var30 instanceof JsonObject ? (JsonObject)var30 : null;
-            if ((var30 instanceof JsonObject ? (JsonObject)var30 : null) != null) {
-               JsonObject panelsJson = var10000;
-               int var35/* $VF was: $i$a$-let-Config$load$2 */ = 0;
-               Set var49 = panelsJson.entrySet();
-               Intrinsics.checkNotNullExpressionValue(var49, "entrySet(...)");
-               Iterable $this$forEach$iv = var49;
-               int $i$f$forEach = 0;
+            JsonElement panelsElement = json.get("panels");
+            if (panelsElement instanceof JsonObject panelsJson) {
+               Set<Entry<String, JsonElement>> entries = panelsJson.entrySet();
+               Intrinsics.checkNotNullExpressionValue(entries, "entrySet(...)");
 
-               for (Object element$iv : $this$forEach$iv) {
-                  Entry var40 = (Entry)element$iv;
-                  int var41/* $VF was: $i$a$-forEach-Config$load$2$1 */ = 0;
-                  Intrinsics.checkNotNull(var40);
-                  String name = (String)var40.getKey();
-                  JsonElement element = (JsonElement)var40.getValue();
-                  var10000 = element instanceof JsonObject ? (JsonObject)element : null;
-                  if ((element instanceof JsonObject ? (JsonObject)element : null) != null) {
-                     JsonObject panel = var10000;
-                     Map var45 = panelState;
-                     JsonElement var10002 = panel.get("x");
-                     float var51 = var10002 != null ? var10002.getAsFloat() : 0.0F;
-                     JsonElement var10003 = panel.get("y");
-                     float var52 = var10003 != null ? var10003.getAsFloat() : 0.0F;
-                     JsonElement var10004 = panel.get("collapsed");
-                     Config.PanelState var46 = new Config.PanelState(var51, var52, var10004 != null ? var10004.getAsBoolean() : false);
-                     var45.put(name, var46);
+               for (Entry<String, JsonElement> entry : entries) {
+                  String name = entry.getKey();
+                  JsonElement element = entry.getValue();
+                  if (element instanceof JsonObject panel) {
+                     JsonElement xElement = panel.get("x");
+                     float x = xElement != null ? xElement.getAsFloat() : 0.0F;
+                     JsonElement yElement = panel.get("y");
+                     float y = yElement != null ? yElement.getAsFloat() : 0.0F;
+                     JsonElement collapsedElement = panel.get("collapsed");
+                     panelState.put(name, new Config.PanelState(x, y, collapsedElement != null ? collapsedElement.getAsBoolean() : false));
                   }
                }
             }
@@ -180,20 +138,12 @@ public final class Config {
       try {
          JsonObject json = new JsonObject();
          JsonObject tabsJson = new JsonObject();
-         Iterable $this$forEach$iv = Tabs.INSTANCE.getAll();
-         int $i$f$forEach = 0;
 
-         for (Object element$iv : $this$forEach$iv) {
-            SettingsTab tab = (SettingsTab)element$iv;
-            int var8/* $VF was: $i$a$-forEach-Config$save$1 */ = 0;
+         for (SettingsTab tab : Tabs.INSTANCE.getAll()) {
             JsonObject tabJson = new JsonObject();
-            Iterable $this$forEach$ivx = tab.getSettings();
-            int $i$f$forEachx = 0;
 
-            for (Object element$ivx : $this$forEach$ivx) {
-               Setting it = (Setting)element$ivx;
-               int var15/* $VF was: $i$a$-forEach-Config$save$1$1 */ = 0;
-               it.writeJson(tabJson);
+            for (Setting setting : tab.getSettings()) {
+               setting.writeJson(tabJson);
             }
 
             tabsJson.add(tab.getName(), tabJson);
@@ -201,14 +151,10 @@ public final class Config {
 
          json.add("tabs", tabsJson);
          JsonObject panelsJson = new JsonObject();
-         Map $this$forEach$ivx = panelState;
-         int $i$f$forEachx = 0;
 
-         for (Object element$iv : $this$forEach$ivx.entrySet()) {
-            Entry var32 = (Entry)element$iv;
-            int var35/* $VF was: $i$a$-forEach-Config$save$2 */ = 0;
-            String name = (String)var32.getKey();
-            Config.PanelState state = (Config.PanelState)var32.getValue();
+         for (Entry<String, Config.PanelState> entry : panelState.entrySet()) {
+            String name = entry.getKey();
+            Config.PanelState state = entry.getValue();
             JsonObject panel = new JsonObject();
             panel.addProperty("x", state.getX());
             panel.addProperty("y", state.getY());
@@ -220,23 +166,13 @@ public final class Config {
          Path file = this.getConfigFile();
          Files.createDirectories(file.getParent());
          Path temp = file.resolveSibling("cb-ui.json.tmp");
-         var var28 = Files.newBufferedWriter(temp);
-         Throwable var31 = null;
 
-         try {
-            BufferedWriter it = var28;
-            int var36/* $VF was: $i$a$-use-Config$save$3 */ = 0;
-            gson.toJson(json, it);
-            Unit var34 = Unit.INSTANCE;
-         } catch (Throwable var19) {
-            var31 = var19;
-            throw var19;
-         } finally {
-            CloseableKt.closeFinally(var28, var31);
+         try (BufferedWriter writer = Files.newBufferedWriter(temp)) {
+            gson.toJson(json, writer);
          }
 
-         CopyOption[] var29 = new CopyOption[]{StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE};
-         Files.move(temp, file, var29);
+         CopyOption[] options = new CopyOption[]{StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE};
+         Files.move(temp, file, options);
       } catch (Throwable t) {
          logger.error("Failed to save config", t);
       }
@@ -295,24 +231,24 @@ public final class Config {
          return this.x;
       }
 
-      public final void setX(float var1) {
-         this.x = var1/* $VF was: <set-?> */;
+      public final void setX(float x) {
+         this.x = x;
       }
 
       public final float getY() {
          return this.y;
       }
 
-      public final void setY(float var1) {
-         this.y = var1/* $VF was: <set-?> */;
+      public final void setY(float y) {
+         this.y = y;
       }
 
       public final boolean getCollapsed() {
          return this.collapsed;
       }
 
-      public final void setCollapsed(boolean var1) {
-         this.collapsed = var1/* $VF was: <set-?> */;
+      public final void setCollapsed(boolean collapsed) {
+         this.collapsed = collapsed;
       }
 
       public final float component1() {
@@ -349,13 +285,13 @@ public final class Config {
       public boolean equals(@Nullable Object other) {
          if (this == other) {
             return true;
-         } else if (!(other instanceof Config.PanelState var2)) {
-            return false;
-         } else if (Float.compare(this.x, var2.x) != 0) {
-            return false;
-         } else {
-            return Float.compare(this.y, var2.y) != 0 ? false : this.collapsed == var2.collapsed;
-         }
+          } else if (!(other instanceof Config.PanelState state)) {
+             return false;
+          } else if (Float.compare(this.x, state.x) != 0) {
+             return false;
+          } else {
+             return Float.compare(this.y, state.y) != 0 ? false : this.collapsed == state.collapsed;
+          }
       }
    }
 }
