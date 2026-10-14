@@ -28,13 +28,9 @@ public final class FloorUtil {
 
    private static List<String> buildDisplayOptions() {
       List<String> options = new ArrayList<>();
-      options.add("None");
-      options.add("E");
+      options.add("Entrance");
       for (int i = 1; i <= 7; i++) {
-         options.add("F" + i);
-      }
-      for (int i = 1; i <= 7; i++) {
-         options.add("M" + i);
+         options.add("f" + i + "/m" + i);
       }
       return options;
    }
@@ -59,6 +55,10 @@ public final class FloorUtil {
       if (value.equals("e") || value.equals("entrance")) {
          return "e";
       }
+      int slash = value.indexOf('/');
+      if (slash >= 0) {
+         value = value.substring(0, slash);
+      }
       return VALID.contains(value) ? value : null;
    }
 
@@ -72,9 +72,13 @@ public final class FloorUtil {
          return "None";
       }
       if (value.equals("e")) {
-         return "E";
+         return "Entrance";
       }
-      return value.toUpperCase(Locale.ROOT);
+      int number = floorNumber(value);
+      if (number >= 1) {
+         return "f" + number + "/m" + number;
+      }
+      return value;
    }
 
    @NotNull
