@@ -28,6 +28,7 @@ public final class FloorUtil {
 
    private static List<String> buildDisplayOptions() {
       List<String> options = new ArrayList<>();
+      options.add("None");
       options.add("Entrance");
       for (int i = 1; i <= 7; i++) {
          options.add("f" + i + "/m" + i);

@@ -36,3 +36,4 @@ jobs:
           name: cb-version.jar
           path: cb-version.jar
           if-no-files-found: error
+          archive: false
