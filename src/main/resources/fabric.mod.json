@@ -2,10 +2,13 @@
   "schemaVersion": 1,
   "id": "cb",
   "version": "1.0.0-reconstructed+mc26.2",
-  "name": "CB",
-  "description": "Cosmetic Blocks",
-  "authors": [],
+  "name": "CosmeticBlocks-Reborn",
+  "description": "A reimagined take on CosmeticBlocks - client-side cosmetic block replacement for dungeons, based on the original work of FunnyMapsExtras.",
+  "authors": [
+    "Enivzoy"
+  ],
   "license": "CC0-1.0",
+  "icon": "assets/cb/icon.png",
   "environment": "*",
   "accessWidener": "cb.accesswidener",
   "entrypoints": {
