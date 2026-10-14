@@ -11,10 +11,16 @@ base {
 repositories {
     maven { url = 'https://maven.fabricmc.net/' }
     mavenCentral()
+    maven { url = 'https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1' }
 }
 
 loom {
     accessWidenerPath = file('src/main/resources/cb.accesswidener')
+    runs {
+        client {
+            property 'devauth.enabled', 'true'
+        }
+    }
 }
 
 dependencies {
@@ -22,6 +28,8 @@ dependencies {
     implementation "net.fabricmc:fabric-loader:${loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
     implementation "net.fabricmc:fabric-language-kotlin:${fabric_kotlin_version}"
+
+    runtimeOnly "me.djtheredstoner:DevAuth-fabric:${devauth_version}"
 }
 
 java {

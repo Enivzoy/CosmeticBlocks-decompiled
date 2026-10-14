@@ -9,6 +9,10 @@ import kotlin.collections.CollectionsKt;
 import kotlin.io.FilesKt;
 import kotlin.jvm.internal.Intrinsics;
 import kotlin.text.StringsKt;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,6 +24,8 @@ public final class ConfigSwitcher {
    private static boolean dropdownInitialized;
    @Nullable
    private static String loadedConfigName;
+   @Nullable
+   private static volatile String lastDetectedFloor;
 
    private ConfigSwitcher() {
    }
@@ -42,6 +48,9 @@ public final class ConfigSwitcher {
             ReplacementIO.INSTANCE.loadFrom$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client(CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue()));
             DirtySections.INSTANCE.markAllCachedDirty$cb_client();
          }
+
+         CosmeticBlocksTab.markFloorReady();
+         CosmeticBlocksTab.syncFloorFromStore();
       } else {
          String current = CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue();
          if (!Intrinsics.areEqual(current, lastActiveConfig)) {
@@ -56,8 +65,51 @@ public final class ConfigSwitcher {
             ReplacementIO.INSTANCE.loadFrom$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client(current));
             DirtySections.INSTANCE.markAllCachedDirty$cb_client();
             lastActiveConfig = current;
+            CosmeticBlocksTab.syncFloorFromStore();
          }
       }
+   }
+
+   public final void checkFloorAutoLoad$cb_client() {
+      if (!((Boolean)CosmeticBlocksTab.INSTANCE.getAutoLoadFloor().getValue()).booleanValue()) {
+         lastDetectedFloor = null;
+         return;
+      }
+
+      if (!LocationTracker.INSTANCE.getInDungeon()) {
+         lastDetectedFloor = null;
+         return;
+      }
+
+      String floor = LocationTracker.INSTANCE.getCurrentFloor();
+      if (floor == null || floor.isEmpty() || floor.equals("e")) {
+         return;
+      }
+
+      if (Intrinsics.areEqual(floor, lastDetectedFloor)) {
+         return;
+      }
+
+      lastDetectedFloor = floor;
+      String match = FloorUtil.findConfigForFloor(floor);
+      if (match == null) {
+         return;
+      }
+
+      if (Intrinsics.areEqual(match, CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue())) {
+         return;
+      }
+
+      this.showFloorTitles(FloorUtil.display(floor), match);
+      this.loadConfigByName(match);
+   }
+
+   private final void showFloorTitles(String floorDisplay, String configName) {
+      Minecraft minecraft = Minecraft.getInstance();
+      minecraft.gui.hud.setTimes(5, 60, 10);
+      minecraft.gui.hud
+         .setTitle(Component.literal("Found a Config for " + floorDisplay).withStyle(Style.EMPTY.withColor(TextColor.fromRgb(5635925))));
+      minecraft.gui.hud.setSubtitle(Component.literal("Loading " + configName).withStyle(Style.EMPTY.withColor(TextColor.fromRgb(16777045))));
    }
 
    public final boolean createConfig(@NotNull String name) {
@@ -98,6 +150,7 @@ public final class ConfigSwitcher {
       lastActiveConfig = name;
       ReplacementIO.INSTANCE.loadFrom$cb_client(file);
       DirtySections.INSTANCE.markAllCachedDirty$cb_client();
+      CosmeticBlocksTab.syncFloorFromStore();
       Config.INSTANCE.save();
       return true;
    }
@@ -126,6 +179,7 @@ public final class ConfigSwitcher {
             DirtySections.INSTANCE.markAllCachedDirty$cb_client();
             ReplacementIO.INSTANCE.loadFrom$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client("default"));
             DirtySections.INSTANCE.markAllCachedDirty$cb_client();
+            CosmeticBlocksTab.syncFloorFromStore();
             Config.INSTANCE.save();
          }
 

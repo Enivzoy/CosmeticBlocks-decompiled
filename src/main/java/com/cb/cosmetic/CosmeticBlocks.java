@@ -67,6 +67,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
+import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CrossCollisionBlock;
@@ -126,6 +127,7 @@ public final class CosmeticBlocks {
         RoomStore.INSTANCE.loadRoomBlocks();
         RoomStore.INSTANCE.resolveAllRoomBlocks();
         RoomScanner.INSTANCE.init();
+        RoomProfileManager.INSTANCE.init();
         ReplacementCache.INSTANCE.rebuildActiveCache$cb_client();
         ClientTickEvents.END_CLIENT_TICK.register(CosmeticBlocks::onEndClientTick);
     }
@@ -315,6 +317,12 @@ public final class CosmeticBlocks {
     public static final void onSetObjective(@NotNull ClientboundSetObjectivePacket packet) {
         Intrinsics.checkNotNullParameter((Object)packet, (String)"packet");
         LocationTracker.onSetObjective(packet);
+    }
+
+    @JvmStatic
+    public static final void onTeamPacket(@NotNull ClientboundSetPlayerTeamPacket packet) {
+        Intrinsics.checkNotNullParameter((Object)packet, (String)"packet");
+        LocationTracker.onTeamPacket(packet);
     }
 
     public final void onWorldRender(@NotNull Matrix4f modelView, @NotNull Matrix4f projection, @NotNull Vec3 camPos) {
@@ -620,6 +628,8 @@ public final class CosmeticBlocks {
             DirtySections.INSTANCE.markAllCachedDirty$cb_client();
         }
         ConfigSwitcher.INSTANCE.checkConfigSwitch$cb_client();
+        ConfigSwitcher.INSTANCE.checkFloorAutoLoad$cb_client();
+        RoomProfileManager.INSTANCE.checkSwitch();
         LocationTracker.INSTANCE.updateDungeonCheck$cb_client();
         if (LocationTracker.INSTANCE.getInDungeon() && RoomScanner.INSTANCE.isReady() && ((Boolean)CosmeticBlocksTab.INSTANCE.getRoomScanning().getValue()).booleanValue() && (roomChanged = RoomScanner.INSTANCE.tick())) {
             RoomStore.INSTANCE.onRoomChanged$cb_client(RoomScanner.INSTANCE.getCurrentRoom());
@@ -669,6 +679,7 @@ public final class CosmeticBlocks {
             EditMode.INSTANCE.tickEditMode$cb_client();
         }
         Ruler.INSTANCE.tick();
+        Freecam.INSTANCE.tick();
         CosmeticRenderer.INSTANCE.emitGizmos();
     }
 

@@ -19,6 +19,11 @@ logs/
 # Build scratch logs
 vfj-*.txt
 
+# DevAuth credentials (never commit — tokens live here)
+.devauth/
+microsoft_accounts.json
+**/devauth.json
+
 # OS
 .DS_Store
 Thumbs.db

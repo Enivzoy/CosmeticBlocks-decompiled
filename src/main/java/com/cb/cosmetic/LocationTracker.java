@@ -2,6 +2,8 @@ package com.cb.cosmetic;
 
 import com.cb.config.tabs.CosmeticBlocksTab;
 import com.cb.dungeon.RoomScanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import kotlin.jvm.JvmStatic;
 import kotlin.jvm.internal.Intrinsics;
 import kotlin.text.StringsKt;
@@ -10,6 +12,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
+import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket.Action;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket.Entry;
 import org.jetbrains.annotations.NotNull;
@@ -18,11 +21,15 @@ import org.jetbrains.annotations.Nullable;
 public final class LocationTracker {
    @NotNull
    public static final LocationTracker INSTANCE = new LocationTracker();
+   private static final Pattern FORMAT_CODES = Pattern.compile("\u00a7.");
+   private static final Pattern CATACOMBS_FLOOR = Pattern.compile("The Catacombs\\b(?:\\s*\\((\\w+)\\))?");
    private static volatile boolean isInSkyblock;
    @NotNull
    private static volatile String currentArea = "";
    private static volatile boolean inDungeon;
    private static boolean lastDungeonState;
+   @Nullable
+   private static volatile String currentFloor;
 
    private LocationTracker() {
    }
@@ -46,6 +53,11 @@ public final class LocationTracker {
       return inDungeon;
    }
 
+   @Nullable
+   public final String getCurrentFloor() {
+      return currentFloor;
+   }
+
    @JvmStatic
    public static final void onPlayerInfoUpdate(@NotNull ClientboundPlayerInfoUpdatePacket packet) {
       Intrinsics.checkNotNullParameter(packet, "packet");
@@ -60,6 +72,10 @@ public final class LocationTracker {
                   if (StringsKt.startsWith(text, "Area: ", false) || StringsKt.startsWith(text, "Dungeon: ", false)) {
                      String area = StringsKt.trim(StringsKt.removePrefix(StringsKt.removePrefix(text, "Area: "), "Dungeon: ")).toString();
                      currentArea = area;
+                     String floor = parseFloorFromText(area);
+                     if (floor != null) {
+                        currentFloor = floor;
+                     }
                      boolean nowInDungeon = StringsKt.contains(area, "Catacombs", true);
                      INSTANCE.updateDungeonState(nowInDungeon);
                      return;
@@ -78,8 +94,45 @@ public final class LocationTracker {
       }
    }
 
+   @JvmStatic
+   public static final void onTeamPacket(@NotNull ClientboundSetPlayerTeamPacket packet) {
+      Intrinsics.checkNotNullParameter(packet, "packet");
+      if (packet.getParameters().isEmpty()) {
+         return;
+      }
+
+      ClientboundSetPlayerTeamPacket.Parameters parameters = packet.getParameters().get();
+      String text = parameters.playerPrefix().getString() + parameters.playerSuffix().getString();
+      String floor = parseFloorFromText(text);
+      if (floor != null) {
+         currentFloor = floor;
+      }
+   }
+
+   @Nullable
+   private static final String parseFloorFromText(@Nullable String text) {
+      if (text == null || text.isEmpty()) {
+         return null;
+      }
+
+      String clean = FORMAT_CODES.matcher(text).replaceAll("");
+      Matcher matcher = CATACOMBS_FLOOR.matcher(clean);
+      if (!matcher.find()) {
+         return null;
+      }
+
+      String code = matcher.group(1);
+      if (code == null) {
+         return "e";
+      }
+
+      String normalized = FloorUtil.normalize(code);
+      return normalized == null || normalized.equals(FloorUtil.NONE) ? null : normalized;
+   }
+
    public final void resetLocationState() {
       currentArea = "";
+      currentFloor = null;
       isInSkyblock = false;
       this.updateDungeonState(false);
       RoomScanner.INSTANCE.unload();

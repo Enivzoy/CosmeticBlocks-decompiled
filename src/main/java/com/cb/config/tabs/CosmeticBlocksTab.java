@@ -1,7 +1,12 @@
 package com.cb.config.tabs;
 
+import com.cb.config.Config;
 import com.cb.config.SettingsTab;
 import com.cb.cosmetic.ConfigSwitcher;
+import com.cb.cosmetic.FloorUtil;
+import com.cb.cosmetic.ReplacementIO;
+import com.cb.cosmetic.ReplacementStore;
+import com.cb.cosmetic.SaveScheduler;
 import com.cb.setting.BooleanSetting;
 import com.cb.setting.ColorSetting;
 import com.cb.setting.ConfigListSetting;
@@ -9,6 +14,7 @@ import com.cb.setting.KeybindSetting;
 import com.cb.setting.NumberSetting;
 import com.cb.setting.SettingKt;
 import java.util.List;
+import kotlin.Unit;
 import org.jetbrains.annotations.NotNull;
 
 public final class CosmeticBlocksTab extends SettingsTab {
@@ -52,6 +58,17 @@ public final class CosmeticBlocksTab extends SettingsTab {
    private static final ConfigListSetting activeConfig = INSTANCE.configList(
       "Active Config", "Switch between saved block layouts.", "default", CosmeticBlocksTab::listConfigOptions
    );
+   @NotNull
+   private static final BooleanSetting autoLoadFloor = INSTANCE.bool(
+      "Auto-load Floor Config", "Loads the config tagged for the current dungeon floor on entry.", true
+   );
+   @NotNull
+   private static final ConfigListSetting configFloor = SettingKt.onChange(
+      INSTANCE.configList("Config Floor", "Which dungeon floor this config is for (auto-loaded on entry).", "None", CosmeticBlocksTab::listFloorOptions),
+      CosmeticBlocksTab::onFloorChanged
+   );
+   private static boolean floorReady;
+   private static boolean floorSyncing;
    @NotNull
    private static final BooleanSetting showReplacedBlocks = SettingKt.visibleWhen(
       INSTANCE.bool("Show Replaced Blocks", "Renders a wireframe over replaced blocks.", false), CosmeticBlocksTab::showReplacedBlocksVisible
@@ -156,6 +173,16 @@ public final class CosmeticBlocksTab extends SettingsTab {
    }
 
    @NotNull
+   public final BooleanSetting getAutoLoadFloor() {
+      return autoLoadFloor;
+   }
+
+   @NotNull
+   public final ConfigListSetting getConfigFloor() {
+      return configFloor;
+   }
+
+   @NotNull
    public final BooleanSetting getShowReplacedBlocks() {
       return showReplacedBlocks;
    }
@@ -176,6 +203,37 @@ public final class CosmeticBlocksTab extends SettingsTab {
 
    private static final List listConfigOptions() {
       return ConfigSwitcher.INSTANCE.listConfigs();
+   }
+
+   private static final List listFloorOptions() {
+      return FloorUtil.listFloorOptions();
+   }
+
+   private static final Unit onFloorChanged(String value) {
+      if (floorReady && !floorSyncing) {
+         String normalized = FloorUtil.normalize(value);
+         ReplacementStore.INSTANCE.setFloor$cb_client(normalized == null || normalized.equals(FloorUtil.NONE) ? null : normalized);
+         SaveScheduler.INSTANCE.awaitPendingSaves$cb_client();
+         ReplacementIO.INSTANCE.saveToFileSync$cb_client(
+            ReplacementStore.INSTANCE.getConfigFile$cb_client(CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue())
+         );
+         Config.INSTANCE.save();
+      }
+
+      return Unit.INSTANCE;
+   }
+
+   public static final void syncFloorFromStore() {
+      floorSyncing = true;
+      try {
+         configFloor.setValue(FloorUtil.displayOrNone(ReplacementStore.INSTANCE.getFloor$cb_client()));
+      } finally {
+         floorSyncing = false;
+      }
+   }
+
+   public static final void markFloorReady() {
+      floorReady = true;
    }
 
    private static final boolean showReplacedBlocksVisible() {
