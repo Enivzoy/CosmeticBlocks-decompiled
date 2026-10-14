@@ -73,6 +73,10 @@ public final class ConfigListComponent extends SettingComponent<ConfigListSettin
                }
 
                int color = Intrinsics.areEqual(opt, this.getSetting().getValue()) ? -1750963 : -6513508;
+               if ((background >>> 24) != 0 && isBright(background)) {
+                  color = -16777216;
+               }
+
                NVGRenderer.INSTANCE.text(label, this.getX() + 18.0F, oy + this.optionH / 2.0F, 12.0F, color, NVGRenderer.Font.REGULAR);
                oy += this.optionH;
             }
@@ -80,6 +84,13 @@ public final class ConfigListComponent extends SettingComponent<ConfigListSettin
             NVGRenderer.INSTANCE.restore();
          }
       }
+   }
+
+   private static boolean isBright(int argb) {
+      int r = argb >> 16 & 255;
+      int g = argb >> 8 & 255;
+      int b = argb & 255;
+      return r * 299 + g * 587 + b * 114 > 70000;
    }
 
    @NotNull

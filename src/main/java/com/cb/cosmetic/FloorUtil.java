@@ -24,9 +24,9 @@ public final class FloorUtil {
       "m1", "m2", "m3", "m4", "m5", "m6", "m7"
    );
    private static final List<String> DISPLAY_OPTIONS = buildDisplayOptions();
-   private static final int COLOR_NONE = 0xFF3D3B40;
-   private static final int COLOR_ENTRANCE = 0xFF482E48;
-   private static final int[] FLOOR_COLORS = new int[]{0xFF59281E, 0xFF374E35, 0xFF181922, 0xFF731619, 0xFFA3001C, 0xFFD6001C, 0xFFFF0015};
+   private static final int COLOR_NONE = 0xFF181A2A;
+   private static final int COLOR_ENTRANCE = 0xFF2B1D3A;
+   private static final int[] FLOOR_COLORS = new int[]{0xFF3E1C4B, 0xFF581B5E, 0xFF74196E, 0xFF8E1674, 0xFFAA0D74, 0xFFC8006E, 0xFFE60060};
    private static final Map<String, String> FLOOR_CACHE = new HashMap<>();
    private static final Map<String, Long> FLOOR_CACHE_TIME = new HashMap<>();
 

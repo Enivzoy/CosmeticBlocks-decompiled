@@ -98,8 +98,8 @@ public final class SettingsPanel {
       this.y = value;
    }
 
-   private final float getWidth() {
-      return 240.0F;
+   public final float getWidth() {
+      return Intrinsics.areEqual(this.tab.getName(), "Cosmetic Blocks") ? 280.0F : 240.0F;
    }
 
    private final float contentHeight() {

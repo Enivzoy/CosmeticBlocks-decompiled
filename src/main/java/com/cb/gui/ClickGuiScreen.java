@@ -39,20 +39,14 @@ public final class ClickGuiScreen extends Screen implements NvgScreen {
    public ClickGuiScreen() {
       super(Component.literal("Cosmetic Blocks"));
       Iterable tabs = Tabs.INSTANCE.getAll();
-      ClickGuiScreen screen = this;
-      Iterable tabsToMap = tabs;
       var panels = new ArrayList(CollectionsKt.collectionSizeOrDefault(tabs, 10));
-      int index = 0;
+      float nextX = 16.0F;
 
-      for (Object item : tabsToMap) {
-         int currentIndex = index++;
-         if (currentIndex < 0) {
-            CollectionsKt.throwIndexOverflow();
-         }
-
+      for (Object item : tabs) {
          SettingsTab tab = (SettingsTab)item;
-         int panelIndex = currentIndex;
-         panels.add(new SettingsPanel(this, tab, 16.0F + panelIndex * 254.0F, 16.0F));
+         SettingsPanel panel = new SettingsPanel(this, tab, nextX, 16.0F);
+         panels.add(panel);
+         nextX += panel.getWidth() + 14.0F;
       }
 
       this.panels = CollectionsKt.toMutableList(panels);
