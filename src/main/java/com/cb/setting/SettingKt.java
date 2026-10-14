@@ -21,4 +21,20 @@ public final class SettingKt {
       setting.setOnChanged(listener);
       return setting;
    }
+
+   @NotNull
+   public static final ConfigListSetting optionLabel(@NotNull ConfigListSetting setting, @NotNull Function1<String, String> provider) {
+      Intrinsics.checkNotNullParameter(setting, "<this>");
+      Intrinsics.checkNotNullParameter(provider, "provider");
+      setting.setLabelProvider(provider);
+      return setting;
+   }
+
+   @NotNull
+   public static final ConfigListSetting optionColor(@NotNull ConfigListSetting setting, @NotNull Function1<String, Integer> provider) {
+      Intrinsics.checkNotNullParameter(setting, "<this>");
+      Intrinsics.checkNotNullParameter(provider, "provider");
+      setting.setColorProvider(provider);
+      return setting;
+   }
 }

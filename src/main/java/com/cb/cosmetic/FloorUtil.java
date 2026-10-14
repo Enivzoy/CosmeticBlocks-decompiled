@@ -5,8 +5,10 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,6 +24,11 @@ public final class FloorUtil {
       "m1", "m2", "m3", "m4", "m5", "m6", "m7"
    );
    private static final List<String> DISPLAY_OPTIONS = buildDisplayOptions();
+   private static final int COLOR_NONE = 0xFF3D3B40;
+   private static final int COLOR_ENTRANCE = 0xFF482E48;
+   private static final int[] FLOOR_COLORS = new int[]{0xFF59281E, 0xFF374E35, 0xFF181922, 0xFF731619, 0xFFA3001C, 0xFFD6001C, 0xFFFF0015};
+   private static final Map<String, String> FLOOR_CACHE = new HashMap<>();
+   private static final Map<String, Long> FLOOR_CACHE_TIME = new HashMap<>();
 
    private FloorUtil() {
    }
@@ -88,6 +95,31 @@ public final class FloorUtil {
       return normalized == null ? "None" : display(normalized);
    }
 
+   public static int colorForFloor(@Nullable String raw) {
+      String floor = normalize(raw);
+      if (floor == null || floor.equals(NONE)) {
+         return COLOR_NONE;
+      }
+      if (floor.equals("e")) {
+         return COLOR_ENTRANCE;
+      }
+      int number = floorNumber(floor);
+      if (number >= 1 && number <= FLOOR_COLORS.length) {
+         return FLOOR_COLORS[number - 1];
+      }
+      return COLOR_NONE;
+   }
+
+   @Nullable
+   public static String floorOfConfig(@NotNull String name) {
+      return readFloor(ReplacementStore.INSTANCE.getConfigFile$cb_client(name));
+   }
+
+   @NotNull
+   public static String configLabel(@NotNull String name) {
+      return name + " [" + display(floorOfConfig(name)) + "]";
+   }
+
    public static int floorNumber(@Nullable String canonical) {
       if (canonical == null) {
          return -1;
@@ -148,6 +180,24 @@ public final class FloorUtil {
       if (file == null || !file.exists()) {
          return null;
       }
+      String key = file.getPath();
+      long modified = file.lastModified();
+      synchronized (FLOOR_CACHE) {
+         Long cachedTime = FLOOR_CACHE_TIME.get(key);
+         if (cachedTime != null && cachedTime == modified && FLOOR_CACHE.containsKey(key)) {
+            return FLOOR_CACHE.get(key);
+         }
+      }
+      String floor = readFloorUncached(file);
+      synchronized (FLOOR_CACHE) {
+         FLOOR_CACHE.put(key, floor);
+         FLOOR_CACHE_TIME.put(key, modified);
+      }
+      return floor;
+   }
+
+   @Nullable
+   private static String readFloorUncached(@NotNull File file) {
       try (BufferedReader reader = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
          String line;
          int scanned = 0;

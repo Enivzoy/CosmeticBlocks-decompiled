@@ -55,8 +55,12 @@ public final class CosmeticBlocksTab extends SettingsTab {
       INSTANCE.color("Water Color", "Custom water tint.", -12618012), CosmeticBlocksTab::customWaterColorVisible
    );
    @NotNull
-   private static final ConfigListSetting activeConfig = INSTANCE.configList(
-      "Active Config", "Switch between saved block layouts.", "default", CosmeticBlocksTab::listConfigOptions
+   private static final ConfigListSetting activeConfig = SettingKt.optionLabel(
+      SettingKt.optionColor(
+         INSTANCE.configList("Active Config", "Switch between saved block layouts.", "default", CosmeticBlocksTab::listConfigOptions),
+         CosmeticBlocksTab::activeConfigColor
+      ),
+      CosmeticBlocksTab::activeConfigLabel
    );
    @NotNull
    private static final BooleanSetting autoLoadFloor = INSTANCE.bool(
@@ -64,7 +68,10 @@ public final class CosmeticBlocksTab extends SettingsTab {
    );
    @NotNull
    private static final ConfigListSetting configFloor = SettingKt.onChange(
-      INSTANCE.configList("Config Floor", "Which dungeon floor this config is for (auto-loaded on entry).", "None", CosmeticBlocksTab::listFloorOptions),
+      SettingKt.optionColor(
+         INSTANCE.configList("Config Floor", "Which dungeon floor this config is for (auto-loaded on entry).", "None", CosmeticBlocksTab::listFloorOptions),
+         CosmeticBlocksTab::floorOptionColor
+      ),
       CosmeticBlocksTab::onFloorChanged
    );
    private static boolean floorReady;
@@ -207,6 +214,18 @@ public final class CosmeticBlocksTab extends SettingsTab {
 
    private static final List listFloorOptions() {
       return FloorUtil.listFloorOptions();
+   }
+
+   private static final String activeConfigLabel(String name) {
+      return FloorUtil.configLabel(name);
+   }
+
+   private static final int activeConfigColor(String name) {
+      return FloorUtil.colorForFloor(FloorUtil.floorOfConfig(name));
+   }
+
+   private static final int floorOptionColor(String label) {
+      return FloorUtil.colorForFloor(label);
    }
 
    private static final Unit onFloorChanged(String value) {
