@@ -16,6 +16,7 @@ import kotlin.text.StringsKt;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class ReplacementStore {
    @NotNull
@@ -24,6 +25,8 @@ public final class ReplacementStore {
    private static final File configDir = new File("config/cb/cb");
    @NotNull
    private static final Map<String, Map<String, String>> replacements = new LinkedHashMap<>();
+   @Nullable
+   private static volatile String floor;
 
    private ReplacementStore() {
    }
@@ -31,6 +34,15 @@ public final class ReplacementStore {
    @NotNull
    public final File getConfigDir$cb_client() {
       return configDir;
+   }
+
+   @Nullable
+   public final String getFloor$cb_client() {
+      return floor;
+   }
+
+   public final void setFloor$cb_client(@Nullable String value) {
+      floor = value;
    }
 
    @NotNull

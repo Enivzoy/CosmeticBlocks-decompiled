@@ -2,6 +2,7 @@ package com.cb.command;
 
 import com.cb.config.tabs.CosmeticBlocksTab;
 import com.cb.cosmetic.CosmeticBlocks;
+import com.cb.cosmetic.Freecam;
 import com.cb.gui.ClickGuiScreen;
 import com.cb.gui.screens.HudEditorScreen;
 import com.cb.gui.screens.KeybindEditorScreen;
@@ -256,10 +257,15 @@ public final class CbCommand {
       return 1;
    }
 
-   private static final int onToggleFillModeCommand(CommandContext it) {
-      CosmeticBlocks.INSTANCE.toggleFillMode();
-      return 1;
-   }
+    private static final int onToggleFillModeCommand(CommandContext it) {
+       CosmeticBlocks.INSTANCE.toggleFillMode();
+       return 1;
+    }
+
+    private static final int onFreecamCommand(CommandContext it) {
+       Freecam.INSTANCE.toggle();
+       return 1;
+    }
 
    private static final CompletableFuture onBlockSuggestions(CommandContext context, SuggestionsBuilder builder) {
       CbCommand command = INSTANCE;
@@ -695,6 +701,7 @@ public final class CbCommand {
             .then(ClientCommands.literal("hud").executes(CbCommand::onHudCommand))
             .then(ClientCommands.literal("em").executes(CbCommand::onToggleEditModeCommand))
             .then(ClientCommands.literal("fillmode").executes(CbCommand::onToggleFillModeCommand))
+            .then(ClientCommands.literal("freecam").executes(CbCommand::onFreecamCommand))
             .then(
                ClientCommands.literal("block")
                   .then(

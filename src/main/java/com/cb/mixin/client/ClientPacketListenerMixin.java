@@ -18,6 +18,7 @@ import com.cb.utils.ServerUtils;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
+import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -39,6 +40,11 @@ public class ClientPacketListenerMixin {
     @Inject(method={"handleAddObjective"}, at={@At(value="HEAD")})
     private void cfme$onSetObjective(ClientboundSetObjectivePacket packet, CallbackInfo ci) {
         CosmeticBlocks.onSetObjective(packet);
+    }
+
+    @Inject(method={"handleSetPlayerTeamPacket"}, at={@At(value="HEAD")})
+    private void cfme$onTeamPacket(ClientboundSetPlayerTeamPacket packet, CallbackInfo ci) {
+        CosmeticBlocks.onTeamPacket(packet);
     }
 }
 

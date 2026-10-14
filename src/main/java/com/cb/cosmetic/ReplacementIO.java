@@ -21,6 +21,7 @@ import kotlin.io.FilesKt;
 import kotlin.jvm.internal.Intrinsics;
 import kotlin.text.StringsKt;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class ReplacementIO {
    @NotNull
@@ -36,9 +37,10 @@ public final class ReplacementIO {
          SaveScheduler.INSTANCE.setNeedsSave$cb_client(false);
          SaveScheduler.INSTANCE.setLastSaveTime$cb_client(System.currentTimeMillis());
          Map snapshot = ReplacementStore.INSTANCE.snapshotReplacements$cb_client();
+         String floor = ReplacementStore.INSTANCE.getFloor$cb_client();
          File file = ReplacementStore.INSTANCE.getConfigFile$cb_client(CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue());
          SaveScheduler.INSTANCE.setSaveInFlight$cb_client(true);
-         SaveScheduler.INSTANCE.getSaveExecutor$cb_client().execute(() -> saveAsync(snapshot, file));
+         SaveScheduler.INSTANCE.getSaveExecutor$cb_client().execute(() -> saveAsync(snapshot, floor, file));
       }
    }
 
@@ -48,13 +50,13 @@ public final class ReplacementIO {
       SaveScheduler.INSTANCE.setLastSaveTime$cb_client(System.currentTimeMillis());
 
       try {
-         this.writeConfig(ReplacementStore.INSTANCE.snapshotReplacements$cb_client(), file);
+         this.writeConfig(ReplacementStore.INSTANCE.snapshotReplacements$cb_client(), ReplacementStore.INSTANCE.getFloor$cb_client(), file);
       } catch (Exception e) {
          System.err.println("[CB] Failed to save config sync: " + e.getMessage());
       }
    }
 
-   private final void writeConfig(Map<String, ? extends Map<String, String>> snapshot, File file) throws IOException {
+   private final void writeConfig(Map<String, ? extends Map<String, String>> snapshot, @Nullable String floor, File file) throws IOException {
       if (!ReplacementStore.INSTANCE.getConfigDir$cb_client().exists()) {
          ReplacementStore.INSTANCE.getConfigDir$cb_client().mkdirs();
       }
@@ -72,6 +74,10 @@ public final class ReplacementIO {
             JsonWriter jw = jsonWriter;
             jw.setIndent("  ");
             jw.beginObject();
+
+            if (floor != null && !floor.isEmpty()) {
+               jw.name("floor").value(floor);
+            }
 
             for (Entry dimEntry : snapshot.entrySet()) {
                String dim = (String)dimEntry.getKey();
@@ -127,6 +133,7 @@ public final class ReplacementIO {
    public final void loadFrom$cb_client(@NotNull File file) {
       Intrinsics.checkNotNullParameter(file, "file");
       ReplacementStore.INSTANCE.getReplacements$cb_client().clear();
+      ReplacementStore.INSTANCE.setFloor$cb_client(null);
       File tmpFile = new File(file.getParentFile(), file.getName() + ".tmp");
       boolean loaded = this.tryLoadFile(file) || this.tryLoadFile(tmpFile);
       if (!loaded && (file.exists() || tmpFile.exists())) {
@@ -149,11 +156,24 @@ public final class ReplacementIO {
          }
 
          JsonObject root = JsonParser.parseString(content).getAsJsonObject();
+         String loadedFloor = null;
 
          for (Entry rootEntry : root.entrySet()) {
             Intrinsics.checkNotNull(rootEntry);
             String dim = (String)rootEntry.getKey();
             JsonElement element = (JsonElement)rootEntry.getValue();
+            if (element.isJsonPrimitive()) {
+               if (Intrinsics.areEqual(dim, "floor") && element.getAsJsonPrimitive().isString()) {
+                  loadedFloor = element.getAsString();
+               }
+
+               continue;
+            }
+
+            if (!element.isJsonObject()) {
+               continue;
+            }
+
             JsonObject dimObj = element.getAsJsonObject();
             Map dimMap = new LinkedHashMap();
 
@@ -167,6 +187,7 @@ public final class ReplacementIO {
             ReplacementStore.INSTANCE.getReplacements$cb_client().put(dim, dimMap);
          }
 
+         ReplacementStore.INSTANCE.setFloor$cb_client(loadedFloor);
          text = true;
       } catch (Exception e) {
          System.err.println("[CB] Failed to parse " + file.getName() + ": " + e.getMessage());
@@ -192,9 +213,9 @@ public final class ReplacementIO {
       }
    }
 
-   private static final void saveAsync(Map $snapshot, File $file) {
+   private static final void saveAsync(Map $snapshot, String $floor, File $file) {
       try {
-         INSTANCE.writeConfig($snapshot, $file);
+         INSTANCE.writeConfig($snapshot, $floor, $file);
       } catch (Exception e) {
          System.err.println("[CB] Failed to save config: " + e.getMessage());
       } finally {
