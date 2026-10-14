@@ -13,6 +13,7 @@ import com.cb.setting.ConfigListSetting;
 import com.cb.setting.KeybindSetting;
 import com.cb.setting.NumberSetting;
 import com.cb.setting.SettingKt;
+import java.util.ArrayList;
 import java.util.List;
 import kotlin.Unit;
 import org.jetbrains.annotations.NotNull;
@@ -209,7 +210,10 @@ public final class CosmeticBlocksTab extends SettingsTab {
    }
 
    private static final List listConfigOptions() {
-      return ConfigSwitcher.INSTANCE.listConfigs();
+      List<String> configs = ConfigSwitcher.INSTANCE.listConfigs();
+      List<String> sorted = new ArrayList<>(configs);
+      sorted.sort((a, b) -> Integer.compare(FloorUtil.floorNumber(FloorUtil.floorOfConfig(b)), FloorUtil.floorNumber(FloorUtil.floorOfConfig(a))));
+      return sorted;
    }
 
    private static final List listFloorOptions() {
