@@ -3,7 +3,7 @@ package com.cb.gui.screens;
 import com.cb.config.Config;
 import com.cb.config.SettingsTab;
 import com.cb.config.Tabs;
-import com.cb.config.tabs.CosmeticBlocksTab;
+import com.cb.config.tabs.DungeonConfigTab;
 import com.cb.cosmetic.CosmeticBlocks;
 import com.cb.dungeon.RoomInfo;
 import com.cb.dungeon.RoomScanner;
@@ -1641,7 +1641,7 @@ public final class CliEngine {
                                           + " replacements, edit: "
                                           + mode
                                           + ", config: "
-                                          + CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue()
+                                          + DungeonConfigTab.INSTANCE.getActiveConfig().getValue()
                                           + roomInfo;
                                     }
 
@@ -1933,7 +1933,7 @@ public final class CliEngine {
                                        return "Configs: "
                                           + CollectionsKt.joinToString(configs, ", ", "", "", -1, "...", null)
                                           + " (active: "
-                                          + CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue()
+                                          + DungeonConfigTab.INSTANCE.getActiveConfig().getValue()
                                           + ")";
                                     }
 

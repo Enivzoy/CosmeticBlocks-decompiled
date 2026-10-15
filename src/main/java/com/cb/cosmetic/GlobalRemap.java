@@ -1,6 +1,6 @@
 package com.cb.cosmetic;
 
-import com.cb.config.tabs.BlockRemapsTab;
+import com.cb.config.tabs.GlobalCosmeticsTab;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -28,7 +28,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class GlobalRemap {
+public final class GlobalRemap implements RemapStore {
    @NotNull
    public static final GlobalRemap INSTANCE = new GlobalRemap();
    @NotNull
@@ -50,7 +50,11 @@ public final class GlobalRemap {
    @Nullable
    public final BlockState remapFor(@NotNull Block block, int x, int y, int z) {
       Intrinsics.checkNotNullParameter(block, "block");
-      if (!BlockRemapsTab.INSTANCE.getEnabled().getValue()) {
+      if (!GlobalCosmeticsTab.INSTANCE.getGlobalRemapEnabled().getValue()) {
+         return null;
+      }
+
+      if (LocationTracker.INSTANCE.getInDungeon() && ConfigRemap.INSTANCE.isActiveForActiveConfig()) {
          return null;
       }
 
@@ -403,7 +407,7 @@ public final class GlobalRemap {
       }
    }
 
-   private static final class Resolved {
+   static final class Resolved {
       @NotNull
       private final BlockState[] states;
       @NotNull

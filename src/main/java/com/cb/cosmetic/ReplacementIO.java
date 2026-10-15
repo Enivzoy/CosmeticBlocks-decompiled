@@ -1,6 +1,6 @@
 package com.cb.cosmetic;
 
-import com.cb.config.tabs.CosmeticBlocksTab;
+import com.cb.config.tabs.DungeonConfigTab;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -38,9 +38,10 @@ public final class ReplacementIO {
          SaveScheduler.INSTANCE.setLastSaveTime$cb_client(System.currentTimeMillis());
          Map snapshot = ReplacementStore.INSTANCE.snapshotReplacements$cb_client();
          String floor = ReplacementStore.INSTANCE.getFloor$cb_client();
-         File file = ReplacementStore.INSTANCE.getConfigFile$cb_client(CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue());
+         File file = ReplacementStore.INSTANCE.getConfigFile$cb_client(DungeonConfigTab.INSTANCE.getActiveConfig().getValue());
+         WaterConfig.Fields water = WaterConfig.INSTANCE.captureFields();
          SaveScheduler.INSTANCE.setSaveInFlight$cb_client(true);
-         SaveScheduler.INSTANCE.getSaveExecutor$cb_client().execute(() -> saveAsync(snapshot, floor, file));
+         SaveScheduler.INSTANCE.getSaveExecutor$cb_client().execute(() -> saveAsync(snapshot, floor, water, file));
       }
    }
 
@@ -50,13 +51,13 @@ public final class ReplacementIO {
       SaveScheduler.INSTANCE.setLastSaveTime$cb_client(System.currentTimeMillis());
 
       try {
-         this.writeConfig(ReplacementStore.INSTANCE.snapshotReplacements$cb_client(), ReplacementStore.INSTANCE.getFloor$cb_client(), file);
+         this.writeConfig(ReplacementStore.INSTANCE.snapshotReplacements$cb_client(), ReplacementStore.INSTANCE.getFloor$cb_client(), WaterConfig.INSTANCE.captureFields(), file);
       } catch (Exception e) {
          System.err.println("[CB] Failed to save config sync: " + e.getMessage());
       }
    }
 
-   private final void writeConfig(Map<String, ? extends Map<String, String>> snapshot, @Nullable String floor, File file) throws IOException {
+   private final void writeConfig(Map<String, ? extends Map<String, String>> snapshot, @Nullable String floor, @NotNull WaterConfig.Fields water, File file) throws IOException {
       if (!ReplacementStore.INSTANCE.getConfigDir$cb_client().exists()) {
          ReplacementStore.INSTANCE.getConfigDir$cb_client().mkdirs();
       }
@@ -77,6 +78,18 @@ public final class ReplacementIO {
 
             if (floor != null && !floor.isEmpty()) {
                jw.name("floor").value(floor);
+            }
+
+            if (water.getAllow() != null) {
+               jw.name("allowWaterColor").value(water.getAllow().booleanValue());
+            }
+
+            if (water.getRgb() != null) {
+               jw.name("rgbWaterColor").value(water.getRgb().intValue());
+            }
+
+            if (water.getLava() != null) {
+               jw.name("lavaAsWater").value(water.getLava().booleanValue());
             }
 
             for (Entry dimEntry : snapshot.entrySet()) {
@@ -125,8 +138,8 @@ public final class ReplacementIO {
    public final void load() {
       SaveScheduler.INSTANCE.flushSave$cb_client();
       SaveScheduler.INSTANCE.awaitPendingSaves$cb_client();
-      ConfigSwitcher.INSTANCE.setLoadedConfigName$cb_client(CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue());
-      this.loadFrom$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client(CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue()));
+      ConfigSwitcher.INSTANCE.setLoadedConfigName$cb_client(DungeonConfigTab.INSTANCE.getActiveConfig().getValue());
+      this.loadFrom$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client(DungeonConfigTab.INSTANCE.getActiveConfig().getValue()));
       DirtySections.INSTANCE.markAllCachedDirty$cb_client();
    }
 
@@ -134,6 +147,8 @@ public final class ReplacementIO {
       Intrinsics.checkNotNullParameter(file, "file");
       ReplacementStore.INSTANCE.getReplacements$cb_client().clear();
       ReplacementStore.INSTANCE.setFloor$cb_client(null);
+      WaterConfig.INSTANCE.onConfigLoaded$cb_client(null, null, null);
+      ConfigRemap.INSTANCE.load(FilesKt.getNameWithoutExtension(file));
       File tmpFile = new File(file.getParentFile(), file.getName() + ".tmp");
       boolean loaded = this.tryLoadFile(file) || this.tryLoadFile(tmpFile);
       if (!loaded && (file.exists() || tmpFile.exists())) {
@@ -157,6 +172,9 @@ public final class ReplacementIO {
 
          JsonObject root = JsonParser.parseString(content).getAsJsonObject();
          String loadedFloor = null;
+         Boolean loadedAllowWater = null;
+         Integer loadedRgbWater = null;
+         Boolean loadedLavaAsWater = null;
 
          for (Entry rootEntry : root.entrySet()) {
             Intrinsics.checkNotNull(rootEntry);
@@ -165,6 +183,12 @@ public final class ReplacementIO {
             if (element.isJsonPrimitive()) {
                if (Intrinsics.areEqual(dim, "floor") && element.getAsJsonPrimitive().isString()) {
                   loadedFloor = element.getAsString();
+               } else if (Intrinsics.areEqual(dim, "allowWaterColor") && element.getAsJsonPrimitive().isBoolean()) {
+                  loadedAllowWater = element.getAsBoolean();
+               } else if (Intrinsics.areEqual(dim, "rgbWaterColor") && element.getAsJsonPrimitive().isNumber()) {
+                  loadedRgbWater = element.getAsInt();
+               } else if (Intrinsics.areEqual(dim, "lavaAsWater") && element.getAsJsonPrimitive().isBoolean()) {
+                  loadedLavaAsWater = element.getAsBoolean();
                }
 
                continue;
@@ -188,6 +212,7 @@ public final class ReplacementIO {
          }
 
          ReplacementStore.INSTANCE.setFloor$cb_client(loadedFloor);
+         WaterConfig.INSTANCE.onConfigLoaded$cb_client(loadedAllowWater, loadedRgbWater, loadedLavaAsWater);
          text = true;
       } catch (Exception e) {
          System.err.println("[CB] Failed to parse " + file.getName() + ": " + e.getMessage());
@@ -213,9 +238,9 @@ public final class ReplacementIO {
       }
    }
 
-   private static final void saveAsync(Map $snapshot, String $floor, File $file) {
+   private static final void saveAsync(Map $snapshot, String $floor, WaterConfig.Fields $water, File $file) {
       try {
-         INSTANCE.writeConfig($snapshot, $floor, $file);
+         INSTANCE.writeConfig($snapshot, $floor, $water, $file);
       } catch (Exception e) {
          System.err.println("[CB] Failed to save config: " + e.getMessage());
       } finally {

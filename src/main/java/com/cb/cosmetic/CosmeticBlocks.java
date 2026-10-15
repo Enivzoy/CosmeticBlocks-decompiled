@@ -38,6 +38,7 @@
 package com.cb.cosmetic;
 
 import com.cb.config.tabs.CosmeticBlocksTab;
+import com.cb.config.tabs.GlobalCosmeticsTab;
 import com.cb.cosmetic.BlockStateCodec;
 import com.cb.cosmetic.ConfigSwitcher;
 import com.cb.cosmetic.CosmeticRenderer;
@@ -161,6 +162,16 @@ public final class CosmeticBlocks {
         }
         Block block = original.getBlock();
         Intrinsics.checkNotNullExpressionValue((Object)block, (String)"getBlock(...)");
+        return remapFor(block, x, y, z);
+    }
+
+    @JvmStatic
+    @Nullable
+    public static final BlockState remapFor(@NotNull Block block, int x, int y, int z) {
+        Intrinsics.checkNotNullParameter((Object)block, (String)"block");
+        if (LocationTracker.INSTANCE.getInDungeon() && ConfigRemap.INSTANCE.isActiveForActiveConfig()) {
+            return ConfigRemap.INSTANCE.remapFor(block, x, y, z);
+        }
         return GlobalRemap.INSTANCE.remapFor(block, x, y, z);
     }
 
@@ -178,7 +189,7 @@ public final class CosmeticBlocks {
         }
         Block block = original.getBlock();
         Intrinsics.checkNotNullExpressionValue((Object)block, (String)"getBlock(...)");
-        return GlobalRemap.INSTANCE.remapFor(block, pos.getX(), pos.getY(), pos.getZ());
+        return remapFor(block, pos.getX(), pos.getY(), pos.getZ());
     }
 
     @Nullable
@@ -191,7 +202,7 @@ public final class CosmeticBlocks {
     @Nullable
     public static final BlockState swapFluid(@NotNull BlockState original) {
         Intrinsics.checkNotNullParameter((Object)original, (String)"original");
-        if (!((Boolean)CosmeticBlocksTab.INSTANCE.getLavaAsWater().getValue()).booleanValue()) {
+        if (!WaterConfig.INSTANCE.lavaAsWater()) {
             return null;
         }
         if (((Boolean)CosmeticBlocksTab.INSTANCE.getOnlyInDungeons().getValue()).booleanValue() && !LocationTracker.INSTANCE.getInDungeon()) {
@@ -300,11 +311,18 @@ public final class CosmeticBlocks {
     }
 
     public final boolean customWaterColorEnabled() {
-        return (Boolean)CosmeticBlocksTab.INSTANCE.getCustomWaterColor().getValue();
+        return WaterConfig.INSTANCE.allowWaterColor();
     }
 
     public final int waterColorRgb() {
-        return ((Number)CosmeticBlocksTab.INSTANCE.getWaterColor().getValue()).intValue() & 0xFFFFFF;
+        return WaterConfig.INSTANCE.rgbWaterColor();
+    }
+
+    public final boolean remapKeepShapeEnabled() {
+        if (LocationTracker.INSTANCE.getInDungeon() && ConfigRemap.INSTANCE.isActiveForActiveConfig()) {
+            return ConfigRemap.INSTANCE.getKeepShape();
+        }
+        return (Boolean)GlobalCosmeticsTab.INSTANCE.getGlobalRemapKeepShape().getValue();
     }
 
     @JvmStatic
@@ -618,16 +636,17 @@ public final class CosmeticBlocks {
         if (DirtySections.INSTANCE.hasPending$cb_client()) {
             DirtySections.INSTANCE.drainDirtySections$cb_client();
         }
-        if ((Boolean)CosmeticBlocksTab.INSTANCE.getEnabled().getValue() != lastEnabledState || (Boolean)CosmeticBlocksTab.INSTANCE.getOnlyInDungeons().getValue() != lastOnlyInDungeonsState || (Boolean)CosmeticBlocksTab.INSTANCE.getKeepBlockSize().getValue() != lastKeepBlockSizeState || (Boolean)CosmeticBlocksTab.INSTANCE.getLavaAsWater().getValue() != lastLavaAsWaterState) {
+        if ((Boolean)CosmeticBlocksTab.INSTANCE.getEnabled().getValue() != lastEnabledState || (Boolean)CosmeticBlocksTab.INSTANCE.getOnlyInDungeons().getValue() != lastOnlyInDungeonsState || (Boolean)CosmeticBlocksTab.INSTANCE.getKeepBlockSize().getValue() != lastKeepBlockSizeState || WaterConfig.INSTANCE.lavaAsWater() != lastLavaAsWaterState) {
             ReplacementCache.INSTANCE.getRetextureCache$cb_client().clear();
             ReplacementCache.INSTANCE.getOriginalShapeCache$cb_client().clear();
             lastEnabledState = (Boolean)CosmeticBlocksTab.INSTANCE.getEnabled().getValue();
             lastOnlyInDungeonsState = (Boolean)CosmeticBlocksTab.INSTANCE.getOnlyInDungeons().getValue();
             lastKeepBlockSizeState = (Boolean)CosmeticBlocksTab.INSTANCE.getKeepBlockSize().getValue();
-            lastLavaAsWaterState = (Boolean)CosmeticBlocksTab.INSTANCE.getLavaAsWater().getValue();
+            lastLavaAsWaterState = WaterConfig.INSTANCE.lavaAsWater();
             DirtySections.INSTANCE.markAllCachedDirty$cb_client();
         }
         ConfigSwitcher.INSTANCE.checkConfigSwitch$cb_client();
+        ConfigSwitcher.INSTANCE.checkDungeonRevert$cb_client();
         ConfigSwitcher.INSTANCE.checkFloorAutoLoad$cb_client();
         RoomProfileManager.INSTANCE.checkSwitch();
         LocationTracker.INSTANCE.updateDungeonCheck$cb_client();

@@ -1,6 +1,7 @@
 package com.cb.gui.screens;
 
 import com.cb.cosmetic.GlobalRemap;
+import com.cb.cosmetic.RemapStore;
 import com.cb.gui.NvgScreen;
 import com.cb.render.NVGRenderer;
 import com.cb.render.Theme;
@@ -64,9 +65,19 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
    private float pickListTop;
    private float pickListBottom;
    private float blink;
+   @NotNull
+   private final RemapStore store;
+   private final boolean showImportExport;
 
    public GlobalRemapEditorScreen() {
+      this(GlobalRemap.INSTANCE, true);
+   }
+
+   public GlobalRemapEditorScreen(@NotNull RemapStore store, boolean showImportExport) {
       super(Component.literal("Block Remaps"));
+      Intrinsics.checkNotNullParameter(store, "store");
+      this.store = store;
+      this.showImportExport = showImportExport;
    }
 
    private final float getPanelW() {
@@ -124,22 +135,25 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
       float h = this.getPanelH();
       float cy = this.py + 10.0F;
       NVGRenderer.INSTANCE.text("Block Remaps", this.px + 10.0F, cy + 7.0F, 14.0F, -1184275, NVGRenderer.Font.BOLD);
-      NVGRenderer.INSTANCE.textRight(GlobalRemap.INSTANCE.sources().size() + " sources", this.px + w - 10.0F, cy + 7.0F, 12.0F, -6513508, NVGRenderer.Font.REGULAR);
+      NVGRenderer.INSTANCE.textRight(this.store.sources().size() + " sources", this.px + w - 10.0F, cy + 7.0F, 12.0F, -6513508, NVGRenderer.Font.REGULAR);
       cy += 24.0F;
       float bx = this.px + 10.0F;
-      bx += this.pillButton("+ Add Remap", bx, cy, true, () -> onAddRemap(this)) + 6.0F;
-      bx += this.pillButton("Export", bx, cy, false, GlobalRemapEditorScreen::onExport) + 6.0F;
-      bx += this.pillButton("Import", bx, cy, false, GlobalRemapEditorScreen::onImport) + 6.0F;
-      this.pillButton("Clear", bx, cy, false, GlobalRemapEditorScreen::onClear);
+      bx += this.pillButton("+ Add Remap", bx, cy, true, () -> this.onAddRemap()) + 6.0F;
+      if (this.showImportExport) {
+         bx += this.pillButton("Export", bx, cy, false, () -> this.onExport()) + 6.0F;
+         bx += this.pillButton("Import", bx, cy, false, () -> this.onImport()) + 6.0F;
+      }
+
+      this.pillButton("Clear", bx, cy, false, () -> this.onClear());
       cy += 24.0F;
       this.listTop = cy;
       this.listBottom = this.py + h - 20.0F;
       float viewH = this.listBottom - this.listTop;
-      List<String> sources = GlobalRemap.INSTANCE.sources();
+      List<String> sources = this.store.sources();
       float totalH = 0.0F;
 
       for (String src : sources) {
-         totalH += this.rowH + GlobalRemap.INSTANCE.targetsOf(src).size() * this.rowH + this.rowH;
+         totalH += this.rowH + this.store.targetsOf(src).size() * this.rowH + this.rowH;
       }
 
       float maxScroll = RangesKt.coerceAtLeast(totalH - viewH, 0.0F);
@@ -172,18 +186,18 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
    private final float renderSourceBlock(String src, float startY) {
       float w = this.getPanelW();
       float ry = startY;
-      Function1<Float, Boolean> visible = y -> isRowVisible(this, y);
+      Function1<Float, Boolean> visible = y -> this.isRowVisible(y);
       if ((Boolean)visible.invoke(ry)) {
          NVGRenderer.INSTANCE.rect(this.px + 4.0F, ry + 1.0F, w - 8.0F, this.rowH - 2.0F, -14935012, 4.0F);
          NVGRenderer.INSTANCE.text(this.prettify(src), this.px + 10.0F, ry + this.rowH / 2.0F, 12.0F, -1184275, NVGRenderer.Font.MEDIUM);
-         float delW = this.iconButton("x", this.px + w - 10.0F - 16.0F, ry + (this.rowH - 14.0F) / 2.0F, () -> onRemoveSource(src));
+         float delW = this.iconButton("x", this.px + w - 10.0F - 16.0F, ry + (this.rowH - 14.0F) / 2.0F, () -> this.onRemoveSource(src));
          this.iconButtonLabeled(
-            "+ target", this.px + w - 10.0F - 16.0F - delW - 64.0F, ry + (this.rowH - 14.0F) / 2.0F, 60.0F, () -> onAddTarget(this, src)
+            "+ target", this.px + w - 10.0F - 16.0F - delW - 64.0F, ry + (this.rowH - 14.0F) / 2.0F, 60.0F, () -> this.onAddTarget(src)
          );
       }
 
       ry += this.rowH;
-      List<GlobalRemap.RemapTarget> targets = GlobalRemap.INSTANCE.targetsOf(src);
+      List<GlobalRemap.RemapTarget> targets = this.store.targetsOf(src);
       Iterator iterator = targets.iterator();
       int targetIndex = 0;
 
@@ -193,13 +207,13 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
          if ((Boolean)visible.invoke(ry)) {
             NVGRenderer.INSTANCE.text("> " + this.prettify(t.getId()), this.px + 10.0F + 12.0F, ry + this.rowH / 2.0F, 12.0F, -6513508, NVGRenderer.Font.REGULAR);
             float cx = this.px + w - 10.0F - 16.0F;
-            this.iconButton("x", cx, ry + (this.rowH - 14.0F) / 2.0F, () -> onRemoveTarget(src, i));
+            this.iconButton("x", cx, ry + (this.rowH - 14.0F) / 2.0F, () -> this.onRemoveTarget(src, i));
             cx -= 22.0F;
-            this.iconButton("+", cx, ry + (this.rowH - 14.0F) / 2.0F, () -> onIncreaseWeight(src, i, t));
+            this.iconButton("+", cx, ry + (this.rowH - 14.0F) / 2.0F, () -> this.onIncreaseWeight(src, i, t));
             cx -= 30.0F;
             NVGRenderer.INSTANCE.textCentered("x" + t.getWeight(), cx + 14.0F, ry + this.rowH / 2.0F, 12.0F, -1184275, NVGRenderer.Font.REGULAR);
             cx -= 18.0F;
-            this.iconButton("-", cx, ry + (this.rowH - 14.0F) / 2.0F, () -> onDecreaseWeight(src, i, t));
+            this.iconButton("-", cx, ry + (this.rowH - 14.0F) / 2.0F, () -> this.onDecreaseWeight(src, i, t));
          }
 
          ry += this.rowH;
@@ -460,7 +474,7 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
          case TARGET:
             String src = this.pendingSource;
             if (src != null) {
-               GlobalRemap.INSTANCE.addTarget(src, id, 1);
+               this.store.addTarget(src, id, 1);
             }
 
             this.view = GlobalRemapEditorScreen.View.LIST;
@@ -624,55 +638,55 @@ public final class GlobalRemapEditorScreen extends Screen implements NvgScreen {
       return StringsKt.removePrefix(id, "minecraft:");
    }
 
-   private static final Unit onAddRemap(GlobalRemapEditorScreen this$0) {
-      this$0.enterPick(GlobalRemapEditorScreen.PickPhase.SOURCE, null);
+   private final Unit onAddRemap() {
+      this.enterPick(GlobalRemapEditorScreen.PickPhase.SOURCE, null);
       return Unit.INSTANCE;
    }
 
-   private static final Unit onExport() {
-      Minecraft.getInstance().keyboardHandler.setClipboard(GlobalRemap.INSTANCE.exportJson());
+   private final Unit onExport() {
+      Minecraft.getInstance().keyboardHandler.setClipboard(this.store.exportJson());
       return Unit.INSTANCE;
    }
 
-   private static final Unit onImport() {
-      GlobalRemap remap = GlobalRemap.INSTANCE;
+   private final Unit onImport() {
+      RemapStore remap = this.store;
       String clipboard = Minecraft.getInstance().keyboardHandler.getClipboard();
       Intrinsics.checkNotNullExpressionValue(clipboard, "getClipboard(...)");
       remap.importJson(clipboard);
       return Unit.INSTANCE;
    }
 
-   private static final Unit onClear() {
-      GlobalRemap.INSTANCE.clear();
+   private final Unit onClear() {
+      this.store.clear();
       return Unit.INSTANCE;
    }
 
-   private static final boolean isRowVisible(GlobalRemapEditorScreen this$0, float y) {
-      return y + this$0.rowH > this$0.listTop && y < this$0.listBottom;
+   private final boolean isRowVisible(float y) {
+      return y + this.rowH > this.listTop && y < this.listBottom;
    }
 
-   private static final Unit onRemoveSource(String src) {
-      GlobalRemap.INSTANCE.removeSource(src);
+   private final Unit onRemoveSource(String src) {
+      this.store.removeSource(src);
       return Unit.INSTANCE;
    }
 
-   private static final Unit onAddTarget(GlobalRemapEditorScreen this$0, String src) {
-      this$0.enterPick(GlobalRemapEditorScreen.PickPhase.TARGET, src);
+   private final Unit onAddTarget(String src) {
+      this.enterPick(GlobalRemapEditorScreen.PickPhase.TARGET, src);
       return Unit.INSTANCE;
    }
 
-   private static final Unit onRemoveTarget(String src, int index) {
-      GlobalRemap.INSTANCE.removeTarget(src, index);
+   private final Unit onRemoveTarget(String src, int index) {
+      this.store.removeTarget(src, index);
       return Unit.INSTANCE;
    }
 
-   private static final Unit onIncreaseWeight(String src, int index, GlobalRemap.RemapTarget target) {
-      GlobalRemap.INSTANCE.setWeight(src, index, target.getWeight() + 1);
+   private final Unit onIncreaseWeight(String src, int index, GlobalRemap.RemapTarget target) {
+      this.store.setWeight(src, index, target.getWeight() + 1);
       return Unit.INSTANCE;
    }
 
-   private static final Unit onDecreaseWeight(String src, int index, GlobalRemap.RemapTarget target) {
-      GlobalRemap.INSTANCE.setWeight(src, index, target.getWeight() - 1);
+   private final Unit onDecreaseWeight(String src, int index, GlobalRemap.RemapTarget target) {
+      this.store.setWeight(src, index, target.getWeight() - 1);
       return Unit.INSTANCE;
    }
 

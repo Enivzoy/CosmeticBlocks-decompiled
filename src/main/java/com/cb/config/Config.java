@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import kotlin.jvm.internal.Intrinsics;
@@ -29,6 +30,27 @@ public final class Config {
    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
    @NotNull
    private static final HashMap<String, Config.PanelState> panelState = new HashMap<>();
+   private static final Map<String, String[][]> legacyMigration = new HashMap<>();
+
+   static {
+      legacyMigration.put("Settings", new String[][]{
+         {"Auto-load Floor Config", "Cosmetic Blocks", "Auto-load Floor Config"}
+      });
+      legacyMigration.put("Global Cosmetics", new String[][]{
+         {"Allow Water Color", "Cosmetic Blocks", "Custom Water Color"},
+         {"RGB Water Color", "Cosmetic Blocks", "Water Color"},
+         {"Lava as Water", "Cosmetic Blocks", "Lava as Water"},
+         {"Enabled", "Block Remaps", "Enabled"},
+         {"Keep Block Shape", "Block Remaps", "Keep Block Shape"}
+      });
+      legacyMigration.put("Dungeon Config", new String[][]{
+         {"Active Config", "Cosmetic Blocks", "Active Config"},
+         {"Config Floor", "Cosmetic Blocks", "Config Floor"},
+         {"Allow Water Color", "Cosmetic Blocks", "Custom Water Color"},
+         {"RGB Water Color", "Cosmetic Blocks", "Water Color"},
+         {"Lava as Water", "Cosmetic Blocks", "Lava as Water"}
+      });
+   }
 
    private Config() {
    }
@@ -60,13 +82,33 @@ public final class Config {
             JsonObject json = root.getAsJsonObject();
             JsonElement tabsElement = json.get("tabs");
             if (tabsElement instanceof JsonObject tabsJson) {
-               for (SettingsTab tab : Tabs.INSTANCE.getAll()) {
-                  JsonElement tabElement = tabsJson.get(tab.getName());
-                  if (tabElement instanceof JsonObject tabJson) {
+               com.cb.config.tabs.DungeonConfigTab.beginSync$cb_client();
+
+               try {
+                  for (SettingsTab tab : Tabs.INSTANCE.getAll()) {
+                     JsonElement tabElement = tabsJson.get(tab.getName());
+                     JsonObject source;
+                     if (tabElement instanceof JsonObject tabJson) {
+                        source = tabJson;
+                     } else {
+                        source = new JsonObject();
+                        String[][] rules = legacyMigration.get(tab.getName());
+                        if (rules != null) {
+                           for (String[] rule : rules) {
+                              JsonElement legacyTabElement = tabsJson.get(rule[1]);
+                              if (legacyTabElement instanceof JsonObject legacyTabJson && legacyTabJson.has(rule[2])) {
+                                 source.add(rule[0], legacyTabJson.get(rule[2]));
+                              }
+                           }
+                        }
+                     }
+
                      for (Setting setting : tab.getSettings()) {
-                        setting.readJson(tabJson);
+                        setting.readJson(source);
                      }
                   }
+               } finally {
+                  com.cb.config.tabs.DungeonConfigTab.endSync$cb_client();
                }
             }
 

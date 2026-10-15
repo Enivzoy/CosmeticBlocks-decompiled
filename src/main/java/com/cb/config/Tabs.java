@@ -1,9 +1,11 @@
 package com.cb.config;
 
-import com.cb.config.tabs.BlockRemapsTab;
 import com.cb.config.tabs.CosmeticBlocksTab;
+import com.cb.config.tabs.DungeonConfigTab;
+import com.cb.config.tabs.GlobalCosmeticsTab;
 import com.cb.config.tabs.GuiTab;
 import com.cb.config.tabs.HelpTab;
+import com.cb.config.tabs.PreferencesTab;
 import com.cb.config.tabs.RoomProfilesTab;
 import java.util.List;
 import kotlin.collections.CollectionsKt;
@@ -25,7 +27,13 @@ public final class Tabs {
 
    static {
       SettingsTab[] tabs = new SettingsTab[]{
-         CosmeticBlocksTab.INSTANCE, BlockRemapsTab.INSTANCE, RoomProfilesTab.INSTANCE, GuiTab.INSTANCE, HelpTab.INSTANCE
+         CosmeticBlocksTab.INSTANCE,
+         GlobalCosmeticsTab.INSTANCE,
+         DungeonConfigTab.INSTANCE,
+         RoomProfilesTab.INSTANCE,
+         PreferencesTab.INSTANCE,
+         GuiTab.INSTANCE,
+         HelpTab.INSTANCE
       };
       all = CollectionsKt.listOf(tabs);
    }

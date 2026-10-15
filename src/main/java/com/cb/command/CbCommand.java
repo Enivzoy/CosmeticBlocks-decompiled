@@ -1,6 +1,6 @@
 package com.cb.command;
 
-import com.cb.config.tabs.CosmeticBlocksTab;
+import com.cb.config.tabs.DungeonConfigTab;
 import com.cb.cosmetic.CosmeticBlocks;
 import com.cb.cosmetic.Freecam;
 import com.cb.gui.ClickGuiScreen;
@@ -383,7 +383,7 @@ public final class CbCommand {
             "Configs: "
                + CollectionsKt.joinToString(configs, ", ", "", "", -1, "...", null)
                + " (active: "
-               + CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue()
+               + DungeonConfigTab.INSTANCE.getActiveConfig().getValue()
                + ")"
          );
       return 1;

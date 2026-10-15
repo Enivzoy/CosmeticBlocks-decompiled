@@ -33,6 +33,9 @@ feel free to add/change features (i will/most likely accept any pull requests)
 - Freecam [DONE]
 - \*Avoid getting banned for blinking [DONE] whoops!
 - Make it easier to share configs [SOON]
+- revert back to original config after a dungeon is done [DONE]
+- split settings into Global Cosmetics / Dungeon Config / Settings tabs [DONE]
+- \*per-config water color + per-config block remaps [DONE]
 ## references
 https://github.com/skies-starred/OdinClient/blob/master/src/main/kotlin/foo/starred/odinclient/features/impl/dungeons/CheaterMap.kt        
 https://github.com/skies-starred/OdinClient/blob/master/src/main/kotlin/foo/starred/odinclient/features/impl/floor7/FuckDiorite.kt    

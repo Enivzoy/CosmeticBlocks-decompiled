@@ -1,6 +1,6 @@
 package com.cb.cosmetic;
 
-import com.cb.config.tabs.BlockRemapsTab;
+import com.cb.config.tabs.CosmeticBlocksTab;
 import com.cb.config.tabs.CosmeticBlocksTab;
 import com.cb.dungeon.RoomDataKt;
 import com.cb.dungeon.Rotation;
@@ -305,7 +305,7 @@ public final class BlockStateCodec {
    public final BlockState applyOriginalShape(@NotNull BlockState original, @NotNull BlockState replacement, int x, int y, int z) {
       Intrinsics.checkNotNullParameter(original, "original");
       Intrinsics.checkNotNullParameter(replacement, "replacement");
-      if (!CosmeticBlocksTab.INSTANCE.getKeepBlockSize().getValue() && !BlockRemapsTab.INSTANCE.getKeepShape().getValue()) {
+      if (!CosmeticBlocksTab.INSTANCE.getKeepBlockSize().getValue() && !CosmeticBlocks.INSTANCE.remapKeepShapeEnabled()) {
          return replacement;
       }
 

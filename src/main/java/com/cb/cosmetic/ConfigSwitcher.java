@@ -1,7 +1,9 @@
 package com.cb.cosmetic;
 
 import com.cb.config.Config;
-import com.cb.config.tabs.CosmeticBlocksTab;
+import com.cb.config.tabs.DungeonConfigTab;
+import com.cb.config.tabs.PreferencesTab;
+import com.cb.utils.ChatUtil;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +28,9 @@ public final class ConfigSwitcher {
    private static String loadedConfigName;
    @Nullable
    private static volatile String lastDetectedFloor;
+   private static boolean dungeonActive;
+   @Nullable
+   private static String configBeforeDungeon;
 
    private ConfigSwitcher() {
    }
@@ -43,16 +48,16 @@ public final class ConfigSwitcher {
       if (!dropdownInitialized) {
          this.updateConfigDropdown();
          dropdownInitialized = true;
-         lastActiveConfig = CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue();
-         if (loadedConfigName != null && !Intrinsics.areEqual(loadedConfigName, CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue())) {
-            ReplacementIO.INSTANCE.loadFrom$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client(CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue()));
+         lastActiveConfig = DungeonConfigTab.INSTANCE.getActiveConfig().getValue();
+         if (loadedConfigName != null && !Intrinsics.areEqual(loadedConfigName, DungeonConfigTab.INSTANCE.getActiveConfig().getValue())) {
+            ReplacementIO.INSTANCE.loadFrom$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client(DungeonConfigTab.INSTANCE.getActiveConfig().getValue()));
             DirtySections.INSTANCE.markAllCachedDirty$cb_client();
          }
 
-         CosmeticBlocksTab.markFloorReady();
-         CosmeticBlocksTab.syncFloorFromStore();
+         DungeonConfigTab.markFloorReady();
+         DungeonConfigTab.syncFloorFromStore();
       } else {
-         String current = CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue();
+         String current = DungeonConfigTab.INSTANCE.getActiveConfig().getValue();
          if (!Intrinsics.areEqual(current, lastActiveConfig)) {
             SaveScheduler.INSTANCE.awaitPendingSaves$cb_client();
             String previousConfigName = lastActiveConfig;
@@ -65,13 +70,13 @@ public final class ConfigSwitcher {
             ReplacementIO.INSTANCE.loadFrom$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client(current));
             DirtySections.INSTANCE.markAllCachedDirty$cb_client();
             lastActiveConfig = current;
-            CosmeticBlocksTab.syncFloorFromStore();
+            DungeonConfigTab.syncFloorFromStore();
          }
       }
    }
 
    public final void checkFloorAutoLoad$cb_client() {
-      if (!((Boolean)CosmeticBlocksTab.INSTANCE.getAutoLoadFloor().getValue()).booleanValue()) {
+      if (!((Boolean)PreferencesTab.INSTANCE.getAutoLoadFloor().getValue()).booleanValue()) {
          lastDetectedFloor = null;
          return;
       }
@@ -96,12 +101,45 @@ public final class ConfigSwitcher {
          return;
       }
 
-      if (Intrinsics.areEqual(match, CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue())) {
+      if (Intrinsics.areEqual(match, DungeonConfigTab.INSTANCE.getActiveConfig().getValue())) {
          return;
       }
 
-      this.showFloorTitles(FloorUtil.display(floor), match);
+      if (((Boolean)PreferencesTab.INSTANCE.getShowTitleAfterLoad().getValue()).booleanValue()) {
+         this.showFloorTitles(FloorUtil.display(floor), match);
+      }
+
+      if (((Boolean)PreferencesTab.INSTANCE.getLoadChatMessage().getValue()).booleanValue()) {
+         ChatUtil.INSTANCE.send("Found a config for \u00a7b" + FloorUtil.display(floor) + "\u00a7f - loading \u00a7b" + match);
+      }
+
       this.loadConfigByName(match);
+   }
+
+   public final void checkDungeonRevert$cb_client() {
+      if (!((Boolean)PreferencesTab.INSTANCE.getRevertAfterCompletion().getValue()).booleanValue()) {
+         dungeonActive = LocationTracker.INSTANCE.getInDungeon();
+         configBeforeDungeon = null;
+         return;
+      }
+
+      boolean nowInDungeon = LocationTracker.INSTANCE.getInDungeon();
+      if (nowInDungeon && !dungeonActive) {
+         configBeforeDungeon = DungeonConfigTab.INSTANCE.getActiveConfig().getValue();
+      } else if (!nowInDungeon && dungeonActive && configBeforeDungeon != null) {
+         String target = configBeforeDungeon;
+         configBeforeDungeon = null;
+         if (!Intrinsics.areEqual(target, DungeonConfigTab.INSTANCE.getActiveConfig().getValue())
+            && ReplacementStore.INSTANCE.getConfigFile$cb_client(target).exists()) {
+            if (((Boolean)PreferencesTab.INSTANCE.getLoadChatMessage().getValue()).booleanValue()) {
+               ChatUtil.INSTANCE.send("Dungeon done \u00a7f- reverting to config \u00a7b" + target);
+            }
+
+            this.loadConfigByName(target);
+         }
+      }
+
+      dungeonActive = nowInDungeon;
    }
 
    private final void showFloorTitles(String floorDisplay, String configName) {
@@ -134,7 +172,7 @@ public final class ConfigSwitcher {
 
    public final boolean loadConfigByName(@NotNull String name) {
       Intrinsics.checkNotNullParameter(name, "name");
-      if (Intrinsics.areEqual(name, CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue())) {
+      if (Intrinsics.areEqual(name, DungeonConfigTab.INSTANCE.getActiveConfig().getValue())) {
          return true;
       }
 
@@ -144,13 +182,13 @@ public final class ConfigSwitcher {
       }
 
       SaveScheduler.INSTANCE.awaitPendingSaves$cb_client();
-      ReplacementIO.INSTANCE.saveToFileSync$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client(CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue()));
+      ReplacementIO.INSTANCE.saveToFileSync$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client(DungeonConfigTab.INSTANCE.getActiveConfig().getValue()));
       DirtySections.INSTANCE.markAllCachedDirty$cb_client();
-      CosmeticBlocksTab.INSTANCE.getActiveConfig().setValue(name);
+      DungeonConfigTab.INSTANCE.getActiveConfig().setValue(name);
       lastActiveConfig = name;
       ReplacementIO.INSTANCE.loadFrom$cb_client(file);
       DirtySections.INSTANCE.markAllCachedDirty$cb_client();
-      CosmeticBlocksTab.syncFloorFromStore();
+      DungeonConfigTab.syncFloorFromStore();
       Config.INSTANCE.save();
       return true;
    }
@@ -167,19 +205,24 @@ public final class ConfigSwitcher {
       }
 
       SaveScheduler.INSTANCE.awaitPendingSaves$cb_client();
-      if (Intrinsics.areEqual(CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue(), name)) {
+      if (Intrinsics.areEqual(DungeonConfigTab.INSTANCE.getActiveConfig().getValue(), name)) {
          SaveScheduler.INSTANCE.setNeedsSave$cb_client(false);
       }
 
+      File remapFile = ConfigRemap.INSTANCE.fileFor(name);
       boolean deleted = file.delete();
       if (deleted) {
-         if (Intrinsics.areEqual(CosmeticBlocksTab.INSTANCE.getActiveConfig().getValue(), name)) {
-            CosmeticBlocksTab.INSTANCE.getActiveConfig().setValue("default");
+         if (remapFile.exists()) {
+            remapFile.delete();
+         }
+
+         if (Intrinsics.areEqual(DungeonConfigTab.INSTANCE.getActiveConfig().getValue(), name)) {
+            DungeonConfigTab.INSTANCE.getActiveConfig().setValue("default");
             lastActiveConfig = "default";
             DirtySections.INSTANCE.markAllCachedDirty$cb_client();
             ReplacementIO.INSTANCE.loadFrom$cb_client(ReplacementStore.INSTANCE.getConfigFile$cb_client("default"));
             DirtySections.INSTANCE.markAllCachedDirty$cb_client();
-            CosmeticBlocksTab.syncFloorFromStore();
+            DungeonConfigTab.syncFloorFromStore();
             Config.INSTANCE.save();
          }
 
@@ -201,7 +244,7 @@ public final class ConfigSwitcher {
 
          for (File file : files) {
             Intrinsics.checkNotNull(file);
-            if (Intrinsics.areEqual(FilesKt.getExtension(file), "json")) {
+            if (Intrinsics.areEqual(FilesKt.getExtension(file), "json") && !file.getName().endsWith("-BlockRemap.json")) {
                configNames.add(FilesKt.getNameWithoutExtension(file));
             }
          }
