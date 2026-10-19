@@ -19,7 +19,7 @@ object GlobalRemap : RemapStore {
    private var resolved: Map<Block, Resolved> = emptyMap()
 
    fun remapFor(block: Block, x: Int, y: Int, z: Int): BlockState? {
-      if (!GlobalCosmeticsTab.INSTANCE.getGlobalRemapEnabled().value) {
+      if (!GlobalCosmeticsTab.INSTANCE.globalRemapEnabled.value) {
          return null
       }
 
