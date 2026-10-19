@@ -8,6 +8,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import me.enivzoy.cosmeticblocksreborn.config.tabs.DungeonConfigTab
 import me.enivzoy.cosmeticblocksreborn.cosmetic.CosmeticBlocks
 import me.enivzoy.cosmeticblocksreborn.cosmetic.Freecam
+import me.enivzoy.cosmeticblocksreborn.cosmetic.ReplacementIO
 import me.enivzoy.cosmeticblocksreborn.gui.ClickGuiScreen
 import me.enivzoy.cosmeticblocksreborn.gui.screens.HudEditorScreen
 import me.enivzoy.cosmeticblocksreborn.gui.screens.KeybindEditorScreen
@@ -238,6 +239,23 @@ class CbCommand private constructor() {
       private fun onReloadCommand(it: CommandContext<*>): Int {
          CosmeticBlocks.INSTANCE.load()
          ChatUtil.send("Data reloaded (${CosmeticBlocks.INSTANCE.getReplacementCount()} in current dimension)")
+         return 1
+      }
+
+      private fun onMigrateSuggestions(context: CommandContext<*>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
+         val input = builder.remaining.removeSuffix(".json")
+         for (config in CosmeticBlocks.INSTANCE.listConfigs()) {
+            if (config.startsWith(input, ignoreCase = true)) {
+               builder.suggest(config)
+            }
+         }
+
+         return builder.buildFuture()
+      }
+
+      private fun onMigrateCommand(it: CommandContext<*>): Int {
+         val name = StringArgumentType.getString(it, "name")
+         ReplacementIO.INSTANCE.migrateAsync(name)
          return 1
       }
 
@@ -539,7 +557,15 @@ class CbCommand private constructor() {
                .then(ClientCommands.literal("clear").executes(::onClearCommand))
                .then(ClientCommands.literal("list").executes(::onListCommand))
                .then(ClientCommands.literal("save").executes(::onSaveCommand))
-               .then(ClientCommands.literal("reload").executes(::onReloadCommand))
+                .then(ClientCommands.literal("reload").executes(::onReloadCommand))
+                .then(
+                   ClientCommands.literal("migrate")
+                      .then(
+                         ClientCommands.argument("name", StringArgumentType.string())
+                            .suggests(::onMigrateSuggestions)
+                            .executes(::onMigrateCommand)
+                      )
+                )
                .then(ClientCommands.literal("create").then(ClientCommands.argument("name", StringArgumentType.string()).executes(::onCreateCommand)))
                .then(ClientCommands.literal("load").then(ClientCommands.argument("name", StringArgumentType.string()).executes(::onLoadCommand)))
                .then(ClientCommands.literal("delete").then(ClientCommands.argument("name", StringArgumentType.string()).executes(::onDeleteCommand)))

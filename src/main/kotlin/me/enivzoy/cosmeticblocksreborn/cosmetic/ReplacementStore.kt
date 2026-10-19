@@ -201,11 +201,11 @@ object ReplacementStore {
       return dimMap?.size ?: 0
    }
 
-   internal fun snapshotReplacements(): HashMap<String, HashMap<String, String>> {
-      val snapshot = HashMap<String, HashMap<String, String>>(replacements.size * 2)
+   internal fun snapshotReplacements(): LinkedHashMap<String, LinkedHashMap<String, String>> {
+      val snapshot = LinkedHashMap<String, LinkedHashMap<String, String>>(replacements.size * 2)
 
       for ((dim, dimMap) in replacements) {
-         val copy = HashMap<String, String>(dimMap.size * 2)
+         val copy = LinkedHashMap<String, String>(dimMap.size * 2)
          copy.putAll(dimMap)
          snapshot[dim] = copy
       }
