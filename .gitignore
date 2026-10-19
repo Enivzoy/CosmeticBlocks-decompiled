@@ -31,3 +31,6 @@ Thumbs.db
 # Java
 hs_err_pid*
 replay_pid*
+
+# Kotlin build cache
+.kotlin/
