@@ -1,5 +1,6 @@
 plugins {
     id 'net.fabricmc.fabric-loom' version "${loom_version}"
+    id 'org.jetbrains.kotlin.jvm' version "${kotlin_version}"
 }
 
 version = project.mod_version
@@ -11,6 +12,7 @@ base {
 repositories {
     maven { url = 'https://maven.fabricmc.net/' }
     mavenCentral()
+    maven { url = 'https://maven.starred.foo/releases' }
     maven { url = 'https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1' }
 }
 
@@ -29,6 +31,9 @@ dependencies {
     implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
     implementation "net.fabricmc:fabric-language-kotlin:${fabric_kotlin_version}"
 
+    implementation "foo.starred:cascade:${cascade_version}"
+    include "foo.starred:cascade:${cascade_version}"
+
     runtimeOnly "me.djtheredstoner:DevAuth-fabric:${devauth_version}"
 }
 
@@ -39,10 +44,23 @@ java {
     withSourcesJar()
 }
 
+kotlin {
+    jvmToolchain(25)
+}
+
 tasks.withType(JavaCompile).configureEach {
     options.release = 25
     options.encoding = 'UTF-8'
     options.compilerArgs << '-Xmaxerrs' << '100000'
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_25
+        // Java sources call Kotlin `internal` members via the mangled `$cb_client` suffix
+        moduleName = 'cb_client'
+        freeCompilerArgs.addAll('-Xmax-errors=100000')
+    }
 }
 
 processResources {

@@ -1,6 +1,6 @@
 {
     "required": true,
-    "package": "com.cb.mixin.client",
+    "package": "me.enivzoy.cosmeticblocksreborn.mixin.client",
     "compatibilityLevel": "JAVA_25",
     "client": [
         "BiomeColorsMixin",

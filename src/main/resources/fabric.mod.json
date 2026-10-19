@@ -14,12 +14,12 @@
   "entrypoints": {
     "main": [
       {
-        "value": "com.cb.Cb::INSTANCE"
+        "value": "me.enivzoy.cosmeticblocksreborn.Cb::INSTANCE"
       }
     ],
     "client": [
       {
-        "value": "com.cb.CbClient::INSTANCE"
+        "value": "me.enivzoy.cosmeticblocksreborn.CbClient::INSTANCE"
       }
     ]
   },

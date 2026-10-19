@@ -1,6 +1,6 @@
 {
     "required": true,
-    "package": "com.cb.mixin",
+    "package": "me.enivzoy.cosmeticblocksreborn.mixin",
     "compatibilityLevel": "JAVA_25",
     "mixins": [],
     "injectors": {
