@@ -1,7 +1,7 @@
 package me.enivzoy.cosmeticblocksreborn.mixin.client;
 
 import me.enivzoy.cosmeticblocksreborn.gui.NvgScreen;
-import me.enivzoy.cosmeticblocksreborn.render.NVGRenderer;
+import me.enivzoy.cosmeticblocksreborn.render.CascadeUi;
 import me.enivzoy.cosmeticblocksreborn.render.OverlayRenderer;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
@@ -22,11 +22,11 @@ public abstract class ScreenRenderMixin {
         if (!((Object)this instanceof NvgScreen)) {
             return;
         }
-        NVGRenderer.setExtractor(extractor);
+        CascadeUi.setExtractor(extractor);
         try {
             OverlayRenderer.onFrameEnd();
         } finally {
-            NVGRenderer.clearExtractor();
+            CascadeUi.clearExtractor();
         }
     }
 }

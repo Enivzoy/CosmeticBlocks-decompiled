@@ -28,10 +28,6 @@
     {
       "config": "cb.client.mixins.json",
       "environment": "client"
-    },
-    {
-      "config": "renderkit.mixins.json",
-      "environment": "client"
     }
   ],
   "depends": {

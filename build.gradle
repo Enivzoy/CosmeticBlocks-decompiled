@@ -20,7 +20,7 @@ loom {
     accessWidenerPath = file('src/main/resources/cb.accesswidener')
     runs {
         client {
-            property 'devauth.enabled', 'true'
+            property 'devauth.enabled', 'false'
         }
     }
 }
