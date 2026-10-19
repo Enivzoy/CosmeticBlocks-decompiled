@@ -261,10 +261,10 @@ object RoomProfileManager {
 
    private fun profileFile(name: String): File = File(profilesDir, name + PROFILE_EXT)
 
-   private fun currentActive(): String? = RoomProfilesTab.INSTANCE.getActiveProfile().value
+   private fun currentActive(): String? = RoomProfilesTab.INSTANCE.activeProfile.value
 
    private fun setActive(name: String) {
-      RoomProfilesTab.INSTANCE.getActiveProfile().value = name
+      RoomProfilesTab.INSTANCE.activeProfile.value = name
    }
 
    private fun sanitize(name: String): String? {
