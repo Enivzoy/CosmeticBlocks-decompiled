@@ -269,7 +269,7 @@ object RoomStore {
       return roomMap[relPos.x.toString() + "," + relPos.y + "," + relPos.z]
    }
 
-   internal fun restoreRoomFill(snapshot: Map<String, String>, room: ScannedRoom) {
+   internal fun restoreRoomFill(snapshot: Map<String, String?>, room: ScannedRoom) {
       val roomMap = roomBlocks.getOrPut(room.data.name) { LinkedHashMap() }
 
       for ((relKey, value) in snapshot) {

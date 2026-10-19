@@ -305,7 +305,7 @@ object EditMode {
                   ChatUtil.success(pos.x.toString() + "," + pos.y + "," + pos.z + " -> " + selectedBlock.removePrefix("minecraft:"))
                }
             } else if (fillMode) {
-               ChatUtil.send(WorldEditMode.INSTANCE.floodFill(hitResult.blockPos, selectedBlock))
+               ChatUtil.send(WorldEditMode.floodFill(hitResult.blockPos, selectedBlock))
             } else {
                val pos = hitResult.blockPos
                if (hasExplicit) {
