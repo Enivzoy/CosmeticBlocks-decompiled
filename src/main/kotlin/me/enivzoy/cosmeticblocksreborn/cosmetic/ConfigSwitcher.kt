@@ -26,23 +26,18 @@ class ConfigSwitcher private constructor() {
          dropdownInitialized = true
          lastActiveConfig = DungeonConfigTab.INSTANCE.activeConfig.value
          if (loadedConfigName != null && loadedConfigName != DungeonConfigTab.INSTANCE.activeConfig.value) {
-            ReplacementIO.INSTANCE.loadFrom(ReplacementStore.getConfigFile(DungeonConfigTab.INSTANCE.activeConfig.value))
-            DirtySections.markAllCachedDirty()
+            ReplacementIO.INSTANCE.loadFromAsync(ReplacementStore.getConfigFile(DungeonConfigTab.INSTANCE.activeConfig.value))
          }
 
          DungeonConfigTab.markFloorReady()
-         DungeonConfigTab.syncFloorFromStore()
       } else {
          val current = DungeonConfigTab.INSTANCE.activeConfig.value
          if (current != lastActiveConfig) {
             SaveScheduler.awaitPendingSaves()
             val previousConfigName = lastActiveConfig ?: "default"
-            ReplacementIO.INSTANCE.saveToFileSync(ReplacementStore.getConfigFile(previousConfigName))
-            DirtySections.markAllCachedDirty()
-            ReplacementIO.INSTANCE.loadFrom(ReplacementStore.getConfigFile(current))
-            DirtySections.markAllCachedDirty()
+            ReplacementIO.INSTANCE.saveCurrentAsync(ReplacementStore.getConfigFile(previousConfigName))
             lastActiveConfig = current
-            DungeonConfigTab.syncFloorFromStore()
+            ReplacementIO.INSTANCE.loadFromAsync(ReplacementStore.getConfigFile(current))
          }
       }
    }
@@ -150,13 +145,10 @@ class ConfigSwitcher private constructor() {
       }
 
       SaveScheduler.awaitPendingSaves()
-      ReplacementIO.INSTANCE.saveToFileSync(ReplacementStore.getConfigFile(DungeonConfigTab.INSTANCE.activeConfig.value))
-      DirtySections.markAllCachedDirty()
+      ReplacementIO.INSTANCE.saveCurrentAsync(ReplacementStore.getConfigFile(DungeonConfigTab.INSTANCE.activeConfig.value))
       DungeonConfigTab.INSTANCE.activeConfig.value = name
       lastActiveConfig = name
-      ReplacementIO.INSTANCE.loadFrom(file)
-      DirtySections.markAllCachedDirty()
-      DungeonConfigTab.syncFloorFromStore()
+      ReplacementIO.INSTANCE.loadFromAsync(file)
       Config.INSTANCE.save()
       return true
    }
@@ -183,15 +175,12 @@ class ConfigSwitcher private constructor() {
             remapFile.delete()
          }
 
-         if (DungeonConfigTab.INSTANCE.activeConfig.value == name) {
-            DungeonConfigTab.INSTANCE.activeConfig.value = "default"
-            lastActiveConfig = "default"
-            DirtySections.markAllCachedDirty()
-            ReplacementIO.INSTANCE.loadFrom(ReplacementStore.getConfigFile("default"))
-            DirtySections.markAllCachedDirty()
-            DungeonConfigTab.syncFloorFromStore()
-            Config.INSTANCE.save()
-         }
+          if (DungeonConfigTab.INSTANCE.activeConfig.value == name) {
+             DungeonConfigTab.INSTANCE.activeConfig.value = "default"
+             lastActiveConfig = "default"
+             ReplacementIO.INSTANCE.loadFromAsync(ReplacementStore.getConfigFile("default"))
+             Config.INSTANCE.save()
+          }
 
          this.updateConfigDropdown()
       }

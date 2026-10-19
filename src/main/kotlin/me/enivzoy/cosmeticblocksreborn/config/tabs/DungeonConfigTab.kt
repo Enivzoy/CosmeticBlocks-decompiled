@@ -166,7 +166,7 @@ class DungeonConfigTab private constructor() : SettingsTab("Dungeon Config") {
             val normalized = FloorUtil.normalize(value)
             ReplacementStore.floor = if (normalized == null || normalized == FloorUtil.NONE) null else normalized
             SaveScheduler.awaitPendingSaves()
-            ReplacementIO.INSTANCE.saveToFileSync(
+            ReplacementIO.INSTANCE.saveCurrentAsync(
                ReplacementStore.getConfigFile(DungeonConfigTab.INSTANCE.activeConfig.value)
             )
             Config.INSTANCE.save()

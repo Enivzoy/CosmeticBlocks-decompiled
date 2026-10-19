@@ -8,7 +8,8 @@ import net.minecraft.world.level.block.state.BlockState
 
 object ReplacementStore {
    private val configDirPath = File("config/cb/cb")
-   internal val replacements = LinkedHashMap<String, MutableMap<String, String>>()
+   @Volatile
+   internal var replacements = LinkedHashMap<String, MutableMap<String, String>>()
 
    @Volatile
    private var currentFloor: String? = null
@@ -42,6 +43,7 @@ object ReplacementStore {
             val textureState = BlockStateCodec.resolveBlockState(normalizedId)
             if (shapeState != null && textureState != null) {
                ReplacementCache.activeCache[packed] = shapeState
+               SectionIndex.add(packed)
                ReplacementCache.retextureCache[packed] = textureState
                ReplacementCache.shapedPositions.add(packed)
             }
@@ -49,6 +51,7 @@ object ReplacementStore {
             val state = BlockStateCodec.resolveBlockState(normalizedId)
             if (state != null) {
                ReplacementCache.activeCache[packed] = state
+               SectionIndex.add(packed)
             }
 
             ReplacementCache.shapedPositions.remove(packed)
@@ -78,6 +81,7 @@ object ReplacementStore {
          dimMap[key] = if (phantom) "!" + serialized else serialized
          val packed = BlockPos.asLong(pos.x, pos.y, pos.z)
          ReplacementCache.activeCache[packed] = state
+         SectionIndex.add(packed)
          if (phantom) {
             ReplacementCache.phantomPositions.add(packed)
          } else {
@@ -106,6 +110,7 @@ object ReplacementStore {
 
          val packed = BlockPos.asLong(pos.x, pos.y, pos.z)
          ReplacementCache.activeCache.remove(packed)
+         SectionIndex.remove(packed)
          ReplacementCache.phantomPositions.remove(packed)
          ReplacementCache.retextureCache.remove(packed)
          ReplacementCache.originalShapeCache.remove(packed)
@@ -140,6 +145,7 @@ object ReplacementStore {
       }
 
       ReplacementCache.activeCache.clear()
+      SectionIndex.clear()
       ReplacementCache.phantomPositions.clear()
       ReplacementCache.retextureCache.clear()
       ReplacementCache.originalShapeCache.clear()
@@ -166,6 +172,7 @@ object ReplacementStore {
 
       replacements.clear()
       ReplacementCache.activeCache.clear()
+      SectionIndex.clear()
       ReplacementCache.phantomPositions.clear()
       ReplacementCache.retextureCache.clear()
       ReplacementCache.originalShapeCache.clear()

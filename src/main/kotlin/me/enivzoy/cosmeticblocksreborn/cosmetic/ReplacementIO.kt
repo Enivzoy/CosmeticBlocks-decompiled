@@ -4,12 +4,24 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.util.Locale
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import me.enivzoy.cosmeticblocksreborn.config.tabs.DungeonConfigTab
 import me.enivzoy.cosmeticblocksreborn.utils.ChatUtil
 import net.minecraft.client.Minecraft
 
 class ReplacementIO private constructor() {
+   @Volatile
+   private var loadGeneration = 0
+
+   @Volatile
+   internal var loading = false
+
    fun save() {
+      if (this.loading) {
+         return
+      }
+
       if (SaveScheduler.saveInFlight) {
          SaveScheduler.saveAgain = true
       } else {
@@ -35,6 +47,17 @@ class ReplacementIO private constructor() {
       } catch (e: Exception) {
          System.err.println("[CB] Failed to save config sync: " + e.message)
       }
+   }
+
+   internal fun saveCurrentAsync(file: File) {
+      SaveScheduler.needsSave = false
+      SaveScheduler.lastSaveTime = System.currentTimeMillis()
+      val snapshot = ReplacementStore.replacements
+      val floor = ReplacementStore.floor
+      val water = WaterConfig.INSTANCE.captureFields()
+      ReplacementStore.replacements = LinkedHashMap()
+      SaveScheduler.saveInFlight = true
+      SaveScheduler.saveExecutor.execute { saveAsync(snapshot, floor, water, file) }
    }
 
    private fun writeConfig(
@@ -89,6 +112,75 @@ class ReplacementIO private constructor() {
       }
 
       ReplacementCache.rebuildActiveCache()
+   }
+
+   internal fun loadFromAsync(file: File) {
+      val gen = ++this.loadGeneration
+      this.loading = true
+      val dim = LocationTracker.getCurrentDimension()
+      val name = file.nameWithoutExtension
+      val tmpFile = File(file.parentFile, file.name + ".tmp")
+      loadExecutor.execute {
+         try {
+            val document = this.parseFile(file) ?: this.parseFile(tmpFile)
+            val dimMap = if (dim == null || document == null) emptyMap() else document.dims[dim] ?: emptyMap()
+            val bundle = ReplacementCache.buildBundle(dimMap)
+            Minecraft.getInstance().execute {
+               if (gen != this.loadGeneration) {
+                  return@execute
+               }
+
+               try {
+                  this.applyLoaded(file, tmpFile, name, dim, document, bundle)
+               } finally {
+                  this.loading = false
+               }
+            }
+         } catch (e: Exception) {
+            System.err.println("[CB] Failed to load config " + file.name + ": " + e.message)
+            Minecraft.getInstance().execute {
+               if (gen == this.loadGeneration) {
+                  this.loading = false
+               }
+            }
+         }
+      }
+   }
+
+   private fun applyLoaded(
+      file: File,
+      tmpFile: File,
+      name: String,
+      dim: String?,
+      document: ConfigCompression.Document?,
+      bundle: ReplacementCache.Bundle
+   ) {
+      ConfigRemap.INSTANCE.load(name)
+      val newReplacements = LinkedHashMap<String, MutableMap<String, String>>()
+      ReplacementStore.floor = null
+      WaterConfig.INSTANCE.onConfigLoaded(null, null, null)
+      if (document != null) {
+         for ((loadedDim, dimMap) in document.dims) {
+            newReplacements[loadedDim] = dimMap
+         }
+
+         ReplacementStore.replacements = newReplacements
+         ReplacementStore.floor = document.floor
+         WaterConfig.INSTANCE.onConfigLoaded(document.water.allow, document.water.rgb, document.water.lava)
+      } else if (file.exists() || tmpFile.exists()) {
+         ReplacementStore.replacements = newReplacements
+         System.err.println("[CB] Failed to load config from " + file.name)
+      } else {
+         ReplacementStore.replacements = newReplacements
+      }
+
+      ReplacementCache.swap(bundle)
+      if (LocationTracker.getCurrentDimension() != dim) {
+         ReplacementCache.rebuildActiveCache()
+      }
+
+      DirtySections.markAllCachedDirty()
+      DungeonConfigTab.syncFloorFromStore()
    }
 
    private fun parseFile(file: File): ConfigCompression.Document? {
@@ -184,6 +276,10 @@ class ReplacementIO private constructor() {
    companion object {
       @JvmField
       val INSTANCE: ReplacementIO = ReplacementIO()
+
+      private val loadExecutor: ExecutorService = Executors.newSingleThreadExecutor { runnable ->
+         Thread(runnable, "cb-config-load").apply { isDaemon = true }
+      }
 
       private fun saveAsync(
          snapshot: Map<String, Map<String, String>>, floor: String?, water: WaterConfig.Fields, file: File

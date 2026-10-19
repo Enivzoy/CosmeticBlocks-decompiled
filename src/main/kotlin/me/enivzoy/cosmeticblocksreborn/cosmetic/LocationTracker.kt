@@ -111,6 +111,7 @@ object LocationTracker {
 
       for (key in RoomStore.roomCacheKeys) {
          ReplacementCache.activeCache.remove(key)
+         SectionIndex.remove(key)
          ReplacementCache.phantomPositions.remove(key)
          ReplacementCache.shapedPositions.remove(key)
       }

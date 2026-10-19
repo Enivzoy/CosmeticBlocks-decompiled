@@ -100,6 +100,22 @@ roughly **0.6 MB (~99% smaller)** — though note that enabling *every* stage is
 smallest: gzip alone already captures most of the redundancy, so `Gzip` + `No Readability` + `Block
 Dictionary` tends to win.
 
+## Performance
+
+Large configs can contain a million or more block replacements. Reborn keeps them cheap at runtime:
+
+- **Chunk-based rendering index** — replacements are indexed by chunk section, so rendering only ever looks
+  at the sections that actually contain replacements instead of scanning the whole config per block.
+- **Async config loading** — switching configs (including automatic per-floor loading and dungeon revert)
+  parses and compresses off the render thread; the swap happens on the main thread in one step.
+- **Async saves** — saving before a config switch or on autosave no longer blocks the game; the old data is
+  detached and encoded on a background thread.
+- **Targeted re-meshing** — block remaps only trigger a section rebuild when the resolved remap table
+  actually changes, instead of dirtying every visible chunk on every config load.
+- **Throttled section updates** — dirty sections are rebuilt in small batches rather than all at once.
+
+Together these remove the stutter that used to hit when entering or leaving a dungeon with a large config loaded.
+
 ## Building From Source
 
 1. Open the project folder in IntelliJ IDEA and import it as a Gradle project.
@@ -131,6 +147,7 @@ code dramatically simpler. The library is bundled into the mod JAR, so you don't
 - [x] Revert to original config after a dungeon is done
 - [x] Compact, range-based config storage (`/cb migrate`)
 - [x] Optional extra compression stages (gzip / minify / dictionary / palette / RLE)
+- [x] Chunk-based rendering index and async config load/save for large configs
 - [ ] Per island (outside dungeons)
 - [ ] Easier config sharing
 - [ ] Minecraft 26.3 support

@@ -360,6 +360,7 @@ object WorldEditMode {
                   dimMap.remove(key)
                   val packed = BlockPos.asLong(x, y, z)
                   ReplacementCache.activeCache.remove(packed)
+                  SectionIndex.remove(packed)
                   ReplacementCache.phantomPositions.remove(packed)
                   ReplacementCache.retextureCache.remove(packed)
                   ReplacementCache.originalShapeCache.remove(packed)

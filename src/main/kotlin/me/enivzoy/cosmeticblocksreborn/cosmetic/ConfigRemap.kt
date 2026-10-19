@@ -22,6 +22,8 @@ class ConfigRemap private constructor() : RemapStore {
 
    @Volatile
    private var resolved: Map<Block, GlobalRemap.Resolved> = emptyMap()
+   private var resolvedSignature = 0
+   private var hasResolvedSignature = false
 
    internal val loadedName: String?
       get() = loadedNameState
@@ -175,7 +177,25 @@ class ConfigRemap private constructor() : RemapStore {
          }
       }
 
+      var signature = (if (enabled) 1 else 0) * 31 + (if (keepShape) 1 else 0)
+      for ((block, r) in map) {
+         var h = block.hashCode()
+         h = h * 31 + r.total
+         for (s in r.states) {
+            h = h * 31 + s.hashCode()
+         }
+
+         signature += h
+      }
+
+      val changed = !hasResolvedSignature || signature != resolvedSignature
       resolved = map
+      resolvedSignature = signature
+      hasResolvedSignature = true
+      if (!changed) {
+         return
+      }
+
       val mc = Minecraft.getInstance()
       val level = mc.level
       if (level != null) {

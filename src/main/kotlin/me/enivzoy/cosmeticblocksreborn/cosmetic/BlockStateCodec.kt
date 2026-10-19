@@ -26,13 +26,9 @@ import net.minecraft.world.level.block.state.properties.Property
 import net.minecraft.world.phys.BlockHitResult
 
 object BlockStateCodec {
-   /**
-    * Erased stand-in for any `Property<T : Comparable<T>>` value type. Casting through
-    * this marker satisfies the Kotlin bound on `Property` while remaining a no-op at
-    * runtime (everything is erased), so it mirrors the raw-type casts the Java sources
-    * relied on and works for every MC property type without naming them.
-    */
-   private interface RawValue : Comparable<RawValue>
+   private class AnyValue : Comparable<AnyValue> {
+      override fun compareTo(other: AnyValue): Int = 0
+   }
 
    private val baseToStair = LinkedHashMap<String, String>()
    private val baseToSlab = LinkedHashMap<String, String>()
@@ -160,9 +156,12 @@ object BlockStateCodec {
       return blockId + "[" + propsStr + "]"
    }
 
-   @Suppress("UNCHECKED_CAST")
    internal fun getPropertyValueName(property: Property<*>, value: Comparable<*>): String =
-      (property as Property<RawValue>).getName(value as RawValue)
+      this.getPropertyValueNameErased<AnyValue>(property, value)
+
+   @Suppress("UNCHECKED_CAST")
+   private fun <T : Comparable<T>> getPropertyValueNameErased(property: Property<*>, value: Comparable<*>): String =
+      (property as Property<T>).getName(value as T)
 
    private fun applyPropertyValue(state: BlockState, property: Property<*>, valueName: String): BlockState? {
       val value = property.getValue(valueName)
@@ -329,9 +328,12 @@ object BlockStateCodec {
    private fun setAxis(state: BlockState, prop: Property<*>, value: Axis): BlockState =
       state.setValue(prop as Property<Axis>, value)
 
-   @Suppress("UNCHECKED_CAST")
    private fun setValueUnchecked(state: BlockState, prop: Property<*>, value: Comparable<*>): BlockState =
-      state.setValue(prop as Property<RawValue>, value as RawValue)
+      this.setValueErased<AnyValue>(state, prop, value)
+
+   @Suppress("UNCHECKED_CAST")
+   private fun <T : Comparable<T>> setValueErased(state: BlockState, prop: Property<*>, value: Comparable<*>): BlockState =
+      state.setValue(prop as Property<T>, value as T)
 
    private fun rotateProperty(toNorth: Boolean, rotation: Rotation, prop: String): String {
       val eqIdx = prop.indexOf('=')

@@ -134,6 +134,7 @@ object RoomStore {
       for (key in roomCacheKeys) {
          dirtySections.add(DirtySections.sectionKey(BlockPos.getX(key), BlockPos.getY(key), BlockPos.getZ(key)))
          ReplacementCache.activeCache.remove(key)
+         SectionIndex.remove(key)
          ReplacementCache.phantomPositions.remove(key)
          ReplacementCache.retextureCache.remove(key)
          ReplacementCache.originalShapeCache.remove(key)
@@ -157,6 +158,7 @@ object RoomStore {
                   ReplacementCache.activeCache[packed] = BlockStateCodec.rotateBlockStateFromNorth(entry.state, rot)
                }
 
+               SectionIndex.add(packed)
                roomCacheKeys.add(packed)
                if (entry.phantom) {
                   ReplacementCache.phantomPositions.add(packed)
@@ -239,19 +241,21 @@ object RoomStore {
       if (shape != null) {
          val shapeState = BlockStateCodec.resolveShapeState(shape)
          val textureState = BlockStateCodec.resolveBlockState(blockId)
-         if (shapeState != null && textureState != null) {
-            ReplacementCache.activeCache[packed] = shapeState
-            ReplacementCache.retextureCache[packed] = textureState
-            ReplacementCache.shapedPositions.add(packed)
-            roomCacheKeys.add(packed)
-         }
-      } else {
-         val state = BlockStateCodec.resolveBlockState(blockId)
-         if (state != null) {
-            ReplacementCache.activeCache[packed] = state
-            roomCacheKeys.add(packed)
-         }
-      }
+          if (shapeState != null && textureState != null) {
+             ReplacementCache.activeCache[packed] = shapeState
+             SectionIndex.add(packed)
+             ReplacementCache.retextureCache[packed] = textureState
+             ReplacementCache.shapedPositions.add(packed)
+             roomCacheKeys.add(packed)
+          }
+       } else {
+          val state = BlockStateCodec.resolveBlockState(blockId)
+          if (state != null) {
+             ReplacementCache.activeCache[packed] = state
+             SectionIndex.add(packed)
+             roomCacheKeys.add(packed)
+          }
+       }
 
       if (phantom) {
          ReplacementCache.phantomPositions.add(packed)
@@ -304,6 +308,7 @@ object RoomStore {
       roomMap[relKey] = if (phantom) "!" + value else value
       val packed = BlockPos.asLong(pos.x, pos.y, pos.z)
       ReplacementCache.activeCache[packed] = state
+      SectionIndex.add(packed)
       roomCacheKeys.add(packed)
       if (phantom) {
          ReplacementCache.phantomPositions.add(packed)
@@ -329,6 +334,7 @@ object RoomStore {
 
          val packed = BlockPos.asLong(pos.x, pos.y, pos.z)
          ReplacementCache.activeCache.remove(packed)
+         SectionIndex.remove(packed)
          roomCacheKeys.remove(packed)
          ReplacementCache.phantomPositions.remove(packed)
          ReplacementCache.retextureCache.remove(packed)
@@ -349,6 +355,7 @@ object RoomStore {
 
       for (key in roomCacheKeys.toList()) {
          ReplacementCache.activeCache.remove(key)
+         SectionIndex.remove(key)
          ReplacementCache.phantomPositions.remove(key)
       }
 
@@ -371,6 +378,7 @@ object RoomStore {
 
       for (key in roomCacheKeys.toList()) {
          ReplacementCache.activeCache.remove(key)
+         SectionIndex.remove(key)
          ReplacementCache.phantomPositions.remove(key)
       }
 

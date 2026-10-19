@@ -15,14 +15,11 @@ object DirtySections {
    internal fun hasPending(): Boolean = !pendingDirtySections.isEmpty()
 
    internal fun markAllCachedDirty() {
-      val level = this.mc.level ?: return
-      val sections = HashSet<Long>(ReplacementCache.activeCache.size / 4)
-
-      for (packed in ReplacementCache.activeCache.keys) {
-         sections.add(this.sectionKey(BlockPos.getX(packed), BlockPos.getY(packed), BlockPos.getZ(packed)))
+      if (this.mc.level == null) {
+         return
       }
 
-      this.queueDirtySections(sections)
+      this.queueDirtySections(SectionIndex.occupiedSections())
    }
 
    internal fun sectionKey(x: Int, y: Int, z: Int): Long = BlockPos.asLong(x shr 4, y shr 4, z shr 4)
