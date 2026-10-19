@@ -31,17 +31,20 @@ On top of the original cosmetic block system, Reborn adds:
 - **Command palette (CLI)** for running commands without leaving the GUI.
 - **Freecam** *(cheat)*.
 - **Per-dungeon load/save** with an automatic revert to your original config when a dungeon is finished.
-- **Compact config storage** — see [Config storage](#config-storage).
+- **Compact config storage** with optional extra compression stages — see [Config storage](#config-storage).
 
 ## Usage
 
 Grab the latest action build, drop it in your `mods` folder, then run **`/cb`** in game to open the GUI.
+The command also answers to **`/cosmeticblocks`**, **`/cosmeticb`**, **`/cosm`** and **`/cosblocks`**.
 
 | Where | What |
 | --- | --- |
 | `/cb` | Opens the main configuration screen |
 | `/cb help` | Lists all commands |
 | `/cb migrate <name>` | Rewrites an existing config into the compact format (keeps a `.bak` backup) |
+| `/cb migrate <name> -mini` | Same, but with the extra compression stages enabled (aliases `-m`, `-minified`) |
+| `/cb migrate <name> --settings` | Uses whatever stages are toggled in the Settings tab |
 | `.minecraft/config/cb/` | All config files live here |
 | `.minecraft/config/cb/cb/` | Individual config profiles |
 
@@ -71,6 +74,31 @@ Each range is `[x1,y1,z1,x2,y2,z2]`.
 - To convert a file immediately (for example, to shrink it on disk), run **`/cb migrate <name>`**. A
   `<name>.json.bak` backup is written first.
 - Converting a full floor typically shrinks the file by **more than 90%**.
+
+### Optional compression stages
+
+The range format above is already small, but it stays **human-readable by default** — a config saved
+normally, and a plain `/cb migrate`, never change that. If you want to shrink a file even further, there
+are optional extra stages. Open the **Settings** tab and turn on **Minimize Config**; a list of stages
+appears underneath:
+
+| Stage | What it does |
+| --- | --- |
+| **Gzip** | Compresses the whole file with gzip. |
+| **No Readability** | Drops all pretty-printing whitespace. |
+| **Block Dictionary** | Stores each unique block value once and references it by index. |
+| **Blockstate Palette** | Splits blocks into base block + blockstate, stored as two index tables. Only available once **Block Dictionary** is on. |
+| **RLE Encoding** | Run-length-encodes the coordinate ranges. |
+
+Nothing changes on disk until you run **`/cb migrate <configname> --settings`**, which re-encodes a config
+using the stages you enabled. The one-off **`-mini`** flag (`-m` / `-minified`) is a shortcut that enables a
+sensible set of stages for that single migration without touching the Settings tab.
+
+A migrated file records which stages it used, so it is always read back correctly regardless of your current
+settings, and old plain/legacy files keep working. On a real floor-7 config this took a 50 MB file down to
+roughly **0.6 MB (~99% smaller)** — though note that enabling *every* stage is not automatically the
+smallest: gzip alone already captures most of the redundancy, so `Gzip` + `No Readability` + `Block
+Dictionary` tends to win.
 
 ## Building From Source
 
@@ -102,6 +130,7 @@ code dramatically simpler. The library is bundled into the mod JAR, so you don't
 - [x] Incorporated into the GUI
 - [x] Revert to original config after a dungeon is done
 - [x] Compact, range-based config storage (`/cb migrate`)
+- [x] Optional extra compression stages (gzip / minify / dictionary / palette / RLE)
 - [ ] Per island (outside dungeons)
 - [ ] Easier config sharing
 - [ ] Minecraft 26.3 support
