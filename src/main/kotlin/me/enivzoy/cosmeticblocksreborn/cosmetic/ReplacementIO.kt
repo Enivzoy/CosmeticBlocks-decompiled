@@ -1,11 +1,6 @@
 package me.enivzoy.cosmeticblocksreborn.cosmetic
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonParser
-import com.google.gson.stream.JsonWriter
-import java.io.BufferedWriter
 import java.io.File
-import java.io.FileReader
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.util.Locale
@@ -14,12 +9,6 @@ import me.enivzoy.cosmeticblocksreborn.utils.ChatUtil
 import net.minecraft.client.Minecraft
 
 class ReplacementIO private constructor() {
-   private class LoadedConfig(
-      val dims: LinkedHashMap<String, LinkedHashMap<String, String>>,
-      val floor: String?,
-      val water: WaterConfig.Fields
-   )
-
    fun save() {
       if (SaveScheduler.saveInFlight) {
          SaveScheduler.saveAgain = true
@@ -41,76 +30,26 @@ class ReplacementIO private constructor() {
 
       try {
          this.writeConfig(
-            ReplacementStore.snapshotReplacements(), ReplacementStore.floor, WaterConfig.INSTANCE.captureFields(), file
+            ReplacementStore.snapshotReplacements(), ReplacementStore.floor, WaterConfig.INSTANCE.captureFields(), file, 0
          )
       } catch (e: Exception) {
          System.err.println("[CB] Failed to save config sync: " + e.message)
       }
    }
 
-   private fun writeConfig(snapshot: Map<String, Map<String, String>>, floor: String?, water: WaterConfig.Fields, file: File) {
+   private fun writeConfig(
+      snapshot: Map<String, Map<String, String>>, floor: String?, water: WaterConfig.Fields, file: File, flags: Int
+   ) {
       if (!ReplacementStore.configDir.exists()) {
          ReplacementStore.configDir.mkdirs()
       }
 
       val tmpFile = File(file.parentFile, file.name + ".tmp")
-      BufferedWriter(tmpFile.writer(Charsets.UTF_8), 65536).use { bw ->
-         JsonWriter(bw).use { jw ->
-            jw.setIndent("  ")
-            jw.beginObject()
-
-            if (floor != null && floor.isNotEmpty()) {
-               jw.name("floor").value(floor)
-            }
-
-            jw.name("format").value(2L)
-
-            val allow = water.allow
-            if (allow != null) {
-               jw.name("allowWaterColor").value(allow)
-            }
-
-            val rgb = water.rgb
-            if (rgb != null) {
-               jw.name("rgbWaterColor").value(rgb)
-            }
-
-            val lava = water.lava
-            if (lava != null) {
-               jw.name("lavaAsWater").value(lava)
-            }
-
-            for ((dim, dimMap) in snapshot) {
-               jw.name(dim)
-               jw.beginObject()
-
-               val compressed = ReplacementCompactor.compress(dimMap)
-               for ((raw, boxes) in compressed) {
-                  jw.name(raw)
-                  jw.beginArray()
-
-                  for (box in boxes) {
-                     jw.beginArray()
-                     jw.setIndent("")
-                     jw.value(box[0].toLong())
-                     jw.value(box[1].toLong())
-                     jw.value(box[2].toLong())
-                     jw.value(box[3].toLong())
-                     jw.value(box[4].toLong())
-                     jw.value(box[5].toLong())
-                     jw.endArray()
-                     jw.setIndent("  ")
-                  }
-
-                  jw.endArray()
-               }
-
-               jw.endObject()
-            }
-
-            jw.endObject()
-         }
+      if (tmpFile.exists()) {
+         tmpFile.delete()
       }
+
+      tmpFile.writeBytes(ConfigCompression.encode(floor, water, snapshot, flags))
 
       try {
          Files.move(tmpFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING)
@@ -152,96 +91,23 @@ class ReplacementIO private constructor() {
       ReplacementCache.rebuildActiveCache()
    }
 
-   private fun parseFile(file: File): LoadedConfig? {
+   private fun parseFile(file: File): ConfigCompression.Document? {
       if (!file.exists()) {
          return null
       }
 
       return try {
-         val root = FileReader(file, Charsets.UTF_8).use { JsonParser.parseReader(it).asJsonObject }
-         var loadedFloor: String? = null
-         var loadedAllowWater: Boolean? = null
-         var loadedRgbWater: Int? = null
-         var loadedLavaAsWater: Boolean? = null
-         val dims = LinkedHashMap<String, LinkedHashMap<String, String>>()
-
-         for ((dim, element) in root.entrySet()) {
-            if (element.isJsonPrimitive) {
-               val primitive = element.asJsonPrimitive
-               if (dim == "floor" && primitive.isString) {
-                  loadedFloor = element.asString
-               } else if (dim == "allowWaterColor" && primitive.isBoolean) {
-                  loadedAllowWater = element.asBoolean
-               } else if (dim == "rgbWaterColor" && primitive.isNumber) {
-                  loadedRgbWater = element.asInt
-               } else if (dim == "lavaAsWater" && primitive.isBoolean) {
-                  loadedLavaAsWater = element.asBoolean
-               }
-
-               continue
-            }
-
-            if (!element.isJsonObject) {
-               continue
-            }
-
-            val dimMap = LinkedHashMap<String, String>()
-            for ((raw, value) in element.asJsonObject.entrySet()) {
-               if (value.isJsonArray) {
-                  ReplacementCompactor.expand(raw, this.toRanges(value.asJsonArray), dimMap)
-               } else if (value.isJsonPrimitive) {
-                  dimMap[raw] = value.asString
-               }
-            }
-
-            if (dimMap.isNotEmpty()) {
-               dims[dim] = dimMap
-            }
-         }
-
-         LoadedConfig(dims, loadedFloor, WaterConfig.Fields(loadedAllowWater, loadedRgbWater, loadedLavaAsWater))
+         ConfigCompression.decode(file.readBytes())
       } catch (e: Exception) {
          System.err.println("[CB] Failed to parse " + file.name + ": " + e.message)
          null
       }
    }
 
-   private fun toRanges(array: JsonArray): List<IntArray> {
-      val ranges = ArrayList<IntArray>(array.size())
-      for (rangeElement in array) {
-         if (!rangeElement.isJsonArray) {
-            continue
-         }
-
-         val values = rangeElement.asJsonArray
-         if (values.size() < 6) {
-            continue
-         }
-
-         val range = IntArray(6)
-         var valid = true
-         for (i in 0 until 6) {
-            val value = values.get(i)
-            if (!value.isJsonPrimitive || !value.asJsonPrimitive.isNumber) {
-               valid = false
-               break
-            }
-
-            range[i] = value.asInt
-         }
-
-         if (valid) {
-            ranges.add(range)
-         }
-      }
-
-      return ranges
-   }
-
-   internal fun migrateAsync(nameInput: String) {
+   internal fun migrateAsync(nameInput: String, flags: Int) {
       val name = nameInput.trim().removePrefix("\"").removeSuffix("\"").removeSuffix(".json")
       if (name.isEmpty()) {
-         this.report("Usage: /cb migrate <config>")
+         this.report("Usage: /cb migrate <config> [-mini] [--settings]")
          return
       }
 
@@ -256,7 +122,7 @@ class ReplacementIO private constructor() {
       val floor = if (active) ReplacementStore.floor else null
       val water = if (active) WaterConfig.INSTANCE.captureFields() else null
 
-      this.report("Migrating '$name' to the compact format...")
+      this.report("Migrating '$name' (" + ConfigCompression.describe(flags) + ")...")
       SaveScheduler.saveExecutor.execute {
          try {
             val before = file.length()
@@ -264,10 +130,10 @@ class ReplacementIO private constructor() {
             file.copyTo(backup, overwrite = true)
 
             if (active) {
-               this.writeConfig(snapshot!!, floor, water!!, file)
+               this.writeConfig(snapshot!!, floor, water!!, file, flags)
             } else {
                val loaded = this.parseFile(file) ?: throw IllegalStateException("could not parse config")
-               this.writeConfig(loaded.dims, loaded.floor, loaded.water, file)
+               this.writeConfig(loaded.dims, loaded.floor, loaded.water, file, flags)
             }
 
             val after = file.length()
@@ -323,7 +189,7 @@ class ReplacementIO private constructor() {
          snapshot: Map<String, Map<String, String>>, floor: String?, water: WaterConfig.Fields, file: File
       ) {
          try {
-            INSTANCE.writeConfig(snapshot, floor, water, file)
+            INSTANCE.writeConfig(snapshot, floor, water, file, 0)
          } catch (e: Exception) {
             System.err.println("[CB] Failed to save config: " + e.message)
          } finally {

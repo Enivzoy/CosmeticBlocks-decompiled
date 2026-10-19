@@ -6,6 +6,8 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import me.enivzoy.cosmeticblocksreborn.config.tabs.DungeonConfigTab
+import me.enivzoy.cosmeticblocksreborn.config.tabs.PreferencesTab
+import me.enivzoy.cosmeticblocksreborn.cosmetic.ConfigCompression
 import me.enivzoy.cosmeticblocksreborn.cosmetic.CosmeticBlocks
 import me.enivzoy.cosmeticblocksreborn.cosmetic.Freecam
 import me.enivzoy.cosmeticblocksreborn.cosmetic.ReplacementIO
@@ -255,8 +257,79 @@ class CbCommand private constructor() {
 
       private fun onMigrateCommand(it: CommandContext<*>): Int {
          val name = StringArgumentType.getString(it, "name")
-         ReplacementIO.INSTANCE.migrateAsync(name)
+         ReplacementIO.INSTANCE.migrateAsync(name, 0)
          return 1
+      }
+
+      private fun onMigrateFlagSuggestions(context: CommandContext<*>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
+         for (flag in MIGRATE_FLAGS) {
+            if (flag.startsWith(builder.remaining, ignoreCase = true)) {
+               builder.suggest(flag)
+            }
+         }
+
+         return builder.buildFuture()
+      }
+
+      private fun onMigrateFlagsCommand(it: CommandContext<*>): Int {
+         val name = StringArgumentType.getString(it, "name")
+         val flags = parseMigrateFlags(StringArgumentType.getString(it, "flags")) ?: return 0
+         ReplacementIO.INSTANCE.migrateAsync(name, flags)
+         return 1
+      }
+
+      private fun parseMigrateFlags(raw: String): Int? {
+         var flags = 0
+         var useSettings = false
+         for (token in raw.trim().split(" ").filter { it.isNotEmpty() }) {
+            when (token.lowercase(Locale.ROOT)) {
+               "-m", "-mini", "-minify", "-minified", "--minify", "--minified" -> flags = flags or ConfigCompression.MINIFY
+               "-gzip", "-gz", "--gzip" -> flags = flags or ConfigCompression.GZIP
+               "-dict", "-dictionary", "--dict", "--dictionary" -> flags = flags or ConfigCompression.DICTIONARY
+               "-palette", "-state", "--palette", "--state" ->
+                  flags = flags or ConfigCompression.DICTIONARY or ConfigCompression.PALETTE
+               "-rle", "--rle" -> flags = flags or ConfigCompression.RLE
+               "-s", "-settings", "--settings" -> useSettings = true
+               else -> {
+                  ChatUtil.send("Unknown migrate option '" + token + "'. Try " + MIGRATE_FLAGS.joinToString(" "))
+                  return null
+               }
+            }
+         }
+
+         if (useSettings) {
+            val prefs = PreferencesTab.INSTANCE
+            if (!prefs.minimizeConfig.value) {
+               ChatUtil.send("Enable 'Minimize Config' in the Settings tab to use --settings.")
+               return null
+            }
+
+            if (prefs.compressGzip.value) {
+               flags = flags or ConfigCompression.GZIP
+            }
+
+            if (prefs.compressMinify.value) {
+               flags = flags or ConfigCompression.MINIFY
+            }
+
+            if (prefs.compressDictionary.value) {
+               flags = flags or ConfigCompression.DICTIONARY
+            }
+
+            if (prefs.compressPalette.value && prefs.compressDictionary.value) {
+               flags = flags or ConfigCompression.PALETTE
+            }
+
+            if (prefs.compressRle.value) {
+               flags = flags or ConfigCompression.RLE
+            }
+         }
+
+         if (flags and ConfigCompression.PALETTE != 0) {
+            flags = flags or ConfigCompression.DICTIONARY
+         }
+
+         return flags
       }
 
       private fun onCreateCommand(it: CommandContext<*>): Int {
@@ -529,6 +602,8 @@ class CbCommand private constructor() {
 
       private val COMMAND_ALIASES = arrayOf("cosmeticblocks", "cb", "cosmeticb", "cosm", "cosblocks")
 
+      private val MIGRATE_FLAGS = arrayOf("-m", "-mini", "-gzip", "-dict", "-palette", "-rle", "--settings")
+
       private fun onRegisterCommands(dispatcher: CommandDispatcher<FabricClientCommandSource>, ignored: CommandBuildContext) {
          for (alias in COMMAND_ALIASES) {
             dispatcher.register(buildCommand(alias))
@@ -566,11 +641,16 @@ class CbCommand private constructor() {
                .then(ClientCommands.literal("save").executes(::onSaveCommand))
                 .then(ClientCommands.literal("reload").executes(::onReloadCommand))
                 .then(
-                   ClientCommands.literal("migrate")
+                    ClientCommands.literal("migrate")
                       .then(
                          ClientCommands.argument("name", StringArgumentType.string())
                             .suggests(::onMigrateSuggestions)
                             .executes(::onMigrateCommand)
+                            .then(
+                               ClientCommands.argument("flags", StringArgumentType.greedyString())
+                                  .suggests(::onMigrateFlagSuggestions)
+                                  .executes(::onMigrateFlagsCommand)
+                            )
                       )
                 )
                .then(ClientCommands.literal("create").then(ClientCommands.argument("name", StringArgumentType.string()).executes(::onCreateCommand)))
