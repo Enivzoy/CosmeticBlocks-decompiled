@@ -527,9 +527,16 @@ class CbCommand private constructor() {
          return 1
       }
 
+      private val COMMAND_ALIASES = arrayOf("cosmeticblocks", "cb", "cosmeticb", "cosm", "cosblocks")
+
       private fun onRegisterCommands(dispatcher: CommandDispatcher<FabricClientCommandSource>, ignored: CommandBuildContext) {
-         dispatcher.register(
-            ClientCommands.literal("cb")
+         for (alias in COMMAND_ALIASES) {
+            dispatcher.register(buildCommand(alias))
+         }
+      }
+
+      private fun buildCommand(name: String) =
+            ClientCommands.literal(name)
                .then(ClientCommands.literal("gui").executes(::onGuiCommand))
                .then(ClientCommands.literal("profiles").executes(::onProfilesCommand))
                .then(ClientCommands.literal("keybinds").executes(::onKeybindsCommand))
@@ -632,7 +639,5 @@ class CbCommand private constructor() {
                      )
                )
                .executes(::onDefaultCommand)
-         )
-      }
    }
 }
