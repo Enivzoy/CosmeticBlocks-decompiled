@@ -169,12 +169,12 @@ object WorldEditMode {
    }
 
    fun fillRegion(blockSpecs: String): String {
-      val p1 = this.pos1State ?: return "Â§cPos1 not set"
-      val p2 = this.pos2State ?: return "Â§cPos2 not set"
+      val p1 = this.pos1State ?: return "§cPos1 not set"
+      val p2 = this.pos2State ?: return "§cPos2 not set"
 
-      val dim = LocationTracker.getCurrentDimension() ?: return "Â§cNot in a world"
+      val dim = LocationTracker.getCurrentDimension() ?: return "§cNot in a world"
 
-      val blocks = parseWeightedBlocks(blockSpecs) ?: return "Â§cInvalid block specification"
+      val blocks = parseWeightedBlocks(blockSpecs) ?: return "§cInvalid block specification"
 
       val minX = min(p1.x, p2.x)
       val maxX = max(p1.x, p2.x)
@@ -232,28 +232,46 @@ object WorldEditMode {
          blocks.size.toString() + " block types"
       }
 
-      return "Â§aFilled $count blocks (${sizeX}x${sizeY}x${sizeZ}) with $blockDesc"
+      return "§aFilled $count blocks (${sizeX}x${sizeY}x${sizeZ}) with $blockDesc"
    }
 
    fun replaceRegion(fromBlock: String, toSpecs: String): String {
-      val p1 = this.pos1State ?: return "Â§cPos1 not set"
-      val p2 = this.pos2State ?: return "Â§cPos2 not set"
+      val p1 = this.pos1State ?: return "§cPos1 not set"
+      val p2 = this.pos2State ?: return "§cPos2 not set"
 
-      val dim = LocationTracker.getCurrentDimension() ?: return "Â§cNot in a world"
+      return replacenearBounds(min(p1.x, p2.x), min(p1.y, p2.y), min(p1.z, p2.z), max(p1.x, p2.x), max(p1.y, p2.y), max(p1.z, p2.z), fromBlock, toSpecs)
+   }
 
-      val level: ClientLevel = mc.level ?: return "Â§cNot in a world"
+   fun replacenear(size: Int, fromBlock: String, toSpecs: String): String {
+      if (size < 1) {
+         return "§cSize must be at least 1"
+      }
+
+      val player = mc.player ?: return "§cPlayer not found"
+      val cx = player.blockPosition().x
+      val cy = player.blockPosition().y + 1
+      val cz = player.blockPosition().z
+      val radius = size - 1
+      val reach = size * 2 - 1
+
+      if (reach > 256) {
+         return "§cSize too large (max 128)"
+      }
+
+      return replacenearBounds(cx - radius, cy - radius, cz - radius, cx + radius, cy + radius, cz + radius, fromBlock, toSpecs)
+   }
+
+   private fun replacenearBounds(
+      minX: Int, minY: Int, minZ: Int, maxX: Int, maxY: Int, maxZ: Int, fromBlock: String, toSpecs: String
+   ): String {
+      val dim = LocationTracker.getCurrentDimension() ?: return "§cNot in a world"
+
+      val level: ClientLevel = mc.level ?: return "§cNot in a world"
 
       val normalizedFrom = BlockStateCodec.normalizeBlockId(fromBlock)
-      val fromState = BlockStateCodec.resolveBlockState(normalizedFrom) ?: return "Â§cUnknown block: $fromBlock"
+      val fromState = BlockStateCodec.resolveBlockState(normalizedFrom) ?: return "§cUnknown block: $fromBlock"
 
-      val toBlocks = parseWeightedBlocks(toSpecs) ?: return "Â§cInvalid target block specification"
-
-      val minX = min(p1.x, p2.x)
-      val maxX = max(p1.x, p2.x)
-      val minY = min(p1.y, p2.y)
-      val maxY = max(p1.y, p2.y)
-      val minZ = min(p1.z, p2.z)
-      val maxZ = max(p1.z, p2.z)
+      val toBlocks = parseWeightedBlocks(toSpecs) ?: return "§cInvalid target block specification"
 
       val replacements = ReplacementStore.replacements
       val dimMap = replacements.getOrPut(dim) { LinkedHashMap() }
@@ -309,23 +327,23 @@ object WorldEditMode {
       }
 
       val fromName = if (normalizedFrom.startsWith("minecraft:")) normalizedFrom.substring("minecraft:".length) else normalizedFrom
-      return "Â§aReplaced $count '$fromName' blocks"
+      return "§aReplaced $count '$fromName' blocks"
    }
 
    fun removeInRegion(filterBlock: String?): String {
-      val p1 = this.pos1State ?: return "Â§cPos1 not set"
-      val p2 = this.pos2State ?: return "Â§cPos2 not set"
+      val p1 = this.pos1State ?: return "§cPos1 not set"
+      val p2 = this.pos2State ?: return "§cPos2 not set"
 
-      val dim = LocationTracker.getCurrentDimension() ?: return "Â§cNot in a world"
+      val dim = LocationTracker.getCurrentDimension() ?: return "§cNot in a world"
 
-      val dimMap = ReplacementStore.replacements[dim] ?: return "Â§cNo replacements in this dimension"
+      val dimMap = ReplacementStore.replacements[dim] ?: return "§cNo replacements in this dimension"
 
       var filterState: BlockState? = null
       if (filterBlock != null) {
          val normalized = BlockStateCodec.normalizeBlockId(filterBlock)
          filterState = BlockStateCodec.resolveBlockState(normalized)
          if (filterState == null) {
-            return "Â§cUnknown block: $filterBlock"
+            return "§cUnknown block: $filterBlock"
          }
       }
 
@@ -385,16 +403,16 @@ object WorldEditMode {
       }
 
       val desc = if (filterBlock != null) "'" + filterBlock.replace("minecraft:", "") + "' blocks" else "blocks"
-      return "Â§aRemoved $count cosmetic $desc in selection"
+      return "§aRemoved $count cosmetic $desc in selection"
    }
 
    fun floodFill(start: BlockPos, blockSpecs: String): String {
-      val level: ClientLevel = mc.level ?: return "Â§cNot in a world"
+      val level: ClientLevel = mc.level ?: return "§cNot in a world"
 
-      val blocks = parseWeightedBlocks(blockSpecs) ?: return "Â§cInvalid block specification"
+      val blocks = parseWeightedBlocks(blockSpecs) ?: return "§cInvalid block specification"
 
       if (level.getBlockState(start).isAir) {
-         return "Â§cLook at a solid block to fill"
+         return "§cLook at a solid block to fill"
       }
 
       val room = RoomScanner.currentRoom
@@ -406,7 +424,7 @@ object WorldEditMode {
    }
 
    private fun floodFillFlat(start: BlockPos, blocks: List<Pair<BlockState, Int>>, level: ClientLevel): String {
-      val dim = LocationTracker.getCurrentDimension() ?: return "Â§cNot in a world"
+      val dim = LocationTracker.getCurrentDimension() ?: return "§cNot in a world"
 
       val matchBlock = level.getBlockState(start).block
       val limit = CosmeticBlocksTab.INSTANCE.fillModeLimit.value.toInt()
@@ -474,8 +492,8 @@ object WorldEditMode {
       }
 
       val name = BuiltInRegistries.BLOCK.getKey(matchBlock).path
-      val suffix = if (hitLimit) " Â§7(limit $limit reached)" else ""
-      return "Â§aFilled $count '$name' blocks$suffix"
+      val suffix = if (hitLimit) " §7(limit $limit reached)" else ""
+      return "§aFilled $count '$name' blocks$suffix"
    }
 
    private fun floodFillRoom(start: BlockPos, blocks: List<Pair<BlockState, Int>>, room: ScannedRoom, level: ClientLevel): String {
@@ -530,8 +548,8 @@ object WorldEditMode {
       }
 
       val name = BuiltInRegistries.BLOCK.getKey(matchBlock).path
-      val suffix = if (hitLimit) " Â§7(limit $limit reached)" else ""
-      return "Â§aFilled $count '$name' blocks (room-relative)$suffix"
+      val suffix = if (hitLimit) " §7(limit $limit reached)" else ""
+      return "§aFilled $count '$name' blocks (room-relative)$suffix"
    }
 
    fun undoLastOperation(): String {
@@ -541,13 +559,13 @@ object WorldEditMode {
          RoomStore.restoreRoomFill(roomSnap, undoR)
          undoRoomSnapshot = null
          undoRoom = null
-         return "Â§aUndone: ${roomSnap.size} blocks restored"
+         return "§aUndone: ${roomSnap.size} blocks restored"
       }
 
       val snapshot = this.undoSnapshot
       val undoDim = this.undoDimension
       if (snapshot == null || undoDim == null) {
-         return "Â§cNothing to undo"
+         return "§cNothing to undo"
       }
 
       val replacements = ReplacementStore.replacements
@@ -603,7 +621,7 @@ object WorldEditMode {
          SaveScheduler.scheduleSave()
       }
 
-      return "Â§aUndone: $restored blocks restored"
+      return "§aUndone: $restored blocks restored"
    }
 
    internal fun tickWorldEditMode() {

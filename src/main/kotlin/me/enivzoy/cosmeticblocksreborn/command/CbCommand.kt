@@ -476,6 +476,26 @@ class CbCommand private constructor() {
          return 1
       }
 
+      private fun onReplaceNearCommand(it: CommandContext<*>): Int {
+         val argsArg = StringArgumentType.getString(it, "args")
+         val args = Regex("\\s+").split(argsArg.trim(), 0)
+         if (args.size >= 3) {
+            val size = args[0].toIntOrNull()
+            if (size == null) {
+               ChatUtil.send("Usage: cb replacenear <size> <from> <to> [to:weight ...]")
+               return 1
+            }
+
+            val fromBlock = args[1]
+            val toSpecs = args.drop(2).joinToString(" ", "", "", -1, "...", null)
+            ChatUtil.send(CosmeticBlocks.INSTANCE.replacenearRegion(size, fromBlock, toSpecs))
+         } else {
+            ChatUtil.send("Usage: cb replacenear <size> <from> <to> [to:weight ...]")
+         }
+
+         return 1
+      }
+
       private fun onUndoCommand(it: CommandContext<*>): Int {
          ChatUtil.send(CosmeticBlocks.INSTANCE.undoLastOperation())
          return 1
@@ -689,6 +709,14 @@ class CbCommand private constructor() {
                         ClientCommands.argument("args", StringArgumentType.greedyString())
                            .suggests(::onReplaceSuggestions)
                            .executes(::onReplaceCommand)
+                     )
+               )
+               .then(
+                  ClientCommands.literal("replacenear")
+                     .then(
+                        ClientCommands.argument("args", StringArgumentType.greedyString())
+                           .suggests(::onReplaceSuggestions)
+                           .executes(::onReplaceNearCommand)
                      )
                )
                .then(ClientCommands.literal("undo").executes(::onUndoCommand))

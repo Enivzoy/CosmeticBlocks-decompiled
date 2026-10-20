@@ -209,6 +209,8 @@ class CosmeticBlocks private constructor() {
 
    fun replaceRegion(fromBlock: String, toSpecs: String): String = WorldEditMode.replaceRegion(fromBlock, toSpecs)
 
+   fun replacenearRegion(size: Int, fromBlock: String, toSpecs: String): String = WorldEditMode.replacenear(size, fromBlock, toSpecs)
+
    fun removeInRegion(filterBlock: String?): String = WorldEditMode.removeInRegion(filterBlock)
 
    fun undoLastOperation(): String = WorldEditMode.undoLastOperation()
