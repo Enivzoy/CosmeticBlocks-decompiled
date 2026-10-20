@@ -1,6 +1,7 @@
 package me.enivzoy.cosmeticblocksreborn.render
 
 import foo.starred.cascade.graphics.extensions.circle.circle
+import foo.starred.cascade.graphics.extensions.image.image
 import foo.starred.cascade.graphics.extensions.rectangle.hollow.hollowRectangle
 import foo.starred.cascade.graphics.extensions.rectangle.rounded.roundedRectangle
 import foo.starred.cascade.graphics.extensions.shadow.dropShadow
@@ -12,6 +13,7 @@ import foo.starred.cascade.graphics.geometry.CascadeGeometricRadius
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphicsExtractor
+import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.network.chat.Component
 import java.util.ArrayDeque
 import kotlin.math.ceil
@@ -41,6 +43,30 @@ object CascadeUi {
    fun getAvailable(): Boolean = true
 
    private fun ready(): Boolean = extractor != null
+
+   fun extractorOrNull(): GuiGraphicsExtractor? = if (ready()) extractor else null
+
+   fun spriteQuad(sprite: TextureAtlasSprite, x0: Float, y0: Float, x1: Float, y1: Float, argb: Int) {
+      if (!ready() || clipped()) {
+         return
+      }
+      extractor!!.image(
+         sprite, x0, y0, x1, y1,
+         CascadeGeometricColor(color(argb)), CascadeGeometricRadius(0.01f),
+         foo.starred.cascade.graphics.states.impl.image.data.CascadeImageFilter.NEAREST, null, null, null
+      )
+   }
+
+   fun iconQuad(identifier: net.minecraft.resources.Identifier, x0: Float, y0: Float, x1: Float, y1: Float, argb: Int) {
+      if (!ready() || clipped()) {
+         return
+      }
+      extractor!!.image(
+         location = identifier, x = x0, y = y0, width = x1 - x0, height = y1 - y0,
+         color = CascadeGeometricColor(color(argb)), radius = CascadeGeometricRadius(0.01f),
+         filter = foo.starred.cascade.graphics.states.impl.image.data.CascadeImageFilter.LINEAR
+      )
+   }
 
    fun beginFrame(framebufferWidth: Int, framebufferHeight: Int, uiScale: Float): Boolean {
       if (extractor == null || framebufferWidth <= 0 || framebufferHeight <= 0) {

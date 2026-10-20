@@ -15,6 +15,7 @@ import me.enivzoy.cosmeticblocksreborn.gui.ClickGuiScreen
 import me.enivzoy.cosmeticblocksreborn.gui.screens.HudEditorScreen
 import me.enivzoy.cosmeticblocksreborn.gui.screens.KeybindEditorScreen
 import me.enivzoy.cosmeticblocksreborn.gui.screens.ProfileScreen
+import me.enivzoy.cosmeticblocksreborn.render.BlockIconStore
 import me.enivzoy.cosmeticblocksreborn.utils.ChatUtil
 import me.enivzoy.cosmeticblocksreborn.utils.ConfigBackup
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
@@ -542,6 +543,11 @@ class CbCommand private constructor() {
          return 1
       }
 
+      private fun onUpdateIconsCommand(it: CommandContext<*>): Int {
+         BlockIconStore.updateIcons()
+         return 1
+      }
+
       private fun onPropsCommand(it: CommandContext<*>): Int {
          CosmeticBlocks.INSTANCE.listBlockProperties()
          return 1
@@ -705,6 +711,7 @@ class CbCommand private constructor() {
                      .then(ClientCommands.literal("list").executes(::onFavoriteListCommand))
                )
                .then(ClientCommands.literal("backup").executes(::onBackupCommand))
+               .then(ClientCommands.literal("updateicons").executes(::onUpdateIconsCommand))
                .then(ClientCommands.literal("props").executes(::onPropsCommand))
                .then(
                   ClientCommands.literal("state")

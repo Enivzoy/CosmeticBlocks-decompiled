@@ -2,6 +2,7 @@ package me.enivzoy.cosmeticblocksreborn.gui.screens
 
 import me.enivzoy.cosmeticblocksreborn.cosmetic.CosmeticBlocks
 import me.enivzoy.cosmeticblocksreborn.gui.NvgScreen
+import me.enivzoy.cosmeticblocksreborn.render.BlockIconRenderer
 import me.enivzoy.cosmeticblocksreborn.render.CascadeUi
 import me.enivzoy.cosmeticblocksreborn.render.Theme
 import net.minecraft.client.Minecraft
@@ -98,19 +99,24 @@ class RadialBlockScreen : Screen(Component.literal("Block Wheel")), NvgScreen {
                      val name = this.favs[i].removePrefix("minecraft:")
                      val shortName = if (name.length > 12) name.take(11) + "..." else name
                      val textCol = if (i == hoveredIdx) -1184275 else -6513508
-                     CascadeUi.textCentered(shortName, lx, ly, 12f, textCol, CascadeUi.Font.REGULAR)
+                     val iconSize = (rOuter - rInner) * 0.5f
+                     BlockIconRenderer.draw(this.favs[i], lx, ly - iconSize * 0.4f, iconSize, 1f)
+                     CascadeUi.textCentered(shortName, lx, ly + iconSize * 0.5f, 11f, textCol, CascadeUi.Font.REGULAR)
                   }
 
                   CascadeUi.circle(cx, cy, rInner - 4f, Theme.withAlpha(-14935012, 0.95f))
                   drawCircleOutline(cx, cy, rInner - 4f, Theme.withAlpha(-1750963, 0.6f), 1.5f)
+                  val previewId = if (hoveredIdx >= 0) this.favs[hoveredIdx] else CosmeticBlocks.INSTANCE.getSelectedBlock()
+                  val previewSize = rInner * 0.9f
+                  BlockIconRenderer.draw(previewId, cx, cy - rInner * 0.28f, previewSize, 1f)
                   if (hoveredIdx >= 0) {
                      val fullName = this.favs[hoveredIdx].removePrefix("minecraft:").replace('_', ' ')
-                     CascadeUi.textCentered("SELECT", cx, cy - 10f, 12f, -1750963, CascadeUi.Font.REGULAR)
-                     CascadeUi.textCentered(fullName, cx, cy + 8f, 13f, -1184275, CascadeUi.Font.BOLD)
+                     CascadeUi.textCentered("SELECT", cx, cy + rInner * 0.42f, 12f, -1750963, CascadeUi.Font.REGULAR)
+                     CascadeUi.textCentered(fullName, cx, cy + rInner * 0.62f, 12f, -1184275, CascadeUi.Font.BOLD)
                   } else {
                      val current = CosmeticBlocks.INSTANCE.getSelectedBlock().removePrefix("minecraft:").replace('_', ' ')
-                     CascadeUi.textCentered("CURRENT", cx, cy - 10f, 12f, -6513508, CascadeUi.Font.REGULAR)
-                     CascadeUi.textCentered(current, cx, cy + 8f, 13f, -1184275, CascadeUi.Font.REGULAR)
+                     CascadeUi.textCentered("CURRENT", cx, cy + rInner * 0.42f, 12f, -6513508, CascadeUi.Font.REGULAR)
+                     CascadeUi.textCentered(current, cx, cy + rInner * 0.62f, 12f, -1184275, CascadeUi.Font.REGULAR)
                   }
 
                   CascadeUi.textCentered("LMB pick   |   RMB / Esc close", cx, uiHeight - 48f, 12f, -10724260, CascadeUi.Font.REGULAR)

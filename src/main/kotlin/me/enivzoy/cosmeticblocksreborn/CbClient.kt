@@ -12,6 +12,7 @@ import me.enivzoy.cosmeticblocksreborn.gui.screens.BlockSelectorScreen
 import me.enivzoy.cosmeticblocksreborn.gui.screens.CliEngine
 import me.enivzoy.cosmeticblocksreborn.gui.screens.CliScreen
 import me.enivzoy.cosmeticblocksreborn.gui.screens.RadialBlockScreen
+import me.enivzoy.cosmeticblocksreborn.render.BlockIconStore
 import me.enivzoy.cosmeticblocksreborn.utils.Scheduler
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
@@ -36,6 +37,7 @@ object CbClient : ClientModInitializer {
       CosmeticBlocks.INSTANCE.register()
       Scheduler.register()
       Config.INSTANCE.load()
+      BlockIconStore.bootstrap()
       ClientLifecycleEvents.CLIENT_STOPPING.register(::onClientStopping)
       ClientTickEvents.END_CLIENT_TICK.register(::onEndClientTick)
       CbCommand.INSTANCE.register()

@@ -2,6 +2,7 @@ package me.enivzoy.cosmeticblocksreborn.gui.screens
 
 import me.enivzoy.cosmeticblocksreborn.cosmetic.CosmeticBlocks
 import me.enivzoy.cosmeticblocksreborn.gui.NvgScreen
+import me.enivzoy.cosmeticblocksreborn.render.BlockIconRenderer
 import me.enivzoy.cosmeticblocksreborn.render.CascadeUi
 import me.enivzoy.cosmeticblocksreborn.render.Theme
 import net.minecraft.client.Minecraft
@@ -88,7 +89,8 @@ class BlockSelectorScreen : Screen(Component.literal("Block Selector")), NvgScre
                CascadeUi.rect(px, py, w, h, -183233516, 10f)
                CascadeUi.rectOutline(px, py, w, h, 352321535, 10f, 1f)
                var cy = py + 10f
-               CascadeUi.text("Brush Block", px + 10f, cy + 7f, 14f, -1184275, CascadeUi.Font.BOLD)
+               BlockIconRenderer.draw(CosmeticBlocks.INSTANCE.getSelectedBlock(), px + 10f + 11f, cy + 11f, 22f, 1f)
+               CascadeUi.text("Brush Block", px + 10f + 26f, cy + 7f, 14f, -1184275, CascadeUi.Font.BOLD)
                CascadeUi.textRight(
                   "Current: ${prettify(CosmeticBlocks.INSTANCE.getSelectedBlock())}", px + w - 10f, cy + 7f, 12f, -6513508, CascadeUi.Font.REGULAR
                )
@@ -199,7 +201,8 @@ class BlockSelectorScreen : Screen(Component.literal("Block Selector")), NvgScre
                   CascadeUi.rect(px + 2f, ry, w - 4f, rowH, 318767103, 4f)
                }
 
-               CascadeUi.text(prettify(id), px + 10f + 4f, ry + rowH / 2f, 12f, -1184275, CascadeUi.Font.REGULAR)
+               BlockIconRenderer.draw(id, px + 10f + 8f, ry + rowH / 2f, 16f, 1f)
+               CascadeUi.text(prettify(id), px + 10f + 22f, ry + rowH / 2f, 12f, -1184275, CascadeUi.Font.REGULAR)
                val isCurrent = id == CosmeticBlocks.INSTANCE.getSelectedBlock()
                val isFav = favs.contains(id)
                if (isCurrent) {
