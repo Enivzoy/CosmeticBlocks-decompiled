@@ -708,6 +708,26 @@ object WorldEditMode {
       return "§aRedone ${operation.label}: $applied blocks changed (${EditHistory.redoDepth()} left)"
    }
 
+   fun jumpTo(depth: Int): String {
+      val target = depth.coerceIn(0, EditHistory.undoDepth() + EditHistory.redoDepth())
+      var steps = 0
+      while (EditHistory.undoDepth() > target) {
+         val operation = EditHistory.popUndo() ?: break
+         applyOperation(operation, operation.before)
+         steps++
+      }
+
+      while (EditHistory.undoDepth() < target) {
+         val operation = EditHistory.popRedo() ?: break
+         applyOperation(operation, operation.after)
+         steps++
+      }
+
+      return "§aMoved $steps step(s) (at ${EditHistory.undoDepth()}/${EditHistory.undoDepth() + EditHistory.redoDepth()})"
+   }
+
+   fun historyInfo(): Pair<Int, List<String>> = EditHistory.undoDepth() to EditHistory.undoLabels().reversed()
+
    private fun applyOperation(operation: EditHistory.Operation, target: Map<String, String?>): Int {
       return if (operation.isRoom) {
          val room = operation.room!!

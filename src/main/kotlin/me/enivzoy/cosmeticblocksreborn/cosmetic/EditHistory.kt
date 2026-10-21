@@ -56,6 +56,10 @@ object EditHistory {
 
    internal fun redoDepth(): Int = redoStack.size
 
+   internal fun undoLabels(): List<String> = undoStack.map { it.label }
+
+   internal fun redoLabels(): List<String> = redoStack.map { it.label }
+
    internal fun clear() {
       undoStack.clear()
       redoStack.clear()

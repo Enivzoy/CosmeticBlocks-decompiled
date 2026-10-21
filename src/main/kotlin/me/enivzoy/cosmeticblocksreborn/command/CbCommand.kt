@@ -1,6 +1,7 @@
 package me.enivzoy.cosmeticblocksreborn.command
 
 import com.mojang.brigadier.CommandDispatcher
+import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
@@ -11,8 +12,11 @@ import me.enivzoy.cosmeticblocksreborn.cosmetic.ConfigCompression
 import me.enivzoy.cosmeticblocksreborn.cosmetic.CosmeticBlocks
 import me.enivzoy.cosmeticblocksreborn.cosmetic.Freecam
 import me.enivzoy.cosmeticblocksreborn.cosmetic.ReplacementIO
+import me.enivzoy.cosmeticblocksreborn.cosmetic.RoomOverrideManager
+import me.enivzoy.cosmeticblocksreborn.dungeon.RoomScanner
 import me.enivzoy.cosmeticblocksreborn.gui.ClickGuiScreen
 import me.enivzoy.cosmeticblocksreborn.gui.hud.DebugStats
+import me.enivzoy.cosmeticblocksreborn.gui.screens.HistoryScreen
 import me.enivzoy.cosmeticblocksreborn.gui.screens.HudEditorScreen
 import me.enivzoy.cosmeticblocksreborn.gui.screens.KeybindEditorScreen
 import me.enivzoy.cosmeticblocksreborn.gui.screens.ProfileScreen
@@ -257,6 +261,17 @@ class CbCommand private constructor() {
          return builder.buildFuture()
       }
 
+      private fun onConfigSuggestions(context: CommandContext<*>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
+         val input = builder.remaining.removeSuffix(".json")
+         for (config in CosmeticBlocks.INSTANCE.listConfigs()) {
+            if (config.startsWith(input, ignoreCase = true)) {
+               builder.suggest(config)
+            }
+         }
+
+         return builder.buildFuture()
+      }
+
       private fun onMigrateCommand(it: CommandContext<*>): Int {
          val name = StringArgumentType.getString(it, "name")
          ReplacementIO.INSTANCE.migrateAsync(name, 0)
@@ -364,6 +379,66 @@ class CbCommand private constructor() {
             ChatUtil.send("Cannot delete '$name'")
          }
 
+         return 1
+      }
+
+      private fun onRoomOverrideListCommand(it: CommandContext<*>): Int {
+         val map = RoomOverrideManager.listOverrides()
+         if (map.isEmpty()) {
+            ChatUtil.info("No room overrides set")
+         } else {
+            ChatUtil.info("Room overrides:")
+            for ((room, config) in map) {
+               ChatUtil.send("  §b" + room + "§f -> §a" + config)
+            }
+         }
+
+         return 1
+      }
+
+      private fun onRoomOverrideSetCommand(it: CommandContext<*>): Int {
+         val room = StringArgumentType.getString(it, "room")
+         val config = StringArgumentType.getString(it, "config")
+         if (!RoomOverrideManager.setOverride(room, config)) {
+            ChatUtil.error("Config '$config' not found")
+            return 0
+         }
+
+         ChatUtil.success("Room '" + room + "' now uses config '" + config + "'")
+         return 1
+      }
+
+      private fun onRoomOverrideRemoveCommand(it: CommandContext<*>): Int {
+         val room = StringArgumentType.getString(it, "room")
+         if (!RoomOverrideManager.removeOverride(room)) {
+            ChatUtil.error("No override for room '" + room + "'")
+            return 0
+         }
+
+         ChatUtil.success("Removed override for room '" + room + "'")
+         return 1
+      }
+
+      private fun onRoomOverrideClearCommand(it: CommandContext<*>): Int {
+         val count = RoomOverrideManager.clearOverrides()
+         ChatUtil.success("Cleared " + count + " room override(s)")
+         return 1
+      }
+
+      private fun onRoomOverrideHereCommand(it: CommandContext<*>): Int {
+         val room = RoomScanner.currentRoom?.data?.name
+         if (room == null) {
+            ChatUtil.error("No room detected")
+            return 0
+         }
+
+         val config = StringArgumentType.getString(it, "config")
+         if (!RoomOverrideManager.setOverride(room, config)) {
+            ChatUtil.error("Config '$config' not found")
+            return 0
+         }
+
+         ChatUtil.success("Current room '" + room + "' now uses config '" + config + "'")
          return 1
       }
 
@@ -511,6 +586,35 @@ class CbCommand private constructor() {
 
       private fun onRedoCommand(it: CommandContext<*>): Int {
          ChatUtil.send(CosmeticBlocks.INSTANCE.redoLastOperation())
+         return 1
+      }
+
+      private fun onHistoryCommand(it: CommandContext<*>): Int {
+         val (depth, labels) = CosmeticBlocks.INSTANCE.historyInfo()
+         if (labels.isEmpty()) {
+            ChatUtil.info("History is empty")
+            return 1
+         }
+
+         ChatUtil.info("History (at $depth):")
+         var index = labels.size
+         for (label in labels) {
+            val marker = if (index == depth) "§a> " else "§7  "
+            ChatUtil.send(marker + "§f" + index + ". " + label)
+            index--
+         }
+
+         return 1
+      }
+
+      private fun onHistoryGuiCommand(it: CommandContext<*>): Int {
+         INSTANCE.open { HistoryScreen() }
+         return 1
+      }
+
+      private fun onHistoryJumpCommand(it: CommandContext<*>): Int {
+         val depth = IntegerArgumentType.getInteger(it, "depth")
+         ChatUtil.send(CosmeticBlocks.INSTANCE.jumpHistoryTo(depth))
          return 1
       }
 
@@ -708,6 +812,38 @@ class CbCommand private constructor() {
                .then(ClientCommands.literal("delete").then(ClientCommands.argument("name", StringArgumentType.string()).executes(::onDeleteCommand)))
                .then(ClientCommands.literal("configs").executes(::onConfigsCommand))
                .then(
+                  ClientCommands.literal("roomoverride")
+                     .executes(::onRoomOverrideListCommand)
+                     .then(ClientCommands.literal("list").executes(::onRoomOverrideListCommand))
+                     .then(ClientCommands.literal("clear").executes(::onRoomOverrideClearCommand))
+                     .then(
+                        ClientCommands.literal("here")
+                           .then(
+                              ClientCommands.argument("config", StringArgumentType.string())
+                                 .suggests(::onConfigSuggestions)
+                                 .executes(::onRoomOverrideHereCommand)
+                           )
+                     )
+                     .then(
+                        ClientCommands.literal("set")
+                           .then(
+                              ClientCommands.argument("room", StringArgumentType.string())
+                                 .then(
+                                    ClientCommands.argument("config", StringArgumentType.string())
+                                       .suggests(::onConfigSuggestions)
+                                       .executes(::onRoomOverrideSetCommand)
+                                 )
+                           )
+                     )
+                     .then(
+                        ClientCommands.literal("remove")
+                           .then(
+                              ClientCommands.argument("room", StringArgumentType.string())
+                                 .executes(::onRoomOverrideRemoveCommand)
+                           )
+                     )
+               )
+               .then(
                   ClientCommands.literal("diff")
                      .then(
                         ClientCommands.argument("a", StringArgumentType.string())
@@ -757,6 +893,15 @@ class CbCommand private constructor() {
                )
                .then(ClientCommands.literal("undo").executes(::onUndoCommand))
                .then(ClientCommands.literal("redo").executes(::onRedoCommand))
+               .then(
+                  ClientCommands.literal("history")
+                     .executes(::onHistoryCommand)
+                     .then(ClientCommands.literal("gui").executes(::onHistoryGuiCommand))
+                     .then(
+                        ClientCommands.argument("depth", IntegerArgumentType.integer(0))
+                           .executes(::onHistoryJumpCommand)
+                     )
+               )
                .then(ClientCommands.literal("debug").executes(::onDebugCommand))
                .then(
                   ClientCommands.literal("fav")

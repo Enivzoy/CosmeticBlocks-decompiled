@@ -43,6 +43,7 @@ class CosmeticBlocks private constructor() {
       RoomStore.resolveAllRoomBlocks()
       RoomScanner.init()
       RoomProfileManager.init()
+      RoomOverrideManager.init()
       ReplacementCache.rebuildActiveCache()
       ClientTickEvents.END_CLIENT_TICK.register(::onEndClientTick)
    }
@@ -216,6 +217,10 @@ class CosmeticBlocks private constructor() {
    fun undoLastOperation(): String = WorldEditMode.undoLastOperation()
 
    fun redoLastOperation(): String = WorldEditMode.redoLastOperation()
+
+   fun jumpHistoryTo(depth: Int): String = WorldEditMode.jumpTo(depth)
+
+   fun historyInfo(): Pair<Int, List<String>> = WorldEditMode.historyInfo()
 
    fun parseWeightedBlocks(input: String): List<Pair<BlockState, Int>>? = WorldEditMode.parseWeightedBlocks(input)
 
@@ -423,6 +428,8 @@ class CosmeticBlocks private constructor() {
          ) {
             RoomStore.onRoomChanged(RoomScanner.currentRoom)
          }
+
+         RoomOverrideManager.checkRoomOverride()
 
          if (SaveScheduler.needsSave
             && (System.currentTimeMillis() - SaveScheduler.lastEditTime >= 2000L
