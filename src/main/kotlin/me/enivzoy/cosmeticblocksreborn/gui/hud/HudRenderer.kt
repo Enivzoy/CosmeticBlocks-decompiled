@@ -6,6 +6,7 @@ import net.minecraft.resources.Identifier
 
 object HudRenderer {
     fun register() {
+        HudManager.registerElement(DebugOverlayElement())
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath("cb", "hud")) { graphics, deltaTracker ->
             val mc = Minecraft.getInstance()
             HudManager.render(graphics, mc, deltaTracker.realtimeDeltaTicks)

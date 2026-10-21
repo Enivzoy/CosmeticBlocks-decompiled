@@ -52,6 +52,20 @@ object BlockIconStore {
 
    private fun pngFile(blockId: String): File = File(iconsDir, fileNameFor(blockId))
 
+   private fun isValidPng(file: File): Boolean {
+      if (!file.exists() || file.length() < 8L) {
+         return false
+      }
+
+      return try {
+         val header = ByteArray(8)
+         file.inputStream().use { it.read(header) }
+         header[0] == 0x89.toByte() && header[1] == 0x50.toByte() && header[2] == 0x4E.toByte() && header[3] == 0x47.toByte()
+      } catch (_: Throwable) {
+         false
+      }
+   }
+
    fun bootstrap() {
       if (!started.compareAndSet(false, true)) {
          return
@@ -73,6 +87,18 @@ object BlockIconStore {
       ChatUtil.info("Updating block icons for ${gameVersion()}...")
       loadExisting()
       thread(start = true, name = "cb-icon-update", isDaemon = true) {
+         downloadMissing(true)
+      }
+   }
+
+   fun validateAndRepair() {
+      if (updating) {
+         ChatUtil.warning("Icon update already in progress")
+         return
+      }
+      ChatUtil.info("Validating block icons for ${gameVersion()}...")
+      loadExisting()
+      thread(start = true, name = "cb-icon-validate", isDaemon = true) {
          downloadMissing(true)
       }
    }
@@ -114,7 +140,7 @@ object BlockIconStore {
          val downloaded = AtomicInteger(0)
          val missing = blockIds.filter { id ->
             val f = pngFile(id)
-            force || !f.exists() || f.length() <= 0L
+            force || !isValidPng(f)
          }
 
          if (missing.isEmpty()) {
@@ -123,6 +149,8 @@ object BlockIconStore {
             }
             return
          }
+
+         ChatUtil.info("Repairing ${missing.size} of $total block icons...")
 
          for (blockId in missing) {
             pool.execute {
@@ -180,9 +208,14 @@ object BlockIconStore {
          }
          val bytes = conn.inputStream.use { it.readBytes() }
          conn.disconnect()
-         if (bytes.isEmpty()) {
+         if (bytes.size < 8) {
             return false
          }
+
+         if (bytes[0] != 0x89.toByte() || bytes[1] != 0x50.toByte() || bytes[2] != 0x4E.toByte() || bytes[3] != 0x47.toByte()) {
+            return false
+         }
+
          file.writeBytes(bytes)
          Minecraft.getInstance().execute { registerFromFile(blockId, file) }
          return true
@@ -192,6 +225,8 @@ object BlockIconStore {
          inFlight.remove(blockId)
       }
    }
+
+   fun registeredCount(): Int = registry.size
 
    fun identifierFor(blockId: String): Identifier? {
       state[blockId]?.let { return it }

@@ -87,17 +87,21 @@ class ConfigSwitcher private constructor() {
       }
 
       val nowInDungeon = LocationTracker.inDungeon
-      if (nowInDungeon && !dungeonActive) {
-         configBeforeDungeon = DungeonConfigTab.INSTANCE.activeConfig.value
-      } else if (!nowInDungeon && dungeonActive && configBeforeDungeon != null) {
+      if (nowInDungeon) {
+         if (!dungeonActive || configBeforeDungeon == null) {
+            configBeforeDungeon = DungeonConfigTab.INSTANCE.activeConfig.value
+         }
+      } else if (configBeforeDungeon != null) {
          val target = configBeforeDungeon!!
-         configBeforeDungeon = null
          if (target != DungeonConfigTab.INSTANCE.activeConfig.value && ReplacementStore.getConfigFile(target).exists()) {
+            configBeforeDungeon = null
             if (PreferencesTab.INSTANCE.loadChatMessage.value) {
                ChatUtil.send("Dungeon done §f- reverting to config §b" + target)
             }
 
             this.loadConfigByName(target)
+         } else {
+            configBeforeDungeon = null
          }
       }
 

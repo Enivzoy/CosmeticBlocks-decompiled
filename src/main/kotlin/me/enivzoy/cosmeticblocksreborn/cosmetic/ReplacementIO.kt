@@ -7,6 +7,7 @@ import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import me.enivzoy.cosmeticblocksreborn.config.tabs.DungeonConfigTab
+import me.enivzoy.cosmeticblocksreborn.gui.hud.DebugStats
 import me.enivzoy.cosmeticblocksreborn.utils.ChatUtil
 import net.minecraft.client.Minecraft
 
@@ -32,8 +33,18 @@ class ReplacementIO private constructor() {
          val file = ReplacementStore.getConfigFile(DungeonConfigTab.INSTANCE.activeConfig.value)
          val water = WaterConfig.INSTANCE.captureFields()
          SaveScheduler.saveInFlight = true
-         SaveScheduler.saveExecutor.execute { saveAsync(snapshot, floor, water, file) }
+         SaveScheduler.saveExecutor.execute { saveAsync(snapshot, floor, water, file, false) }
       }
+   }
+
+   internal fun saveDeliberateClear() {
+      SaveScheduler.needsSave = false
+      SaveScheduler.lastSaveTime = System.currentTimeMillis()
+      val floor = ReplacementStore.floor
+      val file = ReplacementStore.getConfigFile(DungeonConfigTab.INSTANCE.activeConfig.value)
+      val water = WaterConfig.INSTANCE.captureFields()
+      SaveScheduler.saveInFlight = true
+      SaveScheduler.saveExecutor.execute { saveAsync(emptyMap(), floor, water, file, true) }
    }
 
    internal fun saveToFileSync(file: File) {
@@ -42,7 +53,7 @@ class ReplacementIO private constructor() {
 
       try {
          this.writeConfig(
-            ReplacementStore.snapshotReplacements(), ReplacementStore.floor, WaterConfig.INSTANCE.captureFields(), file, 0
+            ReplacementStore.snapshotReplacements(), ReplacementStore.floor, WaterConfig.INSTANCE.captureFields(), file, 0, false
          )
       } catch (e: Exception) {
          System.err.println("[CB] Failed to save config sync: " + e.message)
@@ -52,19 +63,28 @@ class ReplacementIO private constructor() {
    internal fun saveCurrentAsync(file: File) {
       SaveScheduler.needsSave = false
       SaveScheduler.lastSaveTime = System.currentTimeMillis()
-      val snapshot = ReplacementStore.replacements
+      val snapshot = ReplacementStore.snapshotReplacements()
       val floor = ReplacementStore.floor
       val water = WaterConfig.INSTANCE.captureFields()
-      ReplacementStore.replacements = LinkedHashMap()
       SaveScheduler.saveInFlight = true
-      SaveScheduler.saveExecutor.execute { saveAsync(snapshot, floor, water, file) }
+      SaveScheduler.saveExecutor.execute { saveAsync(snapshot, floor, water, file, false) }
    }
 
    private fun writeConfig(
-      snapshot: Map<String, Map<String, String>>, floor: String?, water: WaterConfig.Fields, file: File, flags: Int
+      snapshot: Map<String, Map<String, String>>,
+      floor: String?,
+      water: WaterConfig.Fields,
+      file: File,
+      flags: Int,
+      force: Boolean
    ) {
       if (!ReplacementStore.configDir.exists()) {
          ReplacementStore.configDir.mkdirs()
+      }
+
+      if (!force && !this.isSafeWrite(snapshot, file)) {
+         System.err.println("[CB] Refused unsafe save for " + file.name + ": snapshot is empty but store/last-saved is not")
+         return
       }
 
       val tmpFile = File(file.parentFile, file.name + ".tmp")
@@ -72,7 +92,16 @@ class ReplacementIO private constructor() {
          tmpFile.delete()
       }
 
-      tmpFile.writeBytes(ConfigCompression.encode(floor, water, snapshot, flags))
+      val bytes = ConfigCompression.encode(floor, water, snapshot, flags)
+      tmpFile.writeBytes(bytes)
+
+      if (file.exists() && file.length() > 0L && file.length() > bytes.size) {
+         val backup = File(file.parentFile, file.name + ".bak")
+         try {
+            file.copyTo(backup, overwrite = true)
+         } catch (ignored: Exception) {
+         }
+      }
 
       try {
          Files.move(tmpFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING)
@@ -83,6 +112,21 @@ class ReplacementIO private constructor() {
 
          tmpFile.renameTo(file)
       }
+   }
+
+   private fun isSafeWrite(snapshot: Map<String, Map<String, String>>, file: File): Boolean {
+      val snapshotCount = ReplacementStore.snapshotCount(snapshot)
+      if (snapshotCount > 0) {
+         return true
+      }
+
+      if (!file.exists() || file.length() <= 0L) {
+         return true
+      }
+
+      val existing = this.parseFile(file)
+      val existingCount = if (existing == null) 0 else ReplacementStore.snapshotCount(existing.dims)
+      return existingCount <= 0
    }
 
    fun load() {
@@ -112,6 +156,7 @@ class ReplacementIO private constructor() {
       }
 
       ReplacementCache.rebuildActiveCache()
+      WorldEditMode.resetHistory()
    }
 
    internal fun loadFromAsync(file: File) {
@@ -181,6 +226,7 @@ class ReplacementIO private constructor() {
 
       DirtySections.markAllCachedDirty()
       DungeonConfigTab.syncFloorFromStore()
+      WorldEditMode.resetHistory()
    }
 
    private fun parseFile(file: File): ConfigCompression.Document? {
@@ -222,10 +268,10 @@ class ReplacementIO private constructor() {
             file.copyTo(backup, overwrite = true)
 
             if (active) {
-               this.writeConfig(snapshot!!, floor, water!!, file, flags)
+               this.writeConfig(snapshot!!, floor, water!!, file, flags, false)
             } else {
                val loaded = this.parseFile(file) ?: throw IllegalStateException("could not parse config")
-               this.writeConfig(loaded.dims, loaded.floor, loaded.water, file, flags)
+               this.writeConfig(loaded.dims, loaded.floor, loaded.water, file, flags, false)
             }
 
             val after = file.length()
@@ -245,6 +291,75 @@ class ReplacementIO private constructor() {
             System.err.println("[CB] Migration of " + name + " failed: " + e.message)
          }
       }
+   }
+
+   internal fun diffConfigs(nameA: String, nameB: String) {
+      val fileA = ReplacementStore.getConfigFile(nameA.trim().removeSuffix(".json"))
+      val fileB = ReplacementStore.getConfigFile(nameB.trim().removeSuffix(".json"))
+      if (!fileA.exists()) {
+         this.report("Config '$nameA' not found")
+         return
+      }
+
+      if (!fileB.exists()) {
+         this.report("Config '$nameB' not found")
+         return
+      }
+
+      this.report("Diffing §b$nameA§f against §b$nameB§f...")
+      SaveScheduler.saveExecutor.execute {
+         try {
+            val docA = this.parseFile(fileA)
+            val docB = this.parseFile(fileB)
+            if (docA == null || docB == null) {
+               this.report("Failed to parse one of the configs")
+               return@execute
+            }
+
+            val mapA = flatten(docA)
+            val mapB = flatten(docB)
+            val dims = LinkedHashSet<String>()
+            dims.addAll(mapA.keys)
+            dims.addAll(mapB.keys)
+
+            var added = 0
+            var removed = 0
+            var changed = 0
+            for (dim in dims) {
+               val a = mapA[dim] ?: emptyMap()
+               val b = mapB[dim] ?: emptyMap()
+               for ((key, value) in b) {
+                  val old = a[key]
+                  if (old == null) {
+                     added++
+                  } else if (old != value) {
+                     changed++
+                  }
+               }
+
+               for (key in a.keys) {
+                  if (!b.containsKey(key)) {
+                     removed++
+                  }
+               }
+            }
+
+            this.report(
+               "Diff $nameB vs $nameA: §a+$added§f / §c-$removed§f / §e~$changed§f (dimensions: " + dims.joinToString(", ") + ")"
+            )
+         } catch (e: Exception) {
+            this.report("Diff failed: " + e.message)
+         }
+      }
+   }
+
+   private fun flatten(document: ConfigCompression.Document): Map<String, Map<String, String>> {
+      val result = LinkedHashMap<String, Map<String, String>>()
+      for ((dim, dimMap) in document.dims) {
+         result[dim] = dimMap
+      }
+
+      return result
    }
 
    private fun report(message: String) {
@@ -282,13 +397,15 @@ class ReplacementIO private constructor() {
       }
 
       private fun saveAsync(
-         snapshot: Map<String, Map<String, String>>, floor: String?, water: WaterConfig.Fields, file: File
+         snapshot: Map<String, Map<String, String>>, floor: String?, water: WaterConfig.Fields, file: File, force: Boolean
       ) {
          try {
-            INSTANCE.writeConfig(snapshot, floor, water, file, 0)
+            DebugStats.noteSaveStart()
+            INSTANCE.writeConfig(snapshot, floor, water, file, 0, force)
          } catch (e: Exception) {
             System.err.println("[CB] Failed to save config: " + e.message)
          } finally {
+            DebugStats.noteSaveEnd()
             SaveScheduler.saveInFlight = false
             if (SaveScheduler.saveAgain) {
                SaveScheduler.saveAgain = false

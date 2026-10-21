@@ -149,7 +149,7 @@ object ReplacementStore {
       ReplacementCache.phantomPositions.clear()
       ReplacementCache.retextureCache.clear()
       ReplacementCache.originalShapeCache.clear()
-      ReplacementIO.INSTANCE.save()
+      ReplacementIO.INSTANCE.saveDeliberateClear()
       return count
    }
 
@@ -176,7 +176,7 @@ object ReplacementStore {
       ReplacementCache.phantomPositions.clear()
       ReplacementCache.retextureCache.clear()
       ReplacementCache.originalShapeCache.clear()
-      ReplacementIO.INSTANCE.save()
+      ReplacementIO.INSTANCE.saveDeliberateClear()
       return count
    }
 
@@ -218,5 +218,23 @@ object ReplacementStore {
       }
 
       return snapshot
+   }
+
+   internal fun countReplacements(): Int {
+      var total = 0
+      for (dimMap in replacements.values) {
+         total += dimMap.size
+      }
+
+      return total
+   }
+
+   internal fun snapshotCount(snapshot: Map<String, Map<String, String>>): Int {
+      var total = 0
+      for (dimMap in snapshot.values) {
+         total += dimMap.size
+      }
+
+      return total
    }
 }

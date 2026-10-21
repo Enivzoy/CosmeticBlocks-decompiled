@@ -36,6 +36,7 @@ class BlockSelectorScreen : Screen(Component.literal("Block Selector")), NvgScre
    private var listBottom: Float = 0f
    private var favStripBottom: Float = 0f
    private var favRects: List<Triple<String, Float, Float>> = emptyList()
+   private var hoveredBlock: String? = null
 
    private val panelW: Float
       get() = (uiWidth * 0.55f).coerceIn(360f, 560f)
@@ -64,6 +65,7 @@ class BlockSelectorScreen : Screen(Component.literal("Block Selector")), NvgScre
       ensureBlocks()
       applyFilter(false)
       blink += delta
+      hoveredBlock = null
       val minecraft = Minecraft.getInstance()
       val window = minecraft.window
       val fbWidth = window.width
@@ -147,6 +149,7 @@ class BlockSelectorScreen : Screen(Component.literal("Block Selector")), NvgScre
                listTop = cy
                listBottom = py + h - 24f
                renderList(favs)
+               drawHoverTooltip()
                CascadeUi.textCentered(
                   "Up/Down navigate   |   Enter confirm   |   Right-click toggle favorite",
                   px + w / 2f,
@@ -193,9 +196,12 @@ class BlockSelectorScreen : Screen(Component.literal("Block Selector")), NvgScre
             while (true) {
                val id = filtered[i]
                val ry = listTop + i * rowH - scroll
-               val isHighlight = i == highlightIdx
-               val hovered = (px <= mouseX && mouseX <= px + w) && (ry <= mouseY && mouseY <= ry + rowH)
-               if (isHighlight) {
+                val isHighlight = i == highlightIdx
+                val hovered = (px <= mouseX && mouseX <= px + w) && (ry <= mouseY && mouseY <= ry + rowH)
+                if (hovered) {
+                   hoveredBlock = id
+                }
+                if (isHighlight) {
                   CascadeUi.rect(px + 2f, ry, w - 4f, rowH, Theme.withAlpha(-1750963, 0.28f), 4f)
                } else if (hovered) {
                   CascadeUi.rect(px + 2f, ry, w - 4f, rowH, 318767103, 4f)
@@ -226,6 +232,64 @@ class BlockSelectorScreen : Screen(Component.literal("Block Selector")), NvgScre
 
       if (filtered.isEmpty()) {
          CascadeUi.textCentered("No blocks match.", px + w / 2f, listTop + 16f, 12f, -10724260, CascadeUi.Font.REGULAR)
+      }
+   }
+
+   private fun drawHoverTooltip() {
+      val id = hoveredBlock ?: return
+      if (id == CosmeticBlocks.INSTANCE.getSelectedBlock()) {
+         return
+      }
+
+      val lines = ArrayList<String>()
+      lines.add(prettify(id))
+      val props = resolvePropertyLine(id)
+      if (props != null) {
+         lines.add(props)
+      }
+
+      val pad = 6f
+      val lineH = 13f
+      val iconSize = 22f
+      var maxTextW = 0f
+      for (line in lines) {
+         maxTextW = maxOf(maxTextW, CascadeUi.textWidth(line, 12f, CascadeUi.Font.REGULAR))
+      }
+
+      val w = maxTextW + iconSize + pad * 3f
+      val h = (lines.size * lineH) + pad * 2f
+      var tx = mouseX + 14f
+      var ty = mouseY + 14f
+      if (tx + w > uiWidth - 6f) {
+         tx = uiWidth - w - 6f
+      }
+      if (ty + h > uiHeight - 6f) {
+         ty = uiHeight - h - 6f
+      }
+
+      CascadeUi.rect(tx, ty, w, h, -183233516, 6f)
+      CascadeUi.rectOutline(tx, ty, w, h, 352321535, 6f, 1f)
+      BlockIconRenderer.draw(id, tx + pad + iconSize / 2f, ty + h / 2f, iconSize, 1f)
+      var ly = ty + pad + lineH / 2f
+      for ((index, line) in lines.withIndex()) {
+         val color = if (index == 0) -1184275 else -6513508
+         CascadeUi.text(line, tx + pad * 2f + iconSize, ly, 12f, color, CascadeUi.Font.REGULAR)
+         ly += lineH
+      }
+   }
+
+   private fun resolvePropertyLine(blockId: String): String? {
+      return try {
+         val loc = Identifier.parse(if (blockId.contains(":")) blockId else "minecraft:$blockId")
+         val block = BuiltInRegistries.BLOCK.getOptional(loc).orElse(null) ?: return null
+         val props = block.stateDefinition.properties
+         if (props.isEmpty()) {
+            "no properties"
+         } else {
+            props.joinToString(", ") { it.name }
+         }
+      } catch (_: Throwable) {
+         null
       }
    }
 

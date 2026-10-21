@@ -215,6 +215,8 @@ class CosmeticBlocks private constructor() {
 
    fun undoLastOperation(): String = WorldEditMode.undoLastOperation()
 
+   fun redoLastOperation(): String = WorldEditMode.redoLastOperation()
+
    fun parseWeightedBlocks(input: String): List<Pair<BlockState, Int>>? = WorldEditMode.parseWeightedBlocks(input)
 
    @JvmOverloads
@@ -254,6 +256,10 @@ class CosmeticBlocks private constructor() {
    fun deleteConfig(name: String): Boolean = ConfigSwitcher.INSTANCE.deleteConfig(name)
 
    fun listConfigs(): List<String> = ConfigSwitcher.INSTANCE.listConfigs()
+
+   fun diffConfigs(nameA: String, nameB: String) {
+      ReplacementIO.INSTANCE.diffConfigs(nameA, nameB)
+   }
 
    fun getFavorites(): List<String> = Favorites.getFavorites()
 
@@ -405,8 +411,8 @@ class CosmeticBlocks private constructor() {
             DirtySections.markAllCachedDirty()
          }
 
-         ConfigSwitcher.INSTANCE.checkConfigSwitch()
          ConfigSwitcher.INSTANCE.checkDungeonRevert()
+         ConfigSwitcher.INSTANCE.checkConfigSwitch()
          ConfigSwitcher.INSTANCE.checkFloorAutoLoad()
          RoomProfileManager.checkSwitch()
          LocationTracker.updateDungeonCheck()

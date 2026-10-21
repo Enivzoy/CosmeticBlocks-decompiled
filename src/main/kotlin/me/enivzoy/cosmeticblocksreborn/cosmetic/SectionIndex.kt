@@ -75,4 +75,17 @@ object SectionIndex {
    }
 
    internal fun occupiedSections(): Set<Long> = sections.keys
+
+   internal fun sectionCount(): Int = sections.size
+
+   internal fun entryCount(): Int {
+      var total = 0
+      for (bucket in sections.values) {
+         total += bucket.size
+      }
+
+      return total
+   }
+
+   internal fun currentVersion(): Long = version
 }

@@ -12,6 +12,7 @@ import me.enivzoy.cosmeticblocksreborn.cosmetic.CosmeticBlocks
 import me.enivzoy.cosmeticblocksreborn.cosmetic.Freecam
 import me.enivzoy.cosmeticblocksreborn.cosmetic.ReplacementIO
 import me.enivzoy.cosmeticblocksreborn.gui.ClickGuiScreen
+import me.enivzoy.cosmeticblocksreborn.gui.hud.DebugStats
 import me.enivzoy.cosmeticblocksreborn.gui.screens.HudEditorScreen
 import me.enivzoy.cosmeticblocksreborn.gui.screens.KeybindEditorScreen
 import me.enivzoy.cosmeticblocksreborn.gui.screens.ProfileScreen
@@ -366,6 +367,13 @@ class CbCommand private constructor() {
          return 1
       }
 
+      private fun onDiffCommand(it: CommandContext<*>): Int {
+         val nameA = StringArgumentType.getString(it, "a")
+         val nameB = StringArgumentType.getString(it, "b")
+         CosmeticBlocks.INSTANCE.diffConfigs(nameA, nameB)
+         return 1
+      }
+
       private fun onConfigsCommand(it: CommandContext<*>): Int {
          val configs = CosmeticBlocks.INSTANCE.listConfigs()
          ChatUtil.send(
@@ -501,6 +509,17 @@ class CbCommand private constructor() {
          return 1
       }
 
+      private fun onRedoCommand(it: CommandContext<*>): Int {
+         ChatUtil.send(CosmeticBlocks.INSTANCE.redoLastOperation())
+         return 1
+      }
+
+      private fun onDebugCommand(it: CommandContext<*>): Int {
+         DebugStats.enabled = !DebugStats.enabled
+         ChatUtil.send(if (DebugStats.enabled) "Debug overlay §aON" else "Debug overlay §cOFF")
+         return 1
+      }
+
       private fun onFavoritesCommand(it: CommandContext<*>): Int {
          val favs = CosmeticBlocks.INSTANCE.getFavorites()
          if (favs.isEmpty()) {
@@ -565,6 +584,11 @@ class CbCommand private constructor() {
 
       private fun onUpdateIconsCommand(it: CommandContext<*>): Int {
          BlockIconStore.updateIcons()
+         return 1
+      }
+
+      private fun onValidateIconsCommand(it: CommandContext<*>): Int {
+         BlockIconStore.validateAndRepair()
          return 1
       }
 
@@ -684,6 +708,18 @@ class CbCommand private constructor() {
                .then(ClientCommands.literal("delete").then(ClientCommands.argument("name", StringArgumentType.string()).executes(::onDeleteCommand)))
                .then(ClientCommands.literal("configs").executes(::onConfigsCommand))
                .then(
+                  ClientCommands.literal("diff")
+                     .then(
+                        ClientCommands.argument("a", StringArgumentType.string())
+                           .suggests(::onMigrateSuggestions)
+                           .then(
+                              ClientCommands.argument("b", StringArgumentType.string())
+                                 .suggests(::onMigrateSuggestions)
+                                 .executes(::onDiffCommand)
+                           )
+                     )
+               )
+               .then(
                   ClientCommands.literal("pos1")
                      .executes(::onPos1Command)
                      .then(ClientCommands.argument("coords", StringArgumentType.greedyString()).executes(::onPos1CoordsCommand))
@@ -720,6 +756,8 @@ class CbCommand private constructor() {
                      )
                )
                .then(ClientCommands.literal("undo").executes(::onUndoCommand))
+               .then(ClientCommands.literal("redo").executes(::onRedoCommand))
+               .then(ClientCommands.literal("debug").executes(::onDebugCommand))
                .then(
                   ClientCommands.literal("fav")
                      .executes(::onFavoritesCommand)
@@ -740,6 +778,7 @@ class CbCommand private constructor() {
                )
                .then(ClientCommands.literal("backup").executes(::onBackupCommand))
                .then(ClientCommands.literal("updateicons").executes(::onUpdateIconsCommand))
+               .then(ClientCommands.literal("validateicons").executes(::onValidateIconsCommand))
                .then(ClientCommands.literal("props").executes(::onPropsCommand))
                .then(
                   ClientCommands.literal("state")

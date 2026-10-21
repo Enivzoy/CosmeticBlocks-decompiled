@@ -30,11 +30,6 @@ object WorldEditMode {
    private var pos1State: BlockPos? = null
    private var pos2State: BlockPos? = null
 
-   private var undoSnapshot: MutableMap<String, String?>? = null
-   private var undoDimension: String? = null
-   private var undoRoomSnapshot: MutableMap<String, String?>? = null
-   private var undoRoom: ScannedRoom? = null
-
    private val mc: Minecraft
       get() = Minecraft.getInstance()
 
@@ -323,21 +318,16 @@ object WorldEditMode {
 
       val replacements = ReplacementStore.replacements
       val dimMap = replacements.getOrPut(dim) { LinkedHashMap() }
-      val snapshot = LinkedHashMap<String, String?>()
+      val before = LinkedHashMap<String, String?>()
 
       for (x in minX..maxX) {
          for (y in minY..maxY) {
             for (z in minZ..maxZ) {
                val key = "$x,$y,$z"
-               snapshot[key] = dimMap[key]
+               before[key] = dimMap[key]
             }
          }
       }
-
-      undoSnapshot = snapshot
-      undoDimension = dim
-      undoRoomSnapshot = null
-      undoRoom = null
 
       val level: ClientLevel? = mc.level
       var count = 0
@@ -357,6 +347,12 @@ object WorldEditMode {
          }
       }
 
+      val after = LinkedHashMap<String, String?>()
+      for (key in before.keys) {
+         after[key] = dimMap[key]
+      }
+
+      EditHistory.record(EditHistory.Operation("fill", dim, null, before, after))
       DirtySections.markRegionDirtyByBounds(minX, minY, minZ, maxX, maxY, maxZ)
       SaveScheduler.scheduleSave()
 
@@ -413,13 +409,13 @@ object WorldEditMode {
 
       val replacements = ReplacementStore.replacements
       val dimMap = replacements.getOrPut(dim) { LinkedHashMap() }
-      val snapshot = LinkedHashMap<String, String?>()
+      val before = LinkedHashMap<String, String?>()
 
       for (x in minX..maxX) {
          for (y in minY..maxY) {
             for (z in minZ..maxZ) {
                val key = "$x,$y,$z"
-               snapshot[key] = dimMap[key]
+               before[key] = dimMap[key]
             }
          }
       }
@@ -457,10 +453,12 @@ object WorldEditMode {
       }
 
       if (count > 0) {
-         undoSnapshot = snapshot
-         undoDimension = dim
-         undoRoomSnapshot = null
-         undoRoom = null
+         val after = LinkedHashMap<String, String?>()
+         for (key in before.keys) {
+            after[key] = dimMap[key]
+         }
+
+         EditHistory.record(EditHistory.Operation("replace", dim, null, before, after))
          DirtySections.markRegionDirtyByBounds(minX, minY, minZ, maxX, maxY, maxZ)
          SaveScheduler.scheduleSave()
       }
@@ -494,12 +492,12 @@ object WorldEditMode {
       val minZ = min(p1.z, p2.z)
       val maxZ = max(p1.z, p2.z)
 
-      val snapshot = LinkedHashMap<String, String?>()
+      val before = LinkedHashMap<String, String?>()
       for (x in minX..maxX) {
          for (y in minY..maxY) {
             for (z in minZ..maxZ) {
                val key = "$x,$y,$z"
-               snapshot[key] = dimMap[key]
+               before[key] = dimMap[key]
             }
          }
       }
@@ -534,10 +532,12 @@ object WorldEditMode {
             ReplacementStore.replacements.remove(dim)
          }
 
-         undoSnapshot = snapshot
-         undoDimension = dim
-         undoRoomSnapshot = null
-         undoRoom = null
+         val after = LinkedHashMap<String, String?>()
+         for (key in before.keys) {
+            after[key] = dimMap[key]
+         }
+
+         EditHistory.record(EditHistory.Operation("remove", dim, null, before, after))
          DirtySections.markRegionDirtyByBounds(minX, minY, minZ, maxX, maxY, maxZ)
          SaveScheduler.scheduleSave()
       }
@@ -570,7 +570,7 @@ object WorldEditMode {
       val limit = CosmeticBlocksTab.INSTANCE.fillModeLimit.value.toInt()
       val replacements = ReplacementStore.replacements
       val dimMap = replacements.getOrPut(dim) { LinkedHashMap() }
-      val snapshot = LinkedHashMap<String, String?>()
+      val before = LinkedHashMap<String, String?>()
       val visited = HashSet<Long>()
       val queue = ArrayDeque<BlockPos>()
       queue.add(start)
@@ -597,7 +597,7 @@ object WorldEditMode {
          }
 
          val key = "${pos.x},${pos.y},${pos.z}"
-         snapshot.putIfAbsent(key, dimMap[key])
+         before.putIfAbsent(key, dimMap[key])
 
          val serialized = BlockStateCodec.serializeBlockState(pickWeightedBlock(blocks))
          dimMap[key] = serialized
@@ -623,10 +623,12 @@ object WorldEditMode {
       }
 
       if (count > 0) {
-         undoSnapshot = snapshot
-         undoDimension = dim
-         undoRoomSnapshot = null
-         undoRoom = null
+         val after = LinkedHashMap<String, String?>()
+         for (key in before.keys) {
+            after[key] = dimMap[key]
+         }
+
+         EditHistory.record(EditHistory.Operation("floodfill", dim, null, before, after))
          DirtySections.markRegionDirtyByBounds(minX, minY, minZ, maxX, maxY, maxZ)
          SaveScheduler.scheduleSave()
       }
@@ -639,7 +641,7 @@ object WorldEditMode {
    private fun floodFillRoom(start: BlockPos, blocks: List<Pair<BlockState, Int>>, room: ScannedRoom, level: ClientLevel): String {
       val matchBlock = level.getBlockState(start).block
       val limit = CosmeticBlocksTab.INSTANCE.fillModeLimit.value.toInt()
-      val snapshot = LinkedHashMap<String, String?>()
+      val before = LinkedHashMap<String, String?>()
       val visited = HashSet<Long>()
       val queue = ArrayDeque<BlockPos>()
       queue.add(start)
@@ -661,7 +663,7 @@ object WorldEditMode {
 
          val relPos = pos.subtract(room.clayPos.atY(0)).rotateToNorth(room.rotation)
          val relKey = "${relPos.x},${relPos.y},${relPos.z}"
-         snapshot.putIfAbsent(relKey, RoomStore.rawAtWorld(pos, room))
+         before.putIfAbsent(relKey, RoomStore.rawAtWorld(pos, room))
 
          val serialized = BlockStateCodec.serializeBlockState(pickWeightedBlock(blocks))
          RoomStore.setRoomReplacementRaw(pos, serialized, false, room)
@@ -681,10 +683,12 @@ object WorldEditMode {
       if (count > 0) {
          RoomStore.resolveRoomBlocks(room.data.name)
          SaveScheduler.scheduleRoomSave()
-         undoRoomSnapshot = snapshot
-         undoRoom = room
-         undoSnapshot = null
-         undoDimension = null
+         val after = LinkedHashMap<String, String?>()
+         for (relKey in before.keys) {
+            after[relKey] = RoomStore.roomBlocks[room.data.name]?.get(relKey)
+         }
+
+         EditHistory.record(EditHistory.Operation("floodfill", null, room, before, after))
       }
 
       val name = BuiltInRegistries.BLOCK.getKey(matchBlock).path
@@ -693,23 +697,30 @@ object WorldEditMode {
    }
 
    fun undoLastOperation(): String {
-      val roomSnap = this.undoRoomSnapshot
-      val undoR = this.undoRoom
-      if (roomSnap != null && undoR != null) {
-         RoomStore.restoreRoomFill(roomSnap, undoR)
-         undoRoomSnapshot = null
-         undoRoom = null
-         return "§aUndone: ${roomSnap.size} blocks restored"
-      }
+      val operation = EditHistory.popUndo() ?: return "§cNothing to undo"
+      val restored = applyOperation(operation, operation.before)
+      return "§aUndone ${operation.label}: $restored blocks restored (${EditHistory.undoDepth()} left)"
+   }
 
-      val snapshot = this.undoSnapshot
-      val undoDim = this.undoDimension
-      if (snapshot == null || undoDim == null) {
-         return "§cNothing to undo"
-      }
+   fun redoLastOperation(): String {
+      val operation = EditHistory.popRedo() ?: return "§cNothing to redo"
+      val applied = applyOperation(operation, operation.after)
+      return "§aRedone ${operation.label}: $applied blocks changed (${EditHistory.redoDepth()} left)"
+   }
 
+   private fun applyOperation(operation: EditHistory.Operation, target: Map<String, String?>): Int {
+      return if (operation.isRoom) {
+         val room = operation.room!!
+         RoomStore.restoreRoomFill(target, room)
+         target.size
+      } else {
+         applyDimensionSnapshot(operation.dimension!!, target)
+      }
+   }
+
+   private fun applyDimensionSnapshot(dim: String, snapshot: Map<String, String?>): Int {
       val replacements = ReplacementStore.replacements
-      val dimMap = replacements.getOrPut(undoDim) { LinkedHashMap() }
+      val dimMap = replacements.getOrPut(dim) { LinkedHashMap() }
 
       var restored = 0
       var minX = Int.MAX_VALUE
@@ -719,7 +730,7 @@ object WorldEditMode {
       var maxY = Int.MIN_VALUE
       var maxZ = Int.MIN_VALUE
 
-      for ((key, previousValue) in snapshot) {
+      for ((key, value) in snapshot) {
          val parts = key.split(",")
          if (parts.size != 3) {
             continue
@@ -732,12 +743,12 @@ object WorldEditMode {
             continue
          }
 
-         if (previousValue == null) {
+         if (value == null) {
             dimMap.remove(key)
             ReplacementCache.clearCacheForPos(x, y, z)
          } else {
-            dimMap[key] = previousValue
-            ReplacementCache.applyCacheForEntry(x, y, z, previousValue)
+            dimMap[key] = value
+            ReplacementCache.applyCacheForEntry(x, y, z, value)
          }
 
          minX = min(minX, x)
@@ -750,18 +761,19 @@ object WorldEditMode {
       }
 
       if (dimMap.isEmpty()) {
-         replacements.remove(undoDim)
+         replacements.remove(dim)
       }
-
-      undoSnapshot = null
-      undoDimension = null
 
       if (restored > 0) {
          DirtySections.markRegionDirtyByBounds(minX, minY, minZ, maxX, maxY, maxZ)
          SaveScheduler.scheduleSave()
       }
 
-      return "§aUndone: $restored blocks restored"
+      return restored
+   }
+
+   internal fun resetHistory() {
+      EditHistory.clear()
    }
 
    internal fun tickWorldEditMode() {
