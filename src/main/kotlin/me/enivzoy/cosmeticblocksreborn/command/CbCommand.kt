@@ -300,7 +300,8 @@ class CbCommand private constructor() {
          var useSettings = false
          for (token in raw.trim().split(" ").filter { it.isNotEmpty() }) {
             when (token.lowercase(Locale.ROOT)) {
-               "-m", "-mini", "-minify", "-minified", "--minify", "--minified" -> flags = flags or ConfigCompression.MINIFY
+               "-m", "-mini", "-minified" -> flags = flags or ConfigCompression.MINI_STAGES
+               "-minify", "--minify", "--minified" -> flags = flags or ConfigCompression.MINIFY
                "-gzip", "-gz", "--gzip" -> flags = flags or ConfigCompression.GZIP
                "-dict", "-dictionary", "--dict", "--dictionary" -> flags = flags or ConfigCompression.DICTIONARY
                "-palette", "-state", "--palette", "--state" ->

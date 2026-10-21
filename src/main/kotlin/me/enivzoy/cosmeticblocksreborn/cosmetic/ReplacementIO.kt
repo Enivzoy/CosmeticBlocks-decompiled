@@ -18,6 +18,12 @@ class ReplacementIO private constructor() {
    @Volatile
    internal var loading = false
 
+   private fun flagsForFile(file: File): Int = configFlags[file.nameWithoutExtension] ?: 0
+
+   private fun rememberFlags(name: String, flags: Int) {
+      configFlags[name] = flags
+   }
+
    fun save() {
       if (this.loading) {
          return
@@ -53,7 +59,8 @@ class ReplacementIO private constructor() {
 
       try {
          this.writeConfig(
-            ReplacementStore.snapshotReplacements(), ReplacementStore.floor, WaterConfig.INSTANCE.captureFields(), file, 0, false
+            ReplacementStore.snapshotReplacements(), ReplacementStore.floor, WaterConfig.INSTANCE.captureFields(), file,
+            this.flagsForFile(file), false
          )
       } catch (e: Exception) {
          System.err.println("[CB] Failed to save config sync: " + e.message)
@@ -138,12 +145,14 @@ class ReplacementIO private constructor() {
    }
 
    internal fun loadFrom(file: File) {
+      val loadStartNanos = System.nanoTime()
       ReplacementStore.replacements.clear()
       ReplacementStore.floor = null
       WaterConfig.INSTANCE.onConfigLoaded(null, null, null)
       ConfigRemap.INSTANCE.load(file.nameWithoutExtension)
       val tmpFile = File(file.parentFile, file.name + ".tmp")
-      val loaded = this.parseFile(file) ?: this.parseFile(tmpFile)
+      val parsed = this.parseFileTimed(file)
+      val loaded = parsed.document ?: this.parseFileTimed(tmpFile).document
       if (loaded != null) {
          for ((dim, dimMap) in loaded.dims) {
             ReplacementStore.replacements[dim] = dimMap
@@ -151,6 +160,7 @@ class ReplacementIO private constructor() {
 
          ReplacementStore.floor = loaded.floor
          WaterConfig.INSTANCE.onConfigLoaded(loaded.water.allow, loaded.water.rgb, loaded.water.lava)
+         this.rememberFlags(file.nameWithoutExtension, loaded.flags)
       } else if (file.exists() || tmpFile.exists()) {
          System.err.println("[CB] Failed to load config from " + file.name)
       }
@@ -158,7 +168,8 @@ class ReplacementIO private constructor() {
       ReplacementCache.rebuildActiveCache()
       WorldEditMode.resetHistory()
       if (loaded != null && loaded.isLegacy) {
-         this.notifyLegacyConfig(file.nameWithoutExtension, loaded)
+         val totalMs = (System.nanoTime() - loadStartNanos) / 1_000_000L
+         this.notifyLegacyConfig(file.nameWithoutExtension, loaded, totalMs, parsed.decodeMs)
       }
    }
 
@@ -168,9 +179,21 @@ class ReplacementIO private constructor() {
       val dim = LocationTracker.getCurrentDimension()
       val name = file.nameWithoutExtension
       val tmpFile = File(file.parentFile, file.name + ".tmp")
+      val loadStartNanos = System.nanoTime()
       loadExecutor.execute {
          try {
-            val document = this.parseFile(file) ?: this.parseFile(tmpFile)
+            val parsed = this.parseFileTimed(file)
+            val document: ConfigCompression.Document?
+            val decodeMs: Long
+            if (parsed.document != null) {
+               document = parsed.document
+               decodeMs = parsed.decodeMs
+            } else {
+               val fallback = this.parseFileTimed(tmpFile)
+               document = fallback.document
+               decodeMs = fallback.decodeMs
+            }
+
             val dimMap = if (dim == null || document == null) emptyMap() else document.dims[dim] ?: emptyMap()
             val bundle = ReplacementCache.buildBundle(dimMap)
             Minecraft.getInstance().execute {
@@ -179,7 +202,7 @@ class ReplacementIO private constructor() {
                }
 
                try {
-                  this.applyLoaded(file, tmpFile, name, dim, document, bundle)
+                  this.applyLoaded(file, tmpFile, name, dim, document, bundle, decodeMs, loadStartNanos)
                } finally {
                   this.loading = false
                }
@@ -201,7 +224,9 @@ class ReplacementIO private constructor() {
       name: String,
       dim: String?,
       document: ConfigCompression.Document?,
-      bundle: ReplacementCache.Bundle
+      bundle: ReplacementCache.Bundle,
+      decodeMs: Long,
+      loadStartNanos: Long
    ) {
       ConfigRemap.INSTANCE.load(name)
       val newReplacements = LinkedHashMap<String, MutableMap<String, String>>()
@@ -215,6 +240,7 @@ class ReplacementIO private constructor() {
          ReplacementStore.replacements = newReplacements
          ReplacementStore.floor = document.floor
          WaterConfig.INSTANCE.onConfigLoaded(document.water.allow, document.water.rgb, document.water.lava)
+         this.rememberFlags(name, document.flags)
       } else if (file.exists() || tmpFile.exists()) {
          ReplacementStore.replacements = newReplacements
          System.err.println("[CB] Failed to load config from " + file.name)
@@ -231,22 +257,30 @@ class ReplacementIO private constructor() {
       DungeonConfigTab.syncFloorFromStore()
       WorldEditMode.resetHistory()
       if (document != null && document.isLegacy) {
-         this.notifyLegacyConfig(name, document)
+         val totalMs = (System.nanoTime() - loadStartNanos) / 1_000_000L
+         this.notifyLegacyConfig(name, document, totalMs, decodeMs)
       }
    }
 
-   private fun parseFile(file: File): ConfigCompression.Document? {
+   private fun parseFile(file: File): ConfigCompression.Document? = this.parseFileTimed(file).document
+
+   private fun parseFileTimed(file: File): ParseResult {
       if (!file.exists()) {
-         return null
+         return ParseResult(null, 0L)
       }
 
       return try {
-         ConfigCompression.decode(file.readBytes())
+         val start = System.nanoTime()
+         val bytes = file.readBytes()
+         val document = ConfigCompression.decode(bytes)
+         ParseResult(document, (System.nanoTime() - start) / 1_000_000L)
       } catch (e: Exception) {
          System.err.println("[CB] Failed to parse " + file.name + ": " + e.message)
-         null
+         ParseResult(null, 0L)
       }
    }
+
+   private class ParseResult(val document: ConfigCompression.Document?, val decodeMs: Long)
 
    internal fun migrateAsync(nameInput: String, flags: Int) {
       val name = nameInput.trim().removePrefix("\"").removeSuffix("\"").removeSuffix(".json")
@@ -279,6 +313,8 @@ class ReplacementIO private constructor() {
                val loaded = this.parseFile(file) ?: throw IllegalStateException("could not parse config")
                this.writeConfig(loaded.dims, loaded.floor, loaded.water, file, flags, false)
             }
+
+            this.rememberFlags(name, flags)
 
             val after = file.length()
             val percent = if (before > 0L) (before - after) * 100.0 / before else 0.0
@@ -378,31 +414,40 @@ class ReplacementIO private constructor() {
       else -> "$bytes B"
    }
 
-   private fun notifyLegacyConfig(name: String, document: ConfigCompression.Document) {
+   private fun notifyLegacyConfig(name: String, document: ConfigCompression.Document, totalLoadMs: Long, decodeMs: Long) {
+      if (!notifiedLegacy.add(name)) {
+         return
+      }
+
       SaveScheduler.saveExecutor.execute {
          try {
             val legacyBytes = this.readConfigBytes(name) ?: return@execute
-            val miniFlags = ConfigCompression.GZIP or ConfigCompression.MINIFY or ConfigCompression.DICTIONARY
+            val miniFlags = ConfigCompression.MINI_STAGES
             val migrated = ConfigCompression.encode(document.floor, document.water, document.dims, miniFlags)
 
             val legacySize = legacyBytes.size.toLong()
             val spacePercent = if (legacySize > 0) (legacySize - migrated.size) * 100.0 / legacySize else 0.0
-            val legacyMs = this.measureDecodeMs(legacyBytes)
-            val migratedMs = this.measureDecodeMs(migrated)
-            val savedMs = (legacyMs - migratedMs).coerceAtLeast(0L)
+            val migratedDecodeMs = this.measureMigratedLoadMs(name, migrated)
+            val savedMs = (decodeMs - migratedDecodeMs).coerceAtLeast(0L)
+            val quoted = if (name.contains(" ")) "\"" + name + "\"" else name
 
             Minecraft.getInstance().execute {
                ChatUtil.send("§eThis config (§b$name§e) is stored in the §c§llegacy§r§e format.")
                ChatUtil.send(
-                  "§7Migrating with §b/cb migrate " + name + " -m§7 shrinks it from §b" + this.formatSize(legacySize)
-                     + "§7 to §b" + this.formatSize(migrated.size.toLong())
-                     + "§7 (§a§l" + String.format(Locale.ROOT, "%.1f", spacePercent) + "% smaller§r§7)."
+                  "§7Loading it took §b" + totalLoadMs + " ms§7 (§b" + decodeMs
+                     + " ms§7 parsing the legacy file, §b" + (totalLoadMs - decodeMs).coerceAtLeast(0L) + " ms§7 building the cache)."
                )
                ChatUtil.send(
-                  "§7It also loads faster: §b" + legacyMs + " ms§7 -> §b" + migratedMs
-                     + " ms§7 (§a§l" + savedMs + " ms saved§r§7)."
+                  "§7Migrating it with §b/cb migrate " + quoted + " -m§7 shrinks it from §b" + this.formatSize(legacySize)
+                     + "§7 to §b" + this.formatSize(migrated.size.toLong()) + "§7 ("
+                     + (if (spacePercent >= 0) "§a§l" else "§c§l")
+                     + String.format(Locale.ROOT, "%.1f", Math.abs(spacePercent)) + "% smaller§r§7)."
                )
-               ChatUtil.send("§7Run §b/cb migrate " + name + " -m§7 to convert it. A §f.bak§7 backup is kept.")
+               ChatUtil.send(
+                  "§7It would then load in roughly §b" + (totalLoadMs - savedMs).coerceAtLeast(0L)
+                     + " ms§7 instead (§a§l" + savedMs + " ms faster§r§7)."
+               )
+               ChatUtil.send("§7Run §b/cb migrate " + quoted + " -m§7 to convert it. A §f.bak§7 backup is kept.")
             }
          } catch (e: Exception) {
             System.err.println("[CB] Failed to compute legacy config stats: " + e.message)
@@ -418,6 +463,33 @@ class ReplacementIO private constructor() {
 
       val tmpFile = File(file.parentFile, file.name + ".tmp")
       return if (tmpFile.exists()) tmpFile.readBytes() else null
+   }
+
+   private fun measureMigratedLoadMs(name: String, bytes: ByteArray): Long {
+      val tmpFile = File(ReplacementStore.configDir, name + ".cbestimate.tmp")
+      return try {
+         if (!ReplacementStore.configDir.exists()) {
+            ReplacementStore.configDir.mkdirs()
+         }
+
+         tmpFile.writeBytes(bytes)
+         val start = System.nanoTime()
+         val read = tmpFile.readBytes()
+         ConfigCompression.decode(read)
+         val elapsed = (System.nanoTime() - start) / 1_000_000L
+         if (elapsed > 0L) {
+            elapsed
+         } else {
+            this.measureDecodeMs(bytes)
+         }
+      } catch (_: Exception) {
+         this.measureDecodeMs(bytes)
+      } finally {
+         try {
+            tmpFile.delete()
+         } catch (ignored: Exception) {
+         }
+      }
    }
 
    private fun measureDecodeMs(bytes: ByteArray): Long {
@@ -450,6 +522,10 @@ class ReplacementIO private constructor() {
       @JvmField
       val INSTANCE: ReplacementIO = ReplacementIO()
 
+      private val configFlags = java.util.concurrent.ConcurrentHashMap<String, Int>()
+
+      private val notifiedLegacy = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+
       private val loadExecutor: ExecutorService = Executors.newSingleThreadExecutor { runnable ->
          Thread(runnable, "cb-config-load").apply { isDaemon = true }
       }
@@ -459,7 +535,7 @@ class ReplacementIO private constructor() {
       ) {
          try {
             DebugStats.noteSaveStart()
-            INSTANCE.writeConfig(snapshot, floor, water, file, 0, force)
+            INSTANCE.writeConfig(snapshot, floor, water, file, INSTANCE.flagsForFile(file), force)
          } catch (e: Exception) {
             System.err.println("[CB] Failed to save config: " + e.message)
          } finally {

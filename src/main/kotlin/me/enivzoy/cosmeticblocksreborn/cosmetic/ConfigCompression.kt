@@ -27,12 +27,15 @@ internal object ConfigCompression {
    const val PALETTE = 8
    const val RLE = 16
 
+   const val MINI_STAGES = GZIP or MINIFY or DICTIONARY
+
    internal class Document(
       val floor: String?,
       val water: WaterConfig.Fields,
       val dims: LinkedHashMap<String, LinkedHashMap<String, String>>,
       val isLegacy: Boolean = false,
-      val rawSize: Int = 0
+      val rawSize: Int = 0,
+      val flags: Int = 0
    )
 
    fun describe(flags: Int): String {
@@ -163,18 +166,20 @@ internal object ConfigCompression {
       }
 
       val root = JsonParser.parseString(String(data, Charsets.UTF_8)).asJsonObject
-      return if ((root.get("format")?.asInt ?: 0) >= 3) {
-         decodeV3(root)
+      val format = root.get("format")?.asInt ?: 0
+      return if (format >= 3) {
+         decodeV3(root, bytes.size)
       } else {
-         decodeLegacy(root, bytes.size)
+         decodeLegacy(root, bytes.size, format < 2)
       }
    }
 
-   private fun decodeLegacy(root: JsonObject, rawSize: Int): Document {
+   private fun decodeLegacy(root: JsonObject, rawSize: Int, declaredLegacy: Boolean): Document {
       var floor: String? = null
       var allow: Boolean? = null
       var rgb: Int? = null
       var lava: Boolean? = null
+      var flatEntries = false
       val dims = LinkedHashMap<String, LinkedHashMap<String, String>>()
 
       for ((key, element) in root.entrySet()) {
@@ -200,6 +205,7 @@ internal object ConfigCompression {
                ReplacementCompactor.expand(raw, toRanges(value.asJsonArray), dimMap)
             } else if (value.isJsonPrimitive) {
                dimMap[raw] = value.asString
+               flatEntries = true
             }
          }
 
@@ -208,10 +214,10 @@ internal object ConfigCompression {
          }
       }
 
-      return Document(floor, WaterConfig.Fields(allow, rgb, lava), dims, true, rawSize)
+      return Document(floor, WaterConfig.Fields(allow, rgb, lava), dims, declaredLegacy || flatEntries, rawSize)
    }
 
-   private fun decodeV3(root: JsonObject): Document {
+   private fun decodeV3(root: JsonObject, rawSize: Int): Document {
       val flags = root.get("flags")?.asInt ?: 0
       val palette = flags and PALETTE != 0
       val dictionary = palette || (flags and DICTIONARY != 0)
@@ -290,7 +296,7 @@ internal object ConfigCompression {
          }
       }
 
-      return Document(floor, WaterConfig.Fields(allow, rgb, lava), dims)
+      return Document(floor, WaterConfig.Fields(allow, rgb, lava), dims, false, rawSize, flags)
    }
 
    private fun readBoxes(element: JsonElement, rle: Boolean): List<IntArray> {

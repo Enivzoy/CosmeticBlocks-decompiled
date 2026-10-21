@@ -45,7 +45,7 @@ The command also answers to **`/cosmeticblocks`**, **`/cosmeticb`**, **`/cosm`**
 | `/cb` | Opens the main configuration screen |
 | `/cb help` | Lists all commands |
 | `/cb migrate <name>` | Rewrites an existing config into the compact format (keeps a `.bak` backup) |
-| `/cb migrate <name> -mini` | Same, but with the extra compression stages enabled (aliases `-m`, `-minified`) |
+| `/cb migrate <name> -mini` | Same, but with the extra compression stages enabled (aliases `-m`, `-minified`). Enables Gzip + No Readability + Block Dictionary. |
 | `/cb migrate <name> --settings` | Uses whatever stages are toggled in the Settings tab |
 | `.minecraft/config/cb/` | All config files live here |
 | `.minecraft/config/cb/cb/` | Individual config profiles |
@@ -73,9 +73,15 @@ Each range is `[x1,y1,z1,x2,y2,z2]`.
 
 - Existing flat-format configs are still read normally — they are converted automatically the next time the
   config is saved.
+- When a legacy (flat-format) config is loaded, the mod prints a chat message saying so, together with how
+  long the load took, how much smaller the file would get, and how much faster it would load after
+  migrating. The message is shown once per config, and the config is still converted on the next save as
+  described above — the message just tells you what to run to get the extra compression.
 - To convert a file immediately (for example, to shrink it on disk), run **`/cb migrate <name>`**. A
   `<name>.json.bak` backup is written first.
 - Converting a full floor typically shrinks the file by **more than 90%**.
+- A migrated file keeps the format it was written in, so a config migrated with the extra stages stays
+  compressed on later saves.
 
 ### Optional compression stages
 
@@ -94,7 +100,8 @@ appears underneath:
 
 Nothing changes on disk until you run **`/cb migrate <configname> --settings`**, which re-encodes a config
 using the stages you enabled. The one-off **`-mini`** flag (`-m` / `-minified`) is a shortcut that enables a
-sensible set of stages for that single migration without touching the Settings tab.
+sensible set of stages — Gzip, No Readability and Block Dictionary — for that single migration without
+touching the Settings tab.
 
 A migrated file records which stages it used, so it is always read back correctly regardless of your current
 settings, and old plain/legacy files keep working. On a real floor-7 config this took a 50 MB file down to
