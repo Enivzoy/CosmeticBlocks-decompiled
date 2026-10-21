@@ -157,6 +157,9 @@ class ReplacementIO private constructor() {
 
       ReplacementCache.rebuildActiveCache()
       WorldEditMode.resetHistory()
+      if (loaded != null && loaded.isLegacy) {
+         this.notifyLegacyConfig(file.nameWithoutExtension, loaded)
+      }
    }
 
    internal fun loadFromAsync(file: File) {
@@ -227,6 +230,9 @@ class ReplacementIO private constructor() {
       DirtySections.markAllCachedDirty()
       DungeonConfigTab.syncFloorFromStore()
       WorldEditMode.resetHistory()
+      if (document != null && document.isLegacy) {
+         this.notifyLegacyConfig(name, document)
+      }
    }
 
    private fun parseFile(file: File): ConfigCompression.Document? {
@@ -370,6 +376,58 @@ class ReplacementIO private constructor() {
       bytes >= 1024L * 1024L -> String.format(Locale.ROOT, "%.1f MB", bytes / (1024.0 * 1024.0))
       bytes >= 1024L -> String.format(Locale.ROOT, "%.1f KB", bytes / 1024.0)
       else -> "$bytes B"
+   }
+
+   private fun notifyLegacyConfig(name: String, document: ConfigCompression.Document) {
+      SaveScheduler.saveExecutor.execute {
+         try {
+            val legacyBytes = this.readConfigBytes(name) ?: return@execute
+            val miniFlags = ConfigCompression.GZIP or ConfigCompression.MINIFY or ConfigCompression.DICTIONARY
+            val migrated = ConfigCompression.encode(document.floor, document.water, document.dims, miniFlags)
+
+            val legacySize = legacyBytes.size.toLong()
+            val spacePercent = if (legacySize > 0) (legacySize - migrated.size) * 100.0 / legacySize else 0.0
+            val legacyMs = this.measureDecodeMs(legacyBytes)
+            val migratedMs = this.measureDecodeMs(migrated)
+            val savedMs = (legacyMs - migratedMs).coerceAtLeast(0L)
+
+            Minecraft.getInstance().execute {
+               ChatUtil.send("§eThis config (§b$name§e) is stored in the §c§llegacy§r§e format.")
+               ChatUtil.send(
+                  "§7Migrating with §b/cb migrate " + name + " -m§7 shrinks it from §b" + this.formatSize(legacySize)
+                     + "§7 to §b" + this.formatSize(migrated.size.toLong())
+                     + "§7 (§a§l" + String.format(Locale.ROOT, "%.1f", spacePercent) + "% smaller§r§7)."
+               )
+               ChatUtil.send(
+                  "§7It also loads faster: §b" + legacyMs + " ms§7 -> §b" + migratedMs
+                     + " ms§7 (§a§l" + savedMs + " ms saved§r§7)."
+               )
+               ChatUtil.send("§7Run §b/cb migrate " + name + " -m§7 to convert it. A §f.bak§7 backup is kept.")
+            }
+         } catch (e: Exception) {
+            System.err.println("[CB] Failed to compute legacy config stats: " + e.message)
+         }
+      }
+   }
+
+   private fun readConfigBytes(name: String): ByteArray? {
+      val file = ReplacementStore.getConfigFile(name)
+      if (file.exists()) {
+         return file.readBytes()
+      }
+
+      val tmpFile = File(file.parentFile, file.name + ".tmp")
+      return if (tmpFile.exists()) tmpFile.readBytes() else null
+   }
+
+   private fun measureDecodeMs(bytes: ByteArray): Long {
+      val start = System.nanoTime()
+      try {
+         ConfigCompression.decode(bytes)
+      } catch (_: Exception) {
+      }
+
+      return (System.nanoTime() - start) / 1_000_000L
    }
 
    internal fun migrateOldConfig() {

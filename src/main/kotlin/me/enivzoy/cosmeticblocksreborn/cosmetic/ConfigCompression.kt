@@ -30,7 +30,9 @@ internal object ConfigCompression {
    internal class Document(
       val floor: String?,
       val water: WaterConfig.Fields,
-      val dims: LinkedHashMap<String, LinkedHashMap<String, String>>
+      val dims: LinkedHashMap<String, LinkedHashMap<String, String>>,
+      val isLegacy: Boolean = false,
+      val rawSize: Int = 0
    )
 
    fun describe(flags: Int): String {
@@ -161,10 +163,14 @@ internal object ConfigCompression {
       }
 
       val root = JsonParser.parseString(String(data, Charsets.UTF_8)).asJsonObject
-      return if ((root.get("format")?.asInt ?: 0) >= 3) decodeV3(root) else decodeLegacy(root)
+      return if ((root.get("format")?.asInt ?: 0) >= 3) {
+         decodeV3(root)
+      } else {
+         decodeLegacy(root, bytes.size)
+      }
    }
 
-   private fun decodeLegacy(root: JsonObject): Document {
+   private fun decodeLegacy(root: JsonObject, rawSize: Int): Document {
       var floor: String? = null
       var allow: Boolean? = null
       var rgb: Int? = null
@@ -202,7 +208,7 @@ internal object ConfigCompression {
          }
       }
 
-      return Document(floor, WaterConfig.Fields(allow, rgb, lava), dims)
+      return Document(floor, WaterConfig.Fields(allow, rgb, lava), dims, true, rawSize)
    }
 
    private fun decodeV3(root: JsonObject): Document {
