@@ -5,6 +5,9 @@
 decompiled dump — rough, inconsistent and hard to build on. Reborn cleans that up, keeps the core block-swap
 system, and layers a full set of new features on top of it.
 
+Inspiration from the original CosmeticBlocks ([Discord](https://discord.gg/R56B9chPyQ)) and
+[FastAsyncWorldEdit](https://github.com/IntellectualSites/FastAsyncWorldEdit).
+
 ## Branches
 
 | Branch | What it is |
