@@ -17,11 +17,10 @@ Inspiration from the original CosmeticBlocks ([Discord](https://discord.gg/R56B9
 
 ### About `native-kotlin`
 
-`native-kotlin` is a from-the-ground-up rewrite. Everything is now **Kotlin**, except the Mixin classes,
-which deliberately stay in **Java** — Mixins are far easier to author and safer against obfuscation that way.
+`native-kotlin` is a kotlin rewrite of CB-Decompiled.
 The old custom shader/rendering stack was replaced with
 [Cascade](https://github.com/starred-star/cascade), an immediate-mode GUI library: it removed the vendored
-`renderkit` pipeline entirely and made the UI code dramatically simpler.
+`renderkit` pipeline entirely and made the UI code dramatically simpler to work with allowing the use of vulkan.
 
 ## Features
 
