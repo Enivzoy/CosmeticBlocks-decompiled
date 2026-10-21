@@ -466,11 +466,11 @@ class CbCommand private constructor() {
          val argsArg = StringArgumentType.getString(it, "args")
          val args = Regex("\\s+").split(argsArg.trim(), 0)
          if (args.size >= 2) {
-            val fromBlock = args[0]
-            val toSpecs = args.drop(1).joinToString(" ", "", "", -1, "...", null)
-            ChatUtil.send(CosmeticBlocks.INSTANCE.replaceRegion(fromBlock, toSpecs))
+            val fromSpec = args[0]
+            val toSpecs = args.drop(1).joinToString("", "", "", -1, "...", null)
+            ChatUtil.send(CosmeticBlocks.INSTANCE.replaceRegion(fromSpec, toSpecs))
          } else {
-            ChatUtil.send("Usage: cb replace <from> <to> [to:weight ...]")
+            ChatUtil.send("Usage: cb replace <from[,from...]> <to[,to...]>")
          }
 
          return 1
@@ -482,15 +482,15 @@ class CbCommand private constructor() {
          if (args.size >= 3) {
             val size = args[0].toIntOrNull()
             if (size == null) {
-               ChatUtil.send("Usage: cb replacenear <size> <from> <to> [to:weight ...]")
+               ChatUtil.send("Usage: cb replacenear <size> <from[,from...]> <to[,to...]>")
                return 1
             }
 
-            val fromBlock = args[1]
-            val toSpecs = args.drop(2).joinToString(" ", "", "", -1, "...", null)
-            ChatUtil.send(CosmeticBlocks.INSTANCE.replacenearRegion(size, fromBlock, toSpecs))
+            val fromSpec = args[1]
+            val toSpecs = args.drop(2).joinToString("", "", "", -1, "...", null)
+            ChatUtil.send(CosmeticBlocks.INSTANCE.replacenearRegion(size, fromSpec, toSpecs))
          } else {
-            ChatUtil.send("Usage: cb replacenear <size> <from> <to> [to:weight ...]")
+            ChatUtil.send("Usage: cb replacenear <size> <from[,from...]> <to[,to...]>")
          }
 
          return 1

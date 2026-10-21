@@ -93,52 +93,161 @@ object WorldEditMode {
             " | P2: " + p2.x + "," + p2.y + "," + p2.z
       }
 
-   fun parseWeightedBlocks(input: String): MutableList<Pair<BlockState, Int>>? {
+   class PatternEntry(val state: BlockState, val weight: Int)
+
+   class Pattern(val layers: MutableList<MutableList<PatternEntry>>, val gradient: Boolean) {
+      val flat: MutableList<PatternEntry>
+         get() {
+            val all = mutableListOf<PatternEntry>()
+            for (layer in layers) {
+               all.addAll(layer)
+            }
+            return all
+         }
+
+      fun isEmpty(): Boolean = layers.isEmpty() || layers.all { it.isEmpty() }
+
+      fun forHeight(t: Float): MutableList<PatternEntry> {
+         if (!gradient || layers.size == 1) {
+            return layers[0]
+         }
+
+         val scaled = t.coerceIn(0f, 1f) * (layers.size - 1)
+         val lower = scaled.toInt().coerceIn(0, layers.size - 1)
+         val upper = (lower + 1).coerceIn(0, layers.size - 1)
+         val frac = scaled - lower
+         if (upper == lower) {
+            return layers[lower]
+         }
+
+         val a = layers[lower]
+         val b = layers[upper]
+         val merged = LinkedHashMap<BlockState, Int>()
+         for (e in a) {
+            merged[e.state] = (merged[e.state] ?: 0) + Math.round(e.weight * (1f - frac))
+         }
+         for (e in b) {
+            merged[e.state] = (merged[e.state] ?: 0) + Math.round(e.weight * frac)
+         }
+
+         val out = mutableListOf<PatternEntry>()
+         for ((state, weight) in merged) {
+            if (weight > 0) {
+               out.add(PatternEntry(state, weight))
+            }
+         }
+         return if (out.isEmpty()) a else out
+      }
+   }
+
+   fun parsePattern(input: String): Pattern? {
       val trimmed = input.trim()
       if (trimmed.isEmpty()) {
          return null
       }
 
-      val tokens = trimmed.split(Regex("\\s+"))
-      val result = mutableListOf<Pair<BlockState, Int>>()
+      val segments = trimmed.split("|")
+      val layers = mutableListOf<MutableList<PatternEntry>>()
+      for (segment in segments) {
+         val layer = parseLayer(segment) ?: return null
+         if (layer.isEmpty()) {
+            return null
+         }
+         layers.add(layer)
+      }
 
-      for (token in tokens) {
-         if (token.isEmpty()) {
+      if (layers.isEmpty()) {
+         return null
+      }
+
+      return Pattern(layers, segments.size > 1)
+   }
+
+   private fun parseLayer(segment: String): MutableList<PatternEntry>? {
+      val result = mutableListOf<PatternEntry>()
+      val items = segment.split(",")
+      for (raw in items) {
+         val item = raw.trim()
+         if (item.isEmpty()) {
             continue
          }
 
-         val colonIdx = token.lastIndexOf(':')
-         var blockId: String
-         var weight: Int
+         var blockPart = item
+         var weight = 1
 
-         if (colonIdx > 0 && colonIdx < token.length - 1) {
-            val weightText = token.substring(colonIdx + 1).trim()
-            val parsedWeight = parseIntOrNull(weightText)
-            if (parsedWeight != null && parsedWeight > 0) {
-               blockId = token.substring(0, colonIdx).trim()
-               weight = parsedWeight
-            } else {
-               blockId = token
-               weight = 1
+         val percentIdx = item.indexOf('%')
+         if (percentIdx > 0) {
+            val weightText = item.substring(0, percentIdx).trim()
+            val parsed = parseIntOrNull(weightText)
+            if (parsed != null && parsed > 0) {
+               weight = parsed
+               blockPart = item.substring(percentIdx + 1).trim()
             }
          } else {
-            blockId = token
-            weight = 1
+            val colonIdx = item.lastIndexOf(':')
+            if (colonIdx > 0 && colonIdx < item.length - 1) {
+               val weightText = item.substring(colonIdx + 1).trim()
+               val parsed = parseIntOrNull(weightText)
+               if (parsed != null && parsed > 0) {
+                  weight = parsed
+                  blockPart = item.substring(0, colonIdx).trim()
+               }
+            }
          }
 
-         if (blockId.isEmpty()) {
+         if (blockPart.isEmpty()) {
             return null
          }
 
-         val normalized = BlockStateCodec.normalizeBlockId(blockId)
-         val state = BlockStateCodec.resolveBlockState(normalized)
-         if (state == null) {
-            return null
-         }
-
-         result.add(Pair(state, weight))
+         val normalized = BlockStateCodec.normalizeBlockId(blockPart)
+         val state = BlockStateCodec.resolveBlockState(normalized) ?: return null
+         result.add(PatternEntry(state, weight))
       }
 
+      return result
+   }
+
+   fun parseMask(input: String): MutableList<Block>? {
+      val trimmed = input.trim()
+      if (trimmed.isEmpty()) {
+         return null
+      }
+
+      val result = mutableListOf<Block>()
+      val items = trimmed.split(",")
+      for (raw in items) {
+         var item = raw.trim()
+         if (item.isEmpty()) {
+            continue
+         }
+
+         val percentIdx = item.indexOf('%')
+         if (percentIdx > 0) {
+            item = item.substring(percentIdx + 1).trim()
+         }
+
+         if (item.isEmpty()) {
+            continue
+         }
+
+         val normalized = BlockStateCodec.normalizeBlockId(item)
+         val state = BlockStateCodec.resolveBlockState(normalized) ?: return null
+         result.add(state.block)
+      }
+
+      return if (result.isEmpty()) null else result
+   }
+
+   fun parseWeightedBlocks(input: String): MutableList<Pair<BlockState, Int>>? {
+      val pattern = parsePattern(input) ?: return null
+      if (pattern.gradient) {
+         return null
+      }
+
+      val result = mutableListOf<Pair<BlockState, Int>>()
+      for (entry in pattern.layers[0]) {
+         result.add(Pair(entry.state, entry.weight))
+      }
       return if (result.isEmpty()) null else result
    }
 
@@ -166,6 +275,35 @@ object WorldEditMode {
       }
 
       return blocks[blocks.size - 1].first
+   }
+
+   private fun pickFromEntries(entries: List<PatternEntry>): BlockState {
+      if (entries.isEmpty()) {
+         throw IllegalArgumentException("No block weights provided")
+      }
+
+      if (entries.size == 1) {
+         return entries[0].state
+      }
+
+      var totalWeight = 0
+      for (e in entries) {
+         totalWeight += e.weight
+      }
+
+      if (totalWeight <= 0) {
+         return entries[0].state
+      }
+
+      var roll = ThreadLocalRandom.current().nextInt(totalWeight)
+      for (e in entries) {
+         roll -= e.weight
+         if (roll < 0) {
+            return e.state
+         }
+      }
+
+      return entries[entries.size - 1].state
    }
 
    fun fillRegion(blockSpecs: String): String {
@@ -235,14 +373,14 @@ object WorldEditMode {
       return "§aFilled $count blocks (${sizeX}x${sizeY}x${sizeZ}) with $blockDesc"
    }
 
-   fun replaceRegion(fromBlock: String, toSpecs: String): String {
+   fun replaceRegion(fromSpec: String, toSpecs: String): String {
       val p1 = this.pos1State ?: return "§cPos1 not set"
       val p2 = this.pos2State ?: return "§cPos2 not set"
 
-      return replacenearBounds(min(p1.x, p2.x), min(p1.y, p2.y), min(p1.z, p2.z), max(p1.x, p2.x), max(p1.y, p2.y), max(p1.z, p2.z), fromBlock, toSpecs)
+      return replacenearBounds(min(p1.x, p2.x), min(p1.y, p2.y), min(p1.z, p2.z), max(p1.x, p2.x), max(p1.y, p2.y), max(p1.z, p2.z), fromSpec, toSpecs)
    }
 
-   fun replacenear(size: Int, fromBlock: String, toSpecs: String): String {
+   fun replacenear(size: Int, fromSpec: String, toSpecs: String): String {
       if (size < 1) {
          return "§cSize must be at least 1"
       }
@@ -258,20 +396,20 @@ object WorldEditMode {
          return "§cSize too large (max 128)"
       }
 
-      return replacenearBounds(cx - radius, cy - radius, cz - radius, cx + radius, cy + radius, cz + radius, fromBlock, toSpecs)
+      return replacenearBounds(cx - radius, cy - radius, cz - radius, cx + radius, cy + radius, cz + radius, fromSpec, toSpecs)
    }
 
    private fun replacenearBounds(
-      minX: Int, minY: Int, minZ: Int, maxX: Int, maxY: Int, maxZ: Int, fromBlock: String, toSpecs: String
+      minX: Int, minY: Int, minZ: Int, maxX: Int, maxY: Int, maxZ: Int, fromSpec: String, toSpecs: String
    ): String {
       val dim = LocationTracker.getCurrentDimension() ?: return "§cNot in a world"
 
       val level: ClientLevel = mc.level ?: return "§cNot in a world"
 
-      val normalizedFrom = BlockStateCodec.normalizeBlockId(fromBlock)
-      val fromState = BlockStateCodec.resolveBlockState(normalizedFrom) ?: return "§cUnknown block: $fromBlock"
+      val fromMask = parseMask(fromSpec) ?: return "§cUnknown block: $fromSpec"
+      val fromBlocks = HashSet<Block>(fromMask)
 
-      val toBlocks = parseWeightedBlocks(toSpecs) ?: return "§cInvalid target block specification"
+      val pattern = parsePattern(toSpecs) ?: return "§cInvalid target block specification"
 
       val replacements = ReplacementStore.replacements
       val dimMap = replacements.getOrPut(dim) { LinkedHashMap() }
@@ -286,11 +424,12 @@ object WorldEditMode {
          }
       }
 
-      val fromBlockObj: Block = fromState.block
+      val ySpan = (maxY - minY).coerceAtLeast(1)
       var count = 0
 
       for (x in minX..maxX) {
          for (y in minY..maxY) {
+            val layer = pattern.forHeight((y - minY).toFloat() / ySpan.toFloat())
             for (z in minZ..maxZ) {
                val key = "$x,$y,$z"
                val existing = dimMap[key]
@@ -299,13 +438,13 @@ object WorldEditMode {
                if (existing != null) {
                   val clean = if (existing.startsWith("!")) existing.substring(1) else existing
                   val existingState = BlockStateCodec.resolveBlockState(clean)
-                  matches = existingState != null && existingState.block === fromBlockObj
+                  matches = existingState != null && fromBlocks.contains(existingState.block)
                } else {
-                  matches = level.getBlockState(BlockPos(x, y, z)).block === fromBlockObj
+                  matches = fromBlocks.contains(level.getBlockState(BlockPos(x, y, z)).block)
                }
 
                if (matches) {
-                  val state = pickWeightedBlock(toBlocks)
+                  val state = pickFromEntries(layer)
                   val wasPhantom = existing != null && existing.startsWith("!")
                   val serialized = BlockStateCodec.serializeBlockState(state)
                   val raw = if (wasPhantom) "!" + serialized else serialized
@@ -326,8 +465,9 @@ object WorldEditMode {
          SaveScheduler.scheduleSave()
       }
 
-      val fromName = if (normalizedFrom.startsWith("minecraft:")) normalizedFrom.substring("minecraft:".length) else normalizedFrom
-      return "§aReplaced $count '$fromName' blocks"
+      val fromName = fromMask.joinToString(",") { BuiltInRegistries.BLOCK.getKey(it).path }
+      val gradientSuffix = if (pattern.gradient) " §7(gradient)" else ""
+      return "§aReplaced $count '$fromName' blocks$gradientSuffix"
    }
 
    fun removeInRegion(filterBlock: String?): String {
