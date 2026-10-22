@@ -324,8 +324,15 @@ internal object ConfigCompression {
             jw.setIndent("")
          }
 
-         for (value in box) {
-            jw.value(value.toLong())
+         if (isPoint(box)) {
+            jw.value(box[0].toLong())
+            jw.value(box[1].toLong())
+            jw.value(box[2].toLong())
+            jw.nullValue()
+         } else {
+            for (value in box) {
+               jw.value(value.toLong())
+            }
          }
 
          jw.endArray()
@@ -337,6 +344,10 @@ internal object ConfigCompression {
       jw.endArray()
    }
 
+   private fun isPoint(box: IntArray): Boolean {
+      return box.size >= 6 && box[0] == box[3] && box[1] == box[4] && box[2] == box[5]
+   }
+
    private fun toRanges(array: JsonArray): List<IntArray> {
       val ranges = ArrayList<IntArray>(array.size())
       for (rangeElement in array) {
@@ -345,28 +356,48 @@ internal object ConfigCompression {
          }
 
          val values = rangeElement.asJsonArray
+         if (values.size() < 4) {
+            continue
+         }
+
+         // A single position is written as [x, y, z, null] to keep it shorter
+         // than a full box.
+         if (values.size() == 4 && values.get(3).isJsonNull) {
+            val point = IntArray(6)
+            if (readCoords(values, point, 3)) {
+               point[3] = point[0]
+               point[4] = point[1]
+               point[5] = point[2]
+               ranges.add(point)
+            }
+
+            continue
+         }
+
          if (values.size() < 6) {
             continue
          }
 
          val range = IntArray(6)
-         var valid = true
-         for (i in 0 until 6) {
-            val value = values.get(i)
-            if (!value.isJsonPrimitive || !value.asJsonPrimitive.isNumber) {
-               valid = false
-               break
-            }
-
-            range[i] = value.asInt
-         }
-
-         if (valid) {
+         if (readCoords(values, range, 6)) {
             ranges.add(range)
          }
       }
 
       return ranges
+   }
+
+   private fun readCoords(values: JsonArray, target: IntArray, count: Int): Boolean {
+      for (i in 0 until count) {
+         val value = values.get(i)
+         if (!value.isJsonPrimitive || !value.asJsonPrimitive.isNumber) {
+            return false
+         }
+
+         target[i] = value.asInt
+      }
+
+      return true
    }
 
    private fun baseOf(raw: String): String {

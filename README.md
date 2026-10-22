@@ -69,7 +69,8 @@ grouped by block value, i.e. the same shape a Minecraft `/fill` command uses:
 }
 ```
 
-Each range is `[x1,y1,z1,x2,y2,z2]`.
+Each range is `[x1,y1,z1,x2,y2,z2]`. A range that covers a single block is written as `[x,y,z,null]`,
+which is shorter and still reads back as exactly that one position.
 
 - Existing flat-format configs are still read normally — they are converted automatically the next time the
   config is saved.
