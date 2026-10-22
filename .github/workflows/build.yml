@@ -19,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   
+          fetch-depth: 0
 
       - name: Set up JDK 25
         uses: actions/setup-java@v4
@@ -40,10 +40,18 @@ jobs:
           cp "$(ls versions/26.3/build/libs/*+mc26.3.jar | grep -v -- '-sources' | head -n1)" dist/cb-26.3.jar
           ls -l dist
 
-      - name: Upload jars
+      # archive: false only allows one file per upload, so one step per jar
+      - name: Upload cb-26.2.jar
         uses: actions/upload-artifact@v7.0.2
         with:
-          path: dist/*.jar
+          path: dist/cb-26.2.jar
+          if-no-files-found: error
+          archive: false
+
+      - name: Upload cb-26.3.jar
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          path: dist/cb-26.3.jar
           if-no-files-found: error
           archive: false
 
