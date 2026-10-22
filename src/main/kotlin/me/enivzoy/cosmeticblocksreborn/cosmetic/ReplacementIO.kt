@@ -84,14 +84,14 @@ class ReplacementIO private constructor() {
       file: File,
       flags: Int,
       force: Boolean
-   ) {
+   ): Int {
       if (!ReplacementStore.configDir.exists()) {
          ReplacementStore.configDir.mkdirs()
       }
 
       if (!force && !this.isSafeWrite(snapshot, file)) {
          System.err.println("[CB] Refused unsafe save for " + file.name + ": snapshot is empty but store/last-saved is not")
-         return
+         return 0
       }
 
       val tmpFile = File(file.parentFile, file.name + ".tmp")
@@ -105,20 +105,29 @@ class ReplacementIO private constructor() {
       if (file.exists() && file.length() > 0L && file.length() > bytes.size) {
          val backup = File(file.parentFile, file.name + ".bak")
          try {
-            file.copyTo(backup, overwrite = true)
+            if (!backup.exists() || backup.length() < file.length()) {
+               file.copyTo(backup, overwrite = true)
+            }
          } catch (ignored: Exception) {
          }
       }
 
       try {
          Files.move(tmpFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING)
-      } catch (ignored: Exception) {
-         if (file.exists()) {
-            file.delete()
+      } catch (e: Exception) {
+         System.err.println("[CB] Replacing " + file.name + " failed (" + e.message + "), falling back to delete+rename")
+
+         if (file.exists() && !file.delete()) {
+            System.err.println("[CB] Could not delete " + file.name)
          }
 
-         tmpFile.renameTo(file)
+         if (!tmpFile.renameTo(file)) {
+            System.err.println("[CB] Could not rename " + tmpFile.name + " to " + file.name)
+            throw java.io.IOException("could not replace " + file.name)
+         }
       }
+
+      return bytes.size
    }
 
    private fun isSafeWrite(snapshot: Map<String, Map<String, String>>, file: File): Boolean {
@@ -305,29 +314,43 @@ class ReplacementIO private constructor() {
          try {
             val before = file.length()
             val backup = File(file.parentFile, file.name + ".bak")
-            file.copyTo(backup, overwrite = true)
+            if (!backup.exists() || backup.length() < file.length()) {
+               file.copyTo(backup, overwrite = true)
+            }
 
-            if (active) {
-               this.writeConfig(snapshot!!, floor, water!!, file, flags, false)
+            val inMemory = if (active && ReplacementStore.snapshotCount(snapshot!!) > 0) snapshot else null
+            val written = if (inMemory != null) {
+               this.writeConfig(inMemory, floor, water!!, file, flags, true)
             } else {
                val loaded = this.parseFile(file) ?: throw IllegalStateException("could not parse config")
-               this.writeConfig(loaded.dims, loaded.floor, loaded.water, file, flags, false)
+               this.writeConfig(loaded.dims, loaded.floor, loaded.water, file, flags, true)
             }
 
             this.rememberFlags(name, flags)
 
             val after = file.length()
-            val percent = if (before > 0L) (before - after) * 100.0 / before else 0.0
-            this.report(
-               "Migrated '$name': "
-                  + this.formatSize(before)
-                  + " -> "
-                  + this.formatSize(after)
-                  + " ("
-                  + String.format(Locale.ROOT, "%.1f", percent)
-                  + "% smaller). Backup: "
-                  + backup.name
-            )
+            if (written > 0 && after != written.toLong()) {
+               System.err.println("[CB] Migrate wrote " + written + " bytes but " + file.name + " is " + after + " bytes")
+            }
+
+            if (before > 0L && after >= before) {
+               this.report(
+                  "Migrated '$name': no size change (" + this.formatSize(before) + "). It may already use this format. Backup: "
+                     + backup.name
+               )
+            } else {
+               val percent = if (before > 0L) (before - after) * 100.0 / before else 0.0
+               this.report(
+                  "Migrated '$name': "
+                     + this.formatSize(before)
+                     + " -> "
+                     + this.formatSize(after)
+                     + " ("
+                     + String.format(Locale.ROOT, "%.1f", percent)
+                     + "% smaller). Backup: "
+                     + backup.name
+               )
+            }
          } catch (e: Exception) {
             this.report("Migration of '$name' failed: " + e.message)
             System.err.println("[CB] Migration of " + name + " failed: " + e.message)
