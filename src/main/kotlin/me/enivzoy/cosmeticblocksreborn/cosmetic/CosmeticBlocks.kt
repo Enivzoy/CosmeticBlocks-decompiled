@@ -3,6 +3,7 @@ package me.enivzoy.cosmeticblocksreborn.cosmetic
 import me.enivzoy.cosmeticblocksreborn.config.tabs.CosmeticBlocksTab
 import me.enivzoy.cosmeticblocksreborn.config.tabs.GlobalCosmeticsTab
 import me.enivzoy.cosmeticblocksreborn.dungeon.RoomScanner
+import me.enivzoy.cosmeticblocksreborn.util.InputCompat
 import me.enivzoy.cosmeticblocksreborn.utils.ChatUtil
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.minecraft.client.Minecraft
@@ -25,7 +26,7 @@ import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
 import org.joml.Matrix4f
-import org.lwjgl.glfw.GLFW
+import com.mojang.blaze3d.platform.InputConstants
 
 class CosmeticBlocks private constructor() {
    private val mc: Minecraft
@@ -450,12 +451,10 @@ class CosmeticBlocks private constructor() {
             lastLookBlockPos = hit.blockPos
          }
 
-         val window = Minecraft.getInstance().window.handle()
-         if (window != 0L
-            && INSTANCE.mc.gui.screen() == null
+         if (INSTANCE.mc.gui.screen() == null
             && CosmeticBlocksTab.INSTANCE.editModeKeybind.value != -1
          ) {
-            val pressed = GLFW.glfwGetKey(window, CosmeticBlocksTab.INSTANCE.editModeKeybind.value) == 1
+            val pressed = InputCompat.isKeyDown(CosmeticBlocksTab.INSTANCE.editModeKeybind.value)
             if (pressed && !editModeKeyWasPressed) {
                INSTANCE.toggleEditMode()
             }
@@ -465,11 +464,10 @@ class CosmeticBlocks private constructor() {
             editModeKeyWasPressed = false
          }
 
-         if (window != 0L
-            && INSTANCE.mc.gui.screen() == null
+         if (INSTANCE.mc.gui.screen() == null
             && CosmeticBlocksTab.INSTANCE.placeModeKeybind.value != -1
          ) {
-            val pressed = GLFW.glfwGetKey(window, CosmeticBlocksTab.INSTANCE.placeModeKeybind.value) == 1
+            val pressed = InputCompat.isKeyDown(CosmeticBlocksTab.INSTANCE.placeModeKeybind.value)
             if (pressed && !placeModeKeyWasPressed) {
                CosmeticBlocksTab.INSTANCE.placeMode.value = !CosmeticBlocksTab.INSTANCE.placeMode.value
                ChatUtil.send(if (CosmeticBlocksTab.INSTANCE.placeMode.value) "Place mode §aON" else "Place mode §cOFF")
@@ -480,11 +478,10 @@ class CosmeticBlocks private constructor() {
             placeModeKeyWasPressed = false
          }
 
-         if (window != 0L
-            && INSTANCE.mc.gui.screen() == null
+         if (INSTANCE.mc.gui.screen() == null
             && CosmeticBlocksTab.INSTANCE.worldEditKeybind.value != -1
          ) {
-            val pressed = GLFW.glfwGetKey(window, CosmeticBlocksTab.INSTANCE.worldEditKeybind.value) == 1
+            val pressed = InputCompat.isKeyDown(CosmeticBlocksTab.INSTANCE.worldEditKeybind.value)
             if (pressed && !worldEditKeyWasPressed) {
                WorldEditMode.setWorldEditMode(!WorldEditMode.worldEditMode)
                ChatUtil.send(if (WorldEditMode.worldEditMode) "World edit mode §aON" else "World edit mode §cOFF")

@@ -5,7 +5,8 @@ import com.mojang.blaze3d.vertex.PoseStack.Pose
 import com.mojang.blaze3d.vertex.VertexConsumer
 import kotlin.math.roundToInt
 import net.minecraft.client.renderer.rendertype.LayeringTransform
-import net.minecraft.client.renderer.rendertype.OutputTarget
+//? if <26.3
+//import net.minecraft.client.renderer.rendertype.OutputTarget
 import net.minecraft.client.renderer.rendertype.RenderSetup
 import net.minecraft.client.renderer.rendertype.RenderType
 
@@ -26,7 +27,8 @@ object RenderLayers {
          "cb_lines_through_walls",
          RenderSetup.builder(SkyblockerRenderPipelines.LINES_THROUGH_WALLS)
             .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
-            .setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
+            //? if <26.3
+            //.setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
             .createRenderSetup()
       )
    }

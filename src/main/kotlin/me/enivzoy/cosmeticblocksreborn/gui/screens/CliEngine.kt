@@ -26,7 +26,6 @@ import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.client.Minecraft
 import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.BuiltInRegistries
-import org.lwjgl.glfw.GLFW
 
 object CliEngine {
    private const val MAX_HISTORY = 50
@@ -421,7 +420,7 @@ object CliEngine {
                "No notes to export"
             } else {
                val export = notes.joinToString("\n")
-               GLFW.glfwSetClipboardString(Minecraft.getInstance().window.handle(), export)
+               Minecraft.getInstance().keyboardHandler.setClipboard(export)
                "Exported ${notes.size} notes to clipboard"
             }
          }
@@ -502,7 +501,7 @@ object CliEngine {
                      "%.10f".format(result).trimEnd('0').trimEnd('.')
                   }
 
-                  GLFW.glfwSetClipboardString(Minecraft.getInstance().window.handle(), formatted)
+                  Minecraft.getInstance().keyboardHandler.setClipboard(formatted)
                   "$arg = $formatted (copied)"
                } else {
                   "Invalid expression"
@@ -973,7 +972,7 @@ object CliEngine {
          }
       }
 
-      GLFW.glfwSetClipboardString(Minecraft.getInstance().window.handle(), builder.toString())
+      Minecraft.getInstance().keyboardHandler.setClipboard(builder.toString())
       true
    } catch (e: Exception) {
       e.printStackTrace()
@@ -981,7 +980,7 @@ object CliEngine {
    }
 
    private fun importFromClipboard(): Boolean = try {
-      val clipboard = GLFW.glfwGetClipboardString(Minecraft.getInstance().window.handle())
+      val clipboard = Minecraft.getInstance().keyboardHandler.getClipboard()
       if (clipboard == null) {
          false
       } else {

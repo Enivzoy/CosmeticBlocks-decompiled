@@ -1,5 +1,6 @@
 package me.enivzoy.cosmeticblocksreborn.gui.screens
 
+import com.mojang.blaze3d.platform.InputConstants
 import me.enivzoy.cosmeticblocksreborn.cosmetic.CosmeticBlocks
 import me.enivzoy.cosmeticblocksreborn.gui.NvgScreen
 import me.enivzoy.cosmeticblocksreborn.render.BlockIconRenderer
@@ -9,6 +10,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.input.CharacterEvent
+import me.enivzoy.cosmeticblocksreborn.util.InputCompat
 import net.minecraft.client.input.KeyEvent
 import net.minecraft.client.input.MouseButtonEvent
 import net.minecraft.core.registries.BuiltInRegistries
@@ -308,7 +310,7 @@ class BlockSelectorScreen : Screen(Component.literal("Block Selector")), NvgScre
          val fw = favRect.third
          if (fx <= mx && mx <= fx + fw) {
             val favStripTop = favStripBottom - 26f
-            if ((favStripTop <= my && my <= favStripBottom) && button == 0) {
+            if ((favStripTop <= my && my <= favStripBottom) && button == InputConstants.MOUSE_BUTTON_LEFT) {
                CosmeticBlocks.INSTANCE.setBlock(favId)
                onClose()
                return true
@@ -321,14 +323,14 @@ class BlockSelectorScreen : Screen(Component.literal("Block Selector")), NvgScre
             val index = ((my - listTop + scroll) / rowH).toInt()
             if (index >= 0 && index < filtered.size) {
                val blockId = filtered[index]
-               when (button) {
-                  0 -> {
-                     CosmeticBlocks.INSTANCE.setBlock(blockId)
-                     onClose()
-                     return true
-                  }
+                when (button) {
+                   InputConstants.MOUSE_BUTTON_LEFT -> {
+                      CosmeticBlocks.INSTANCE.setBlock(blockId)
+                      onClose()
+                      return true
+                   }
 
-                  1 -> {
+                   InputConstants.MOUSE_BUTTON_RIGHT -> {
                      if (CosmeticBlocks.INSTANCE.isFavorite(blockId)) {
                         CosmeticBlocks.INSTANCE.removeFavorite(blockId)
                      } else {
@@ -356,36 +358,36 @@ class BlockSelectorScreen : Screen(Component.literal("Block Selector")), NvgScre
    }
 
    override fun keyPressed(event: KeyEvent): Boolean {
-      when (event.key()) {
-         256 -> {
-            onClose()
-            return true
-         }
+       when (event.key()) {
+          InputConstants.KEY_ESCAPE -> {
+             onClose()
+             return true
+          }
 
-         257, 335 -> {
-            if (filtered.isNotEmpty()) {
-               CosmeticBlocks.INSTANCE.setBlock(filtered[highlightIdx.coerceIn(0, filtered.size - 1)])
-               onClose()
-            }
+          InputConstants.KEY_RETURN, InputCompat.KEY_KP_ENTER -> {
+             if (filtered.isNotEmpty()) {
+                CosmeticBlocks.INSTANCE.setBlock(filtered[highlightIdx.coerceIn(0, filtered.size - 1)])
+                onClose()
+             }
 
-            return true
-         }
+             return true
+          }
 
-         259 -> {
-            if (search.isNotEmpty()) {
-               search = search.dropLast(1)
-               applyFilter(false)
-            }
+          InputConstants.KEY_BACKSPACE -> {
+             if (search.isNotEmpty()) {
+                search = search.dropLast(1)
+                applyFilter(false)
+             }
 
-            return true
-         }
+             return true
+          }
 
-         264 -> {
-            highlightIdx = (highlightIdx + 1).coerceAtMost((filtered.size - 1).coerceAtLeast(0))
-            return true
-         }
+          InputConstants.KEY_DOWN -> {
+             highlightIdx = (highlightIdx + 1).coerceAtMost((filtered.size - 1).coerceAtLeast(0))
+             return true
+          }
 
-         265 -> {
+          InputConstants.KEY_UP -> {
             highlightIdx = (highlightIdx - 1).coerceAtLeast(0)
             return true
          }

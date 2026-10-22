@@ -1,13 +1,14 @@
 package me.enivzoy.cosmeticblocksreborn.cosmetic
 
 import me.enivzoy.cosmeticblocksreborn.config.tabs.GuiTab
+import me.enivzoy.cosmeticblocksreborn.util.InputCompat
 import me.enivzoy.cosmeticblocksreborn.utils.ChatUtil
 import net.minecraft.client.Minecraft
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
-import org.lwjgl.glfw.GLFW
+import com.mojang.blaze3d.platform.InputConstants
 
 object Freecam {
    private const val SPEED = 0.7
@@ -70,12 +71,11 @@ object Freecam {
 
    fun tick() {
       val mc = Minecraft.getInstance()
-      val window = mc.window.handle()
 
-      if (mc.gui.screen() == null && window != 0L) {
+      if (mc.gui.screen() == null) {
          val key = (GuiTab.INSTANCE.freecamKeybind.value as Number).toInt()
          if (key != -1) {
-            val down = GLFW.glfwGetKey(window, key) == 1
+            val down = InputCompat.isKeyDown(key)
             if (down && !keyWasPressed) {
                toggle()
             }

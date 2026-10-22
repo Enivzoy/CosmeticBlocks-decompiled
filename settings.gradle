@@ -6,4 +6,18 @@ pluginManagement {
     }
 }
 
+plugins {
+    id 'dev.kikugie.stonecutter' version '0.9.8'
+}
+
 rootProject.name = 'cb-1.0.0-mc26.2-reconstruction'
+
+stonecutter {
+    kotlinController = false
+    centralScript = 'build.gradle'
+
+    create(getRootProject()) {
+        versions '26.2', '26.3'
+        vcsVersion = '26.3'
+    }
+}

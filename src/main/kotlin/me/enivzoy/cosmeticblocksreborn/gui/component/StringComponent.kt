@@ -1,8 +1,10 @@
 package me.enivzoy.cosmeticblocksreborn.gui.component
 
+import com.mojang.blaze3d.platform.InputConstants
 import me.enivzoy.cosmeticblocksreborn.gui.ClickGuiScreen
 import me.enivzoy.cosmeticblocksreborn.render.CascadeUi
 import me.enivzoy.cosmeticblocksreborn.setting.StringSetting
+import me.enivzoy.cosmeticblocksreborn.util.InputCompat
 import net.minecraft.client.Minecraft
 
 class StringComponent(gui: ClickGuiScreen, setting: StringSetting) : SettingComponent<StringSetting>(gui, setting) {
@@ -42,7 +44,7 @@ class StringComponent(gui: ClickGuiScreen, setting: StringSetting) : SettingComp
 
     override fun mouseClicked(mouseX: Float, mouseY: Float, button: Int): Boolean {
         val inside = rowHovered(mouseX, mouseY)
-        if (button == 0 && inside) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT && inside) {
             focused = true
             cursor = setting.value.length
             blinkTimer = 0f
@@ -60,22 +62,22 @@ class StringComponent(gui: ClickGuiScreen, setting: StringSetting) : SettingComp
         }
         blinkTimer = 0f
         when (key) {
-            86 -> if (modifiers and 2 != 0) {
+            InputConstants.KEY_V -> if (modifiers and InputConstants.MOD_CONTROL != 0) {
                 val clipboard = Minecraft.getInstance().keyboardHandler.clipboard
                 insert(clipboard)
             }
-            256, 257, 335 -> focused = false
-            259 -> if (cursor > 0) {
+            InputConstants.KEY_ESCAPE, InputConstants.KEY_RETURN, InputCompat.KEY_KP_ENTER -> focused = false
+            InputConstants.KEY_BACKSPACE -> if (cursor > 0) {
                 setting.value = setting.value.removeRange(cursor - 1, cursor)
                 cursor--
             }
-            261 -> if (cursor < setting.value.length) {
+            InputConstants.KEY_DELETE -> if (cursor < setting.value.length) {
                 setting.value = setting.value.removeRange(cursor, cursor + 1)
             }
-            262 -> cursor = (cursor + 1).coerceAtMost(setting.value.length)
-            263 -> cursor = (cursor - 1).coerceAtLeast(0)
-            268 -> cursor = 0
-            269 -> cursor = setting.value.length
+            InputConstants.KEY_RIGHT -> cursor = (cursor + 1).coerceAtMost(setting.value.length)
+            InputConstants.KEY_LEFT -> cursor = (cursor - 1).coerceAtLeast(0)
+            InputConstants.KEY_HOME -> cursor = 0
+            InputConstants.KEY_END -> cursor = setting.value.length
         }
         return true
     }

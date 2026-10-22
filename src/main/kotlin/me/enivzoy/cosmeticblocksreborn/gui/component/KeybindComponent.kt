@@ -1,5 +1,6 @@
 package me.enivzoy.cosmeticblocksreborn.gui.component
 
+import com.mojang.blaze3d.platform.InputConstants
 import me.enivzoy.cosmeticblocksreborn.gui.ClickGuiScreen
 import me.enivzoy.cosmeticblocksreborn.render.CascadeUi
 import me.enivzoy.cosmeticblocksreborn.setting.KeybindSetting
@@ -33,7 +34,7 @@ class KeybindComponent(gui: ClickGuiScreen, setting: KeybindSetting) : SettingCo
         if (listening) {
             listening = false
             return rowHovered(mouseX, mouseY)
-        } else if (button == 0 && rowHovered(mouseX, mouseY)) {
+        } else if (button == InputConstants.MOUSE_BUTTON_LEFT && rowHovered(mouseX, mouseY)) {
             listening = true
             return true
         }
@@ -45,7 +46,7 @@ class KeybindComponent(gui: ClickGuiScreen, setting: KeybindSetting) : SettingCo
             return false
         }
         when (key) {
-            256, 261 -> setting.clear()
+            InputConstants.KEY_ESCAPE, InputConstants.KEY_DELETE -> setting.clear()
             else -> setting.value = key
         }
         listening = false

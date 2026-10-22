@@ -1,5 +1,6 @@
 package me.enivzoy.cosmeticblocksreborn.gui
 
+import com.mojang.blaze3d.platform.InputConstants
 import me.enivzoy.cosmeticblocksreborn.config.Config
 import me.enivzoy.cosmeticblocksreborn.config.SettingsTab
 import me.enivzoy.cosmeticblocksreborn.config.Tabs
@@ -167,7 +168,7 @@ class ClickGuiScreen : Screen(Component.literal("Cosmetic Blocks")), NvgScreen {
          }
       }
 
-      if (event.key() == 256) {
+      if (event.key() == InputConstants.KEY_ESCAPE) {
          onClose()
          return true
       }

@@ -1,6 +1,7 @@
 ﻿package me.enivzoy.cosmeticblocksreborn.cosmetic
 
 import me.enivzoy.cosmeticblocksreborn.config.tabs.CosmeticBlocksTab
+import me.enivzoy.cosmeticblocksreborn.util.InputCompat
 import me.enivzoy.cosmeticblocksreborn.utils.ChatUtil
 import java.util.Collections
 import net.minecraft.client.Minecraft
@@ -12,7 +13,7 @@ import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
 import org.joml.Matrix4f
-import org.lwjgl.glfw.GLFW
+import com.mojang.blaze3d.platform.InputConstants
 
 object Ruler {
    private var activeState = false
@@ -55,13 +56,8 @@ object Ruler {
          return
       }
 
-      val window = Minecraft.getInstance().window.handle()
-      if (window == 0L) {
-         return
-      }
-
       if (mc().gui.screen() == null && rulerKeybind() != -1) {
-         val pressed = GLFW.glfwGetKey(window, rulerKeybind()) == 1
+         val pressed = InputCompat.isKeyDown(rulerKeybind())
          if (pressed && !rulerKeyWasPressed) {
             activeState = !activeState
             if (!activeState) {
@@ -91,8 +87,8 @@ object Ruler {
          }
       }
 
-      val leftPressed = GLFW.glfwGetMouseButton(window, 0) == 1
-      val rightPressed = GLFW.glfwGetMouseButton(window, 1) == 1
+      val leftPressed = mc().mouseHandler.isLeftPressed()
+      val rightPressed = mc().mouseHandler.isRightPressed()
 
       if (rightPressed && !rightWasPressed) {
          if (start == null) {

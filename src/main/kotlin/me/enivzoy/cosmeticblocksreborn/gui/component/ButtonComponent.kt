@@ -1,5 +1,6 @@
 package me.enivzoy.cosmeticblocksreborn.gui.component
 
+import com.mojang.blaze3d.platform.InputConstants
 import me.enivzoy.cosmeticblocksreborn.gui.ClickGuiScreen
 import me.enivzoy.cosmeticblocksreborn.render.CascadeUi
 import me.enivzoy.cosmeticblocksreborn.setting.ButtonSetting
@@ -33,7 +34,7 @@ class ButtonComponent(gui: ClickGuiScreen, setting: ButtonSetting) : SettingComp
         mouseX >= pillX && mouseX <= pillX + pillW && mouseY >= pillY && mouseY <= pillY + pillH
 
     override fun mouseClicked(mouseX: Float, mouseY: Float, button: Int): Boolean {
-        if (button == 0 && isPillHovered(mouseX, mouseY)) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT && isPillHovered(mouseX, mouseY)) {
             setting.onClick.invoke()
             return true
         }

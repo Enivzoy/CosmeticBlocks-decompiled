@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
-import org.lwjgl.glfw.GLFW
 
 object WorldEditMode {
    private var worldEditModeState = false
@@ -801,9 +800,8 @@ object WorldEditMode {
          return
       }
 
-      val window = mc.window.handle()
-      val leftPressed = GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_LEFT) == 1
-      val rightPressed = GLFW.glfwGetMouseButton(window, GLFW.GLFW_MOUSE_BUTTON_RIGHT) == 1
+      val leftPressed = mc.mouseHandler.isLeftPressed()
+      val rightPressed = mc.mouseHandler.isRightPressed()
 
       if (leftPressed && !weLeftWasPressed && mc.hitResult.let { it is BlockHitResult && it.type == HitResult.Type.BLOCK }) {
          val pos = (mc.hitResult as BlockHitResult).blockPos

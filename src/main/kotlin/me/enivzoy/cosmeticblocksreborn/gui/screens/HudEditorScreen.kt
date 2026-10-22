@@ -1,5 +1,6 @@
 package me.enivzoy.cosmeticblocksreborn.gui.screens
 
+import com.mojang.blaze3d.platform.InputConstants
 import me.enivzoy.cosmeticblocksreborn.gui.NvgScreen
 import me.enivzoy.cosmeticblocksreborn.gui.hud.HudElement
 import me.enivzoy.cosmeticblocksreborn.gui.hud.HudManager
@@ -108,7 +109,7 @@ class HudEditorScreen : Screen(Component.literal("HUD Editor")), NvgScreen {
    }
 
    override fun mouseClicked(event: MouseButtonEvent, doubled: Boolean): Boolean {
-      if (event.button() != 0) {
+      if (event.button() != InputConstants.MOUSE_BUTTON_LEFT) {
          return false
       }
 
@@ -140,7 +141,7 @@ class HudEditorScreen : Screen(Component.literal("HUD Editor")), NvgScreen {
    }
 
    override fun mouseReleased(event: MouseButtonEvent): Boolean {
-      if (event.button() == 0) {
+      if (event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
          val element = draggingElement
          if (element != null) {
             element.stopDrag()
@@ -155,7 +156,7 @@ class HudEditorScreen : Screen(Component.literal("HUD Editor")), NvgScreen {
    }
 
    override fun keyPressed(event: KeyEvent): Boolean {
-      return if (event.key() == 256) {
+      return if (event.key() == InputConstants.KEY_ESCAPE) {
          onClose()
          true
       } else {

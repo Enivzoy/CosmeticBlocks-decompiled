@@ -3,6 +3,7 @@ package me.enivzoy.cosmeticblocksreborn.gui.screens
 import me.enivzoy.cosmeticblocksreborn.gui.NvgScreen
 import me.enivzoy.cosmeticblocksreborn.render.CascadeUi
 import me.enivzoy.cosmeticblocksreborn.render.Theme
+import me.enivzoy.cosmeticblocksreborn.util.InputCompat
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.Screen
@@ -10,7 +11,7 @@ import net.minecraft.client.input.CharacterEvent
 import net.minecraft.client.input.KeyEvent
 import net.minecraft.client.input.MouseButtonEvent
 import net.minecraft.network.chat.Component
-import org.lwjgl.glfw.GLFW
+import com.mojang.blaze3d.platform.InputConstants
 
 class CliScreen : Screen(Component.literal("CB Command Line")), NvgScreen {
    private var uiScale: Float = 1f
@@ -165,9 +166,9 @@ class CliScreen : Screen(Component.literal("CB Command Line")), NvgScreen {
 
    override fun keyPressed(event: KeyEvent): Boolean {
       when (event.key()) {
-         86 -> {
-            if ((event.modifiers() and 2) != 0) {
-               val clip = GLFW.glfwGetClipboardString(Minecraft.getInstance().window.handle())
+         InputConstants.KEY_V -> {
+            if ((event.modifiers() and InputConstants.MOD_CONTROL) != 0) {
+               val clip = Minecraft.getInstance().keyboardHandler.getClipboard()
                if (clip != null) {
                   val before = input.substring(0, caret)
                   val after = input.substring(caret)
@@ -181,21 +182,21 @@ class CliScreen : Screen(Component.literal("CB Command Line")), NvgScreen {
             return super.keyPressed(event)
          }
 
-         256 -> {
-            onClose()
-            return true
-         }
+          InputConstants.KEY_ESCAPE -> {
+             onClose()
+             return true
+          }
 
-         257, 335 -> {
-            val cmd = input.trim()
-            if (cmd.isNotEmpty()) {
-               executeAndRecord(cmd)
-            }
+          InputConstants.KEY_RETURN, InputCompat.KEY_KP_ENTER -> {
+             val cmd = input.trim()
+             if (cmd.isNotEmpty()) {
+                executeAndRecord(cmd)
+             }
 
-            return true
-         }
+             return true
+          }
 
-         258 -> {
+          InputConstants.KEY_TAB -> {
             if (suggestions.isNotEmpty()) {
                applySuggestion(suggestions[suggestionIdx.coerceIn(0, suggestions.size - 1)])
             }
@@ -203,59 +204,59 @@ class CliScreen : Screen(Component.literal("CB Command Line")), NvgScreen {
             return true
          }
 
-         259 -> {
-            if (caret > 0 && input.isNotEmpty()) {
-               input = input.removeRange(caret - 1, caret).toString()
-               caret -= 1
-               onInputChanged()
-            }
+          InputConstants.KEY_BACKSPACE -> {
+             if (caret > 0 && input.isNotEmpty()) {
+                input = input.removeRange(caret - 1, caret).toString()
+                caret -= 1
+                onInputChanged()
+             }
 
-            return true
-         }
+             return true
+          }
 
-         261 -> {
-            if (caret < input.length) {
-               input = input.removeRange(caret, caret + 1).toString()
-               onInputChanged()
-            }
+          InputConstants.KEY_DELETE -> {
+             if (caret < input.length) {
+                input = input.removeRange(caret, caret + 1).toString()
+                onInputChanged()
+             }
 
-            return true
-         }
+             return true
+          }
 
-         262 -> {
-            caret = (caret + 1).coerceAtMost(input.length)
-            return true
-         }
+          InputConstants.KEY_RIGHT -> {
+             caret = (caret + 1).coerceAtMost(input.length)
+             return true
+          }
 
-         263 -> {
-            caret = (caret - 1).coerceAtLeast(0)
-            return true
-         }
+          InputConstants.KEY_LEFT -> {
+             caret = (caret - 1).coerceAtLeast(0)
+             return true
+          }
 
-         264 -> {
-            if (suggestions.isNotEmpty()) {
-               suggestionIdx = (suggestionIdx + 1).coerceAtMost(suggestions.size - 1)
-            }
+          InputConstants.KEY_DOWN -> {
+             if (suggestions.isNotEmpty()) {
+                suggestionIdx = (suggestionIdx + 1).coerceAtMost(suggestions.size - 1)
+             }
 
-            return true
-         }
+             return true
+          }
 
-         265 -> {
-            if (suggestions.isNotEmpty() && suggestionIdx > 0) {
-               suggestionIdx--
-            } else {
-               cycleHistory()
-            }
+          InputConstants.KEY_UP -> {
+             if (suggestions.isNotEmpty() && suggestionIdx > 0) {
+                suggestionIdx--
+             } else {
+                cycleHistory()
+             }
 
-            return true
-         }
+             return true
+          }
 
-         268 -> {
-            caret = 0
-            return true
-         }
+          InputConstants.KEY_HOME -> {
+             caret = 0
+             return true
+          }
 
-         269 -> {
+          InputConstants.KEY_END -> {
             caret = input.length
             return true
          }

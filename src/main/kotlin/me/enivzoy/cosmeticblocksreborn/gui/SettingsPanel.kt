@@ -1,5 +1,6 @@
 package me.enivzoy.cosmeticblocksreborn.gui
 
+import com.mojang.blaze3d.platform.InputConstants
 import me.enivzoy.cosmeticblocksreborn.config.Config
 import me.enivzoy.cosmeticblocksreborn.config.SettingsTab
 import me.enivzoy.cosmeticblocksreborn.gui.component.SettingComponent
@@ -180,7 +181,7 @@ class SettingsPanel(
    fun mouseClicked(mouseX: Float, mouseY: Float, button: Int): Boolean {
       if (headerHovered(mouseX, mouseY)) {
          when (button) {
-            0 -> {
+            InputConstants.MOUSE_BUTTON_LEFT -> {
                dragging = true
                dragOffsetX = mouseX - x
                dragOffsetY = mouseY - y
@@ -188,7 +189,7 @@ class SettingsPanel(
                prevX = x
             }
 
-            1 -> collapsed = !collapsed
+            InputConstants.MOUSE_BUTTON_RIGHT -> collapsed = !collapsed
          }
 
          return true
@@ -208,7 +209,7 @@ class SettingsPanel(
    }
 
    fun mouseReleased(button: Int) {
-      if (button == 0) {
+      if (button == InputConstants.MOUSE_BUTTON_LEFT) {
          dragging = false
       }
 

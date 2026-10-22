@@ -1,5 +1,6 @@
 package me.enivzoy.cosmeticblocksreborn.gui.component
 
+import com.mojang.blaze3d.platform.InputConstants
 import me.enivzoy.cosmeticblocksreborn.gui.ClickGuiScreen
 import me.enivzoy.cosmeticblocksreborn.render.Anim
 import me.enivzoy.cosmeticblocksreborn.render.CascadeUi
@@ -54,7 +55,7 @@ class ModeComponent(gui: ClickGuiScreen, setting: ModeSetting<*>) : SettingCompo
     }
 
     override fun mouseClicked(mouseX: Float, mouseY: Float, button: Int): Boolean {
-        if (button != 0) {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
             return false
         }
         if (rowHovered(mouseX, mouseY)) {

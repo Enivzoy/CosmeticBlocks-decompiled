@@ -1,5 +1,6 @@
 package me.enivzoy.cosmeticblocksreborn.gui.component
 
+import com.mojang.blaze3d.platform.InputConstants
 import me.enivzoy.cosmeticblocksreborn.gui.ClickGuiScreen
 import me.enivzoy.cosmeticblocksreborn.render.Anim
 import me.enivzoy.cosmeticblocksreborn.render.CascadeUi
@@ -33,7 +34,7 @@ class SliderComponent(gui: ClickGuiScreen, setting: NumberSetting) : SettingComp
     }
 
     override fun mouseClicked(mouseX: Float, mouseY: Float, button: Int): Boolean {
-        if (button != 0) {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
             return false
         } else if (contains(mouseX, mouseY)) {
             dragging = true
@@ -50,7 +51,7 @@ class SliderComponent(gui: ClickGuiScreen, setting: NumberSetting) : SettingComp
     }
 
     override fun mouseReleased(button: Int) {
-        if (button == 0) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT) {
             dragging = false
         }
     }

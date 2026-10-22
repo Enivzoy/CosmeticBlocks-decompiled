@@ -1,10 +1,12 @@
 package me.enivzoy.cosmeticblocksreborn.gui.screens
 
+import com.mojang.blaze3d.platform.InputConstants
 import me.enivzoy.cosmeticblocksreborn.gui.ClickGuiScreen
 import me.enivzoy.cosmeticblocksreborn.gui.NvgScreen
 import me.enivzoy.cosmeticblocksreborn.gui.ProfileManager
 import me.enivzoy.cosmeticblocksreborn.render.Anim
 import me.enivzoy.cosmeticblocksreborn.render.CascadeUi
+import me.enivzoy.cosmeticblocksreborn.util.InputCompat
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.Screen
@@ -194,7 +196,7 @@ class ProfileScreen : Screen(Component.literal("Profiles")), NvgScreen {
    private fun toUi(scaled: Double): Float = (scaled * Minecraft.getInstance().window.guiScale / uiScale).toFloat()
 
    override fun mouseClicked(event: MouseButtonEvent, doubled: Boolean): Boolean {
-      if (event.button() != 0) {
+      if (event.button() != InputConstants.MOUSE_BUTTON_LEFT) {
          return false
       }
 
@@ -288,17 +290,17 @@ class ProfileScreen : Screen(Component.literal("Profiles")), NvgScreen {
       val key = event.key()
       if (nameFocused) {
          when (key) {
-            256 -> {
+            InputConstants.KEY_ESCAPE -> {
                nameFocused = false
                return true
             }
 
-            257, 335 -> {
+            InputConstants.KEY_RETURN, InputCompat.KEY_KP_ENTER -> {
                doSave()
                return true
             }
 
-            259 -> {
+            InputConstants.KEY_BACKSPACE -> {
                if (nameInput.isNotEmpty()) {
                   nameInput = nameInput.dropLast(1)
                }
@@ -308,7 +310,7 @@ class ProfileScreen : Screen(Component.literal("Profiles")), NvgScreen {
          }
       }
 
-      return if (key == 256) {
+      return if (key == InputConstants.KEY_ESCAPE) {
          onClose()
          true
       } else {

@@ -12,7 +12,6 @@ import net.minecraft.world.level.block.state.properties.Property
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
-import org.lwjgl.glfw.GLFW
 
 object EditMode {
    private var editModeState = false
@@ -271,10 +270,9 @@ object EditMode {
          return
       }
 
-      val window = mc.window.handle()
-      val leftPressed = GLFW.glfwGetMouseButton(window, 0) == 1
-      val rightPressed = GLFW.glfwGetMouseButton(window, 1) == 1
-      val middlePressed = GLFW.glfwGetMouseButton(window, 2) == 1
+      val leftPressed = mc.mouseHandler.isLeftPressed()
+      val rightPressed = mc.mouseHandler.isRightPressed()
+      val middlePressed = mc.mouseHandler.isMiddlePressed()
 
       if (rightPressed && !rightWasPressed) {
          val hitResult = this.mc.hitResult

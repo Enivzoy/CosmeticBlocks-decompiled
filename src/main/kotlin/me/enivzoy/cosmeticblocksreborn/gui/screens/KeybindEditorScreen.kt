@@ -1,5 +1,6 @@
 package me.enivzoy.cosmeticblocksreborn.gui.screens
 
+import com.mojang.blaze3d.platform.InputConstants
 import java.util.HashMap
 import java.util.Locale
 import me.enivzoy.cosmeticblocksreborn.config.Config
@@ -166,7 +167,7 @@ class KeybindEditorScreen : Screen(Component.literal("Keybinds")), NvgScreen {
    private fun toUi(scaled: Double): Float = (scaled * Minecraft.getInstance().window.guiScale / uiScale).toFloat()
 
    override fun mouseClicked(event: MouseButtonEvent, doubled: Boolean): Boolean {
-      if (event.button() != 0) {
+      if (event.button() != InputConstants.MOUSE_BUTTON_LEFT) {
          return false
       }
 
@@ -219,7 +220,7 @@ class KeybindEditorScreen : Screen(Component.literal("Keybinds")), NvgScreen {
       val target = capturing
       if (target != null) {
          when (key) {
-            256, 259, 261 -> target.clear()
+            InputConstants.KEY_ESCAPE, InputConstants.KEY_BACKSPACE, InputConstants.KEY_DELETE -> target.clear()
             else -> target.value = key
          }
 
@@ -229,12 +230,12 @@ class KeybindEditorScreen : Screen(Component.literal("Keybinds")), NvgScreen {
       } else {
          if (searchFocused) {
             when (key) {
-               256 -> {
+               InputConstants.KEY_ESCAPE -> {
                   searchFocused = false
                   return true
                }
 
-               259 -> {
+               InputConstants.KEY_BACKSPACE -> {
                   if (search.isNotEmpty()) {
                      search = search.dropLast(1)
                   }
@@ -244,7 +245,7 @@ class KeybindEditorScreen : Screen(Component.literal("Keybinds")), NvgScreen {
             }
          }
 
-         return if (key == 256) {
+         return if (key == InputConstants.KEY_ESCAPE) {
             onClose()
             true
          } else {

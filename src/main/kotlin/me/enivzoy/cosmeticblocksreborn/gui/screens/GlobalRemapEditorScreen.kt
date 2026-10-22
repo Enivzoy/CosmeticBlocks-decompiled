@@ -1,5 +1,6 @@
 package me.enivzoy.cosmeticblocksreborn.gui.screens
 
+import com.mojang.blaze3d.platform.InputConstants
 import java.util.ArrayList
 import java.util.Locale
 import me.enivzoy.cosmeticblocksreborn.cosmetic.GlobalRemap
@@ -7,6 +8,7 @@ import me.enivzoy.cosmeticblocksreborn.cosmetic.RemapStore
 import me.enivzoy.cosmeticblocksreborn.gui.NvgScreen
 import me.enivzoy.cosmeticblocksreborn.render.CascadeUi
 import me.enivzoy.cosmeticblocksreborn.render.Theme
+import me.enivzoy.cosmeticblocksreborn.util.InputCompat
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.Screen
@@ -325,7 +327,7 @@ class GlobalRemapEditorScreen(
    override fun mouseClicked(event: MouseButtonEvent, doubled: Boolean): Boolean {
       val mx = toUi(event.x())
       val my = toUi(event.y())
-      if (event.button() != 0) {
+      if (event.button() != InputConstants.MOUSE_BUTTON_LEFT) {
          return true
       }
 
@@ -372,42 +374,42 @@ class GlobalRemapEditorScreen(
 
    override fun keyPressed(event: KeyEvent): Boolean {
       if (view == View.PICK) {
-         when (event.key()) {
-            256 -> {
-               view = View.LIST
-               return true
-            }
+          when (event.key()) {
+             InputConstants.KEY_ESCAPE -> {
+                view = View.LIST
+                return true
+             }
 
-            257, 335 -> {
-               if (filtered.isNotEmpty()) {
-                  commitPick(filtered[highlightIdx.coerceIn(0, filtered.size - 1)])
-               }
+             InputConstants.KEY_RETURN, InputCompat.KEY_KP_ENTER -> {
+                if (filtered.isNotEmpty()) {
+                   commitPick(filtered[highlightIdx.coerceIn(0, filtered.size - 1)])
+                }
 
-               return true
-            }
+                return true
+             }
 
-            259 -> {
-               if (search.isNotEmpty()) {
-                  search = search.dropLast(1)
-                  applyFilter(false)
-               }
+             InputConstants.KEY_BACKSPACE -> {
+                if (search.isNotEmpty()) {
+                   search = search.dropLast(1)
+                   applyFilter(false)
+                }
 
-               return true
-            }
+                return true
+             }
 
-            264 -> {
-               highlightIdx = (highlightIdx + 1).coerceAtMost((filtered.size - 1).coerceAtLeast(0))
-               return true
-            }
+             InputConstants.KEY_DOWN -> {
+                highlightIdx = (highlightIdx + 1).coerceAtMost((filtered.size - 1).coerceAtLeast(0))
+                return true
+             }
 
-            265 -> {
-               highlightIdx = (highlightIdx - 1).coerceAtLeast(0)
-               return true
-            }
+             InputConstants.KEY_UP -> {
+                highlightIdx = (highlightIdx - 1).coerceAtLeast(0)
+                return true
+             }
 
-            else -> return super.keyPressed(event)
-         }
-      } else if (event.key() == 256) {
+             else -> return super.keyPressed(event)
+          }
+       } else if (event.key() == InputConstants.KEY_ESCAPE) {
          onClose()
          return true
       } else {

@@ -1,5 +1,6 @@
 package me.enivzoy.cosmeticblocksreborn.gui.screens
 
+import com.mojang.blaze3d.platform.InputConstants
 import me.enivzoy.cosmeticblocksreborn.cosmetic.CosmeticBlocks
 import me.enivzoy.cosmeticblocksreborn.gui.NvgScreen
 import me.enivzoy.cosmeticblocksreborn.render.CascadeUi
@@ -142,7 +143,7 @@ class HistoryScreen : Screen(Component.literal("Edit History")), NvgScreen {
    override fun isPauseScreen(): Boolean = false
 
    override fun mouseClicked(event: MouseButtonEvent, doubled: Boolean): Boolean {
-      if (event.button() != 0) {
+      if (event.button() != InputConstants.MOUSE_BUTTON_LEFT) {
          return false
       }
 
@@ -189,17 +190,17 @@ class HistoryScreen : Screen(Component.literal("Edit History")), NvgScreen {
    }
 
    override fun keyPressed(event: KeyEvent): Boolean {
-      if (event.key() == 256) {
+      if (event.key() == InputConstants.KEY_ESCAPE) {
          onClose()
          return true
       }
 
-      if (event.key() == 90 && (event.modifiers() and 2) != 0) {
+      if (event.key() == InputConstants.KEY_Z && (event.modifiers() and InputConstants.MOD_CONTROL) != 0) {
          status = CosmeticBlocks.INSTANCE.undoLastOperation()
          return true
       }
 
-      if (event.key() == 89 && (event.modifiers() and 2) != 0) {
+      if (event.key() == InputConstants.KEY_Y && (event.modifiers() and InputConstants.MOD_CONTROL) != 0) {
          status = CosmeticBlocks.INSTANCE.redoLastOperation()
          return true
       }

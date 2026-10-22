@@ -1,5 +1,6 @@
 package me.enivzoy.cosmeticblocksreborn.gui.component
 
+import com.mojang.blaze3d.platform.InputConstants
 import java.awt.Color
 import me.enivzoy.cosmeticblocksreborn.gui.ClickGuiScreen
 import me.enivzoy.cosmeticblocksreborn.render.Anim
@@ -98,7 +99,7 @@ class ColorComponent(gui: ClickGuiScreen, setting: ColorSetting) : SettingCompon
     }
 
     override fun mouseClicked(mouseX: Float, mouseY: Float, button: Int): Boolean {
-        if (button != 0) {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
             return false
         }
         if (rowHovered(mouseX, mouseY)) {
@@ -130,7 +131,7 @@ class ColorComponent(gui: ClickGuiScreen, setting: ColorSetting) : SettingCompon
     }
 
     override fun mouseReleased(button: Int) {
-        if (button == 0) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT) {
             drag = Drag.NONE
         }
     }

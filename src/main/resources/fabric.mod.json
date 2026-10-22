@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "cb",
-  "version": "1.0.0-reconstructed+mc26.2",
+  "version": "${version}",
   "name": "CosmeticBlocks-Reborn",
   "description": "A reimagined take on CosmeticBlocks - client-side cosmetic block replacement for dungeons, based on the original work of FunnyMapsExtras.",
   "authors": [
@@ -32,7 +32,7 @@
   ],
   "depends": {
     "fabricloader": ">=0.19.5",
-    "minecraft": "~26.2",
+    "minecraft": "~${minecraft}",
     "java": ">=25",
     "fabric-api": "*",
     "fabric-language-kotlin": "*"

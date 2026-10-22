@@ -13,13 +13,14 @@ import me.enivzoy.cosmeticblocksreborn.gui.screens.CliEngine
 import me.enivzoy.cosmeticblocksreborn.gui.screens.CliScreen
 import me.enivzoy.cosmeticblocksreborn.gui.screens.RadialBlockScreen
 import me.enivzoy.cosmeticblocksreborn.render.BlockIconStore
+import me.enivzoy.cosmeticblocksreborn.util.InputCompat
 import me.enivzoy.cosmeticblocksreborn.utils.Scheduler
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.screens.Screen
-import org.lwjgl.glfw.GLFW
+import com.mojang.blaze3d.platform.InputConstants
 import java.io.File
 
 object CbClient : ClientModInitializer {
@@ -47,8 +48,7 @@ object CbClient : ClientModInitializer {
       if (key == -1) {
          return
       }
-      val window = Minecraft.getInstance().window.handle()
-      val down = GLFW.glfwGetKey(window, key) == 1
+      val down = InputCompat.isKeyDown(key)
       if (down && keyWasDown[key] != true) {
          client.gui.setScreen(screen())
       }

@@ -1,5 +1,6 @@
 package me.enivzoy.cosmeticblocksreborn.gui.screens
 
+import com.mojang.blaze3d.platform.InputConstants
 import me.enivzoy.cosmeticblocksreborn.cosmetic.CosmeticBlocks
 import me.enivzoy.cosmeticblocksreborn.gui.NvgScreen
 import me.enivzoy.cosmeticblocksreborn.render.BlockIconRenderer
@@ -181,8 +182,8 @@ class RadialBlockScreen : Screen(Component.literal("Block Wheel")), NvgScreen {
    override fun isPauseScreen(): Boolean = false
 
    override fun mouseClicked(event: MouseButtonEvent, doubled: Boolean): Boolean {
-      when (event.button()) {
-         0 -> {
+       when (event.button()) {
+          InputConstants.MOUSE_BUTTON_LEFT -> {
             val count = favs.size
             val hovered = hoveredIdx
             if (hovered >= 0 && hovered < count) {
@@ -193,17 +194,17 @@ class RadialBlockScreen : Screen(Component.literal("Block Wheel")), NvgScreen {
             return true
          }
 
-         1 -> {
-            onClose()
-            return true
-         }
+          InputConstants.MOUSE_BUTTON_RIGHT -> {
+             onClose()
+             return true
+          }
 
          else -> return true
       }
    }
 
    override fun mouseReleased(event: MouseButtonEvent): Boolean {
-      if (event.button() == 0) {
+      if (event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
          val count = favs.size
          val hovered = hoveredIdx
          if (hovered >= 0 && hovered < count) {
@@ -216,7 +217,7 @@ class RadialBlockScreen : Screen(Component.literal("Block Wheel")), NvgScreen {
    }
 
    override fun keyPressed(event: KeyEvent): Boolean =
-      if (event.key() == 256) {
+      if (event.key() == InputConstants.KEY_ESCAPE) {
          onClose()
          true
       } else {
