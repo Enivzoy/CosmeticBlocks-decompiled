@@ -1,5 +1,6 @@
 package me.enivzoy.cosmeticblocksreborn.config.tabs
 
+import com.mojang.blaze3d.platform.InputConstants
 import me.enivzoy.cosmeticblocksreborn.config.SettingsTab
 import me.enivzoy.cosmeticblocksreborn.setting.BooleanSetting
 import me.enivzoy.cosmeticblocksreborn.setting.ColorSetting
@@ -21,6 +22,8 @@ class CosmeticBlocksTab private constructor() : SettingsTab("Cosmetic Blocks") {
    val blockSelectorKeybind: KeybindSetting
    val blockWheelKeybind: KeybindSetting
    val rulerKeybind: KeybindSetting
+   val peekKeybind: KeybindSetting
+   val inspectKeybind: KeybindSetting
    val showReplacedBlocks: BooleanSetting
    val overlayColor: ColorSetting
    val overlayRange: NumberSetting
@@ -41,6 +44,10 @@ class CosmeticBlocksTab private constructor() : SettingsTab("Cosmetic Blocks") {
       this.blockSelectorKeybind = this.keybind("Block Selector Keybind", "Opens the block selector.", -1)
       this.blockWheelKeybind = this.keybind("Block Wheel Keybind", "Opens the radial favourites wheel.", -1)
       this.rulerKeybind = this.keybind("Ruler Keybind", "Toggles the ruler tool.", -1)
+      this.peekKeybind = this.keybind("Peek Keybind", "Hold to temporarily show the original blocks.", InputConstants.KEY_LALT)
+      this.inspectKeybind = this.keybind(
+         "Inspect Keybind", "Reports why the block under your crosshair is or is not replaced.", InputConstants.KEY_RALT
+      )
       this.showReplacedBlocks = this.bool(
          "Show Replaced Blocks", "Renders a wireframe over replaced blocks.", false
       ).visibleWhen { this.enabled.value }

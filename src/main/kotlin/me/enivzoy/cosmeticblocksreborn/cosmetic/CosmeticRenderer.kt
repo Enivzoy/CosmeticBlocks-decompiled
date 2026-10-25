@@ -42,7 +42,9 @@ object CosmeticRenderer {
             }
          }
 
-         if (p1 != null && p2 != null && CosmeticBlocksTab.INSTANCE.showReplacedBlocks.value && ReplacementCache.activeCache.isNotEmpty()) {
+         if (p1 != null && p2 != null && CosmeticBlocksTab.INSTANCE.showReplacedBlocks.value &&
+            !PeekController.isPeeking && ReplacementCache.activeCache.isNotEmpty()
+         ) {
             val selMinX = minOf(p1.x, p2.x)
             val selMinY = minOf(p1.y, p2.y)
             val selMinZ = minOf(p1.z, p2.z)

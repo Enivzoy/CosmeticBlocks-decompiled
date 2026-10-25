@@ -128,6 +128,10 @@ object RoomStore {
       tmpFile.renameTo(roomBlocksFile)
    }
 
+   internal fun reapplyCurrentRoom() {
+      this.onRoomChanged(RoomScanner.currentRoom)
+   }
+
    internal fun onRoomChanged(newRoom: ScannedRoom?) {
       val dirtySections = HashSet<Long>()
 

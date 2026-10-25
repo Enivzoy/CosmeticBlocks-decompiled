@@ -175,6 +175,7 @@ class ReplacementIO private constructor() {
       }
 
       ReplacementCache.rebuildActiveCache()
+      RoomStore.reapplyCurrentRoom()
       WorldEditMode.resetHistory()
       if (loaded != null && loaded.isLegacy) {
          val totalMs = (System.nanoTime() - loadStartNanos) / 1_000_000L
@@ -262,6 +263,7 @@ class ReplacementIO private constructor() {
          ReplacementCache.rebuildActiveCache()
       }
 
+      RoomStore.reapplyCurrentRoom()
       DirtySections.markAllCachedDirty()
       DungeonConfigTab.syncFloorFromStore()
       WorldEditMode.resetHistory()

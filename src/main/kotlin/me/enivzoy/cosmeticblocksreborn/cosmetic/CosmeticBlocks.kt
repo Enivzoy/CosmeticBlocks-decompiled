@@ -26,7 +26,6 @@ import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
 import org.joml.Matrix4f
-import com.mojang.blaze3d.platform.InputConstants
 
 class CosmeticBlocks private constructor() {
    private val mc: Minecraft
@@ -248,7 +247,9 @@ class CosmeticBlocks private constructor() {
    fun getReplacementCount(): Int = ReplacementStore.getReplacementCount()
 
    fun save() {
+      RoomStore.forceRoomSave()
       ReplacementIO.INSTANCE.save()
+      SaveScheduler.flushAll()
    }
 
    fun load() {
@@ -301,6 +302,10 @@ class CosmeticBlocks private constructor() {
 
       @JvmStatic
       fun getReplacementOrRemap(original: BlockState?, x: Int, y: Int, z: Int, originalAir: Boolean): BlockState? {
+         if (PeekController.isPeeking) {
+            return null
+         }
+
          val perPos = ReplacementCache.getReplacementAt(x, y, z, originalAir)
          if (perPos != null) {
             return perPos
@@ -314,15 +319,24 @@ class CosmeticBlocks private constructor() {
       }
 
       @JvmStatic
-      fun remapFor(block: Block, x: Int, y: Int, z: Int): BlockState? =
-         if (LocationTracker.inDungeon && ConfigRemap.INSTANCE.isActiveForActiveConfig()) {
+      fun remapFor(block: Block, x: Int, y: Int, z: Int): BlockState? {
+         if (PeekController.isPeeking) {
+            return null
+         }
+
+         return if (LocationTracker.inDungeon && ConfigRemap.INSTANCE.isActiveForActiveConfig()) {
             ConfigRemap.INSTANCE.remapFor(block, x, y, z)
          } else {
             GlobalRemap.remapFor(block, x, y, z)
          }
+      }
 
       @JvmStatic
       fun getEffectReplacement(pos: BlockPos, original: BlockState): BlockState? {
+         if (PeekController.isPeeking) {
+            return null
+         }
+
          val perPos = ReplacementCache.getReplacement(pos)
          if (perPos != null) {
             return perPos
@@ -337,6 +351,10 @@ class CosmeticBlocks private constructor() {
 
       @JvmStatic
       fun swapFluid(original: BlockState): BlockState? {
+         if (PeekController.isPeeking) {
+            return null
+         }
+
          if (!WaterConfig.INSTANCE.lavaAsWater()) {
             return null
          }
@@ -375,6 +393,7 @@ class CosmeticBlocks private constructor() {
       private var editModeKeyWasPressed = false
       private var placeModeKeyWasPressed = false
       private var worldEditKeyWasPressed = false
+      private var inspectKeyWasPressed = false
       private var lastDimension: String? = null
       private var lastEnabledState = false
       private var lastOnlyInDungeonsState = false
@@ -449,6 +468,21 @@ class CosmeticBlocks private constructor() {
          val hit = INSTANCE.mc.hitResult
          if (hit is BlockHitResult && hit.type == HitResult.Type.BLOCK) {
             lastLookBlockPos = hit.blockPos
+         }
+
+         val screenOpen = INSTANCE.mc.gui.screen() != null
+         val peekKey = CosmeticBlocksTab.INSTANCE.peekKeybind.value
+         PeekController.setPeeking(!screenOpen && peekKey != -1 && InputCompat.isKeyDown(peekKey))
+
+         if (!screenOpen && CosmeticBlocksTab.INSTANCE.inspectKeybind.value != -1) {
+            val pressed = InputCompat.isKeyDown(CosmeticBlocksTab.INSTANCE.inspectKeybind.value)
+            if (pressed && !inspectKeyWasPressed) {
+               ReplacementInspector.inspect()
+            }
+
+            inspectKeyWasPressed = pressed
+         } else {
+            inspectKeyWasPressed = false
          }
 
          if (INSTANCE.mc.gui.screen() == null

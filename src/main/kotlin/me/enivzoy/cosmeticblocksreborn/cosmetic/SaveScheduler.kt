@@ -44,8 +44,16 @@ object SaveScheduler {
    }
 
    fun flushAll() {
-      this.flushSave()
-      this.awaitPendingSaves()
+      var passes = 0
+      while (passes < 4) {
+         this.flushSave()
+         this.awaitPendingSaves()
+         if ((!this.needsSave && !this.needsRoomSave) || ReplacementIO.INSTANCE.loading) {
+            return
+         }
+
+         passes++
+      }
    }
 
    internal fun awaitPendingSaves() {

@@ -41,6 +41,10 @@ object ReplacementCache {
       get() = data.shaped
 
    fun getReplacementAt(x: Int, y: Int, z: Int, originalAir: Boolean): BlockState? {
+      if (PeekController.isPeeking) {
+         return null
+      }
+
       if (!CosmeticBlocksTab.INSTANCE.enabled.value) {
          return null
       }
@@ -66,6 +70,10 @@ object ReplacementCache {
    fun getReplacement(pos: BlockPos): BlockState? = this.getReplacementAt(pos.x, pos.y, pos.z, false)
 
    fun getRetextureAt(x: Int, y: Int, z: Int): BlockState? {
+      if (PeekController.isPeeking) {
+         return null
+      }
+
       if (!CosmeticBlocksTab.INSTANCE.enabled.value) {
          return null
       } else if (!CosmeticBlocksTab.INSTANCE.keepBlockSize.value) {
@@ -84,6 +92,10 @@ object ReplacementCache {
    }
 
    fun getOriginalShapeAt(x: Int, y: Int, z: Int): BlockState? {
+      if (PeekController.isPeeking) {
+         return null
+      }
+
       if (!CosmeticBlocksTab.INSTANCE.enabled.value) {
          return null
       } else if (!CosmeticBlocksTab.INSTANCE.keepBlockSize.value) {
@@ -217,11 +229,16 @@ object ReplacementCache {
       this.swap(this.buildBundle(dimMap))
    }
 
-   fun hasActiveReplacements(): Boolean = !activeCache.isEmpty()
+   fun hasActiveReplacements(): Boolean = !PeekController.isPeeking && !activeCache.isEmpty()
 
-   fun hasAdjacentReplacement(x: Int, y: Int, z: Int): Boolean =
-      activeCache.containsKey(BlockPos.asLong(x - 1, y, z)) ||
+   fun hasAdjacentReplacement(x: Int, y: Int, z: Int): Boolean {
+      if (PeekController.isPeeking) {
+         return false
+      }
+
+      return activeCache.containsKey(BlockPos.asLong(x - 1, y, z)) ||
          activeCache.containsKey(BlockPos.asLong(x + 1, y, z)) ||
          activeCache.containsKey(BlockPos.asLong(x, y, z - 1)) ||
          activeCache.containsKey(BlockPos.asLong(x, y, z + 1))
+   }
 }
