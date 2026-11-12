@@ -12,7 +12,6 @@
         "ClientPacketListenerMixin",
         "EntityStepSoundMixin",
         "LevelEventHandlerMixin",
-        "MultiPlayerGameModeMixin",
         "LevelRendererCompatMixin",
         "LevelRendererMixin",
         "GuiCompatMixin",

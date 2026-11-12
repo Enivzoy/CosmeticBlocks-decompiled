@@ -31,23 +31,15 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build mods
-        run: ./gradlew :26.2:build :26.3:build --no-daemon
+        run: ./gradlew :26.3:build --no-daemon
 
       - name: Stage jars
         run: |
           mkdir -p dist
-          cp "$(ls versions/26.2/build/libs/*+mc26.2.jar | grep -v -- '-sources' | head -n1)" dist/cb-26.2.jar
           cp "$(ls versions/26.3/build/libs/*+mc26.3.jar | grep -v -- '-sources' | head -n1)" dist/cb-26.3.jar
           ls -l dist
 
       # archive: false only allows one file per upload, so one step per jar
-      - name: Upload cb-26.2.jar
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          path: dist/cb-26.2.jar
-          if-no-files-found: error
-          archive: false
-
       - name: Upload cb-26.3.jar
         uses: actions/upload-artifact@v7.0.2
         with:
@@ -82,7 +74,6 @@ jobs:
         run: |
           tag="${{ steps.release_check.outputs.tag }}"
           last_tag="${{ steps.release_check.outputs.last_tag }}"
-          cp dist/cb-26.2.jar "cb-26.2-${tag}.jar"
           cp dist/cb-26.3.jar "cb-26.3-${tag}.jar"
 
           # Build release notes: commits since the last release as "Features"
@@ -99,7 +90,7 @@ jobs:
           } > notes.md
           cat notes.md
 
-          gh release create "$tag" "cb-26.2-${tag}.jar" "cb-26.3-${tag}.jar" \
+          gh release create "$tag" "cb-26.3-${tag}.jar" \
             --target "$GITHUB_SHA" \
             --title "Build ${tag#build-}" \
             --notes-file notes.md

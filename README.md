@@ -133,8 +133,10 @@ Together these remove the stutter that used to hit when entering or leaving a du
 3. Let Gradle sync — the wrapper downloads Gradle 9.7.0 and resolves Minecraft/Fabric dependencies on first sync.
 4. Run the `runClient` Gradle task for a development client, or `build` to produce the mod JAR.
 
-Configured versions: Minecraft **26.2**, Fabric Loader **0.19.5**, Fabric API **0.161.0+26.2**,
+Configured versions: Minecraft **26.3**, Fabric Loader **0.19.5**, Fabric API **0.161.0+26.3**,
 Fabric Language Kotlin **1.14.2+kotlin.2.4.21**, Fabric Loom **1.18.4**, Kotlin **2.4.21**.
+
+Minecraft **26.2** support is deprecated — the mod now targets 26.3 only.
 
 ## Dependencies
 
@@ -160,7 +162,7 @@ code dramatically simpler. The library is bundled into the mod JAR, so you don't
 - [x] Chunk-based rendering index and async config load/save for large configs
 - [ ] Per island (outside dungeons)
 - [ ] Easier config sharing
-- [ ] Minecraft 26.3 support
+- [x] Minecraft 26.3 support (26.2 support deprecated)
 
 ## Contributing
 

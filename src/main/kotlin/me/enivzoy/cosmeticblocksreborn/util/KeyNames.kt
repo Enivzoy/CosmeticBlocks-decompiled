@@ -30,13 +30,8 @@ object KeyNames {
         InputConstants.KEY_NUMLOCK to "NUM LOCK",
         InputConstants.KEY_PRINTSCREEN to "PRT SC",
         InputConstants.KEY_PAUSE to "PAUSE",
-        //? if >=26.3 {
         InputConstants.KEY_LGUI to "L SUPER",
         InputConstants.KEY_RGUI to "R SUPER",
-        //?} else {
-        /*InputConstants.KEY_LSUPER to "L SUPER",
-        InputConstants.KEY_RSUPER to "R SUPER",
-        *///?}
     )
 
     fun name(key: Int): String {
@@ -55,11 +50,7 @@ object KeyNames {
         }
 
         val printable = try {
-            //? if >=26.3 {
             InputConstants.Type.KEYBOARD.getOrCreate(key).displayName.string
-            //?} else {
-            /*InputConstants.Type.KEYSYM.getOrCreate(key).displayName.string
-            *///?}
         } catch (ignored: Throwable) {
             null
         }
