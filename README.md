@@ -138,6 +138,11 @@ Fabric Language Kotlin **1.14.2+kotlin.2.4.21**, Fabric Loom **1.18.4**, Kotlin 
 
 Minecraft **26.2** support is deprecated — the mod now targets 26.3 only.
 
+> [!NOTE]
+> 26.3 renamed `ClientLevel.addBreakingBlockEffect` to `addBreakingBlockEffects` and moved the
+> mining hit-sound out of `MultiPlayerGameMode.continueDestroyBlock` — builds older than this
+> commit will crash at bootstrap on 26.3.
+
 ## Dependencies
 
 - [Fabric API](https://modrinth.com/mod/fabric-api)
