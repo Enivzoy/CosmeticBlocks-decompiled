@@ -6,6 +6,7 @@ import java.nio.file.StandardCopyOption
 import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import me.enivzoy.cosmeticblocksreborn.config.Config
 import me.enivzoy.cosmeticblocksreborn.config.tabs.DungeonConfigTab
 import me.enivzoy.cosmeticblocksreborn.gui.hud.DebugStats
 import me.enivzoy.cosmeticblocksreborn.utils.ChatUtil
@@ -176,6 +177,7 @@ class ReplacementIO private constructor() {
 
       ReplacementCache.rebuildActiveCache()
       RoomStore.reapplyCurrentRoom()
+      DungeonConfigTab.syncFloorFromStore()
       WorldEditMode.resetHistory()
       if (loaded != null && loaded.isLegacy) {
          val totalMs = (System.nanoTime() - loadStartNanos) / 1_000_000L
@@ -266,6 +268,7 @@ class ReplacementIO private constructor() {
       RoomStore.reapplyCurrentRoom()
       DirtySections.markAllCachedDirty()
       DungeonConfigTab.syncFloorFromStore()
+      Config.INSTANCE.save()
       WorldEditMode.resetHistory()
       if (document != null && document.isLegacy) {
          val totalMs = (System.nanoTime() - loadStartNanos) / 1_000_000L

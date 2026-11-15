@@ -1,8 +1,11 @@
 package me.enivzoy.cosmeticblocksreborn.cosmetic
 
 import java.io.File
+import java.io.InputStream
+import java.io.PushbackInputStream
 import java.nio.file.Files
 import java.util.Locale
+import java.util.zip.GZIPInputStream
 import java.util.regex.Pattern
 
 object FloorUtil {
@@ -207,18 +210,37 @@ object FloorUtil {
 
    private fun readFloorUncached(file: File): String? {
       try {
-         Files.newBufferedReader(file.toPath(), Charsets.UTF_8).use { reader ->
-            var line: String? = reader.readLine()
-            var scanned = 0
-            while (line != null && scanned < 256) {
-               scanned++
-               val matcher = FLOOR_LINE.matcher(line)
-               if (matcher.find()) {
-                  return matcher.group(1)
+         val head = Files.newInputStream(file.toPath()).use { raw ->
+            // Compressed configs (gzip / format 3) are not readable as plain text,
+            // so decompress just the beginning of the stream to find the floor.
+            val input = PushbackInputStream(raw, 2)
+            val magic = ByteArray(2)
+            val read = input.read(magic, 0, 2)
+            if (read > 0) {
+               input.unread(magic, 0, read)
+            }
+
+            val gzip = read == 2 && magic[0] == 0x1F.toByte() && magic[1] == 0x8B.toByte()
+            val stream: InputStream = if (gzip) GZIPInputStream(input) else input
+            stream.use { s ->
+               val buffer = ByteArray(8192)
+               var total = 0
+               while (total < buffer.size) {
+                  val n = s.read(buffer, total, buffer.size - total)
+                  if (n < 0) {
+                     break
+                  }
+
+                  total += n
                }
 
-               line = reader.readLine()
+               String(buffer, 0, total, Charsets.UTF_8)
             }
+         }
+
+         val matcher = FLOOR_LINE.matcher(head)
+         if (matcher.find()) {
+            return matcher.group(1)
          }
       } catch (_: Exception) {
       }
